@@ -3,6 +3,9 @@ package de.hotware.blockbreaker.model;
 @Deprecated
 @SuppressWarnings("unused")
 public class LevelGenerator {
+	/**
+	 * Don't use this, yet
+	 */
 	private static boolean hasSolution(Level pLevel) {
 		Level copy = pLevel.clone();
 		int count = 0;
