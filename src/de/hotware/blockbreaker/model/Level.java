@@ -37,7 +37,6 @@ public class Level implements Serializable, Cloneable{
 	////////////////////////////////////////////////////////////////////
 	////							Constructors					////
 	////////////////////////////////////////////////////////////////////
-
 	public Level(Block[][] pMatrix, Gravity pGravity, ArrayList<Block> pReplacementList, WinCondition pWinCondition) {
 		this.mMatrix = pMatrix;
 		this.mGravity = pGravity;
@@ -147,14 +146,11 @@ public class Level implements Serializable, Cloneable{
 		}
 	}
 	
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Level clone() {
 		return new Level(this.mMatrix.clone(),this.mGravity, (ArrayList<Block>)this.mReplacementList.clone(), (WinCondition) this.mWinCondition.clone());
 	}
-	
-
 	
 	private boolean checkRow(int pX, int pColorNumber) {
 		int winCount = this.mWinCondition.getWinCount(pColorNumber);

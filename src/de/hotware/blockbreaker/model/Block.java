@@ -38,9 +38,6 @@ public class Block implements Serializable, Cloneable{
 		this.mY = pY;
 	}
 	
-	////////////////////////////////////////////////////////////////////
-	////							Getter/Setter					////
-	////////////////////////////////////////////////////////////////////
 	/**
 	 * Constructor for later usage if Level kills a Block <br>
 	 * <strong>Attention: x and y have to be set after using this constructor!</strong>
@@ -49,6 +46,9 @@ public class Block implements Serializable, Cloneable{
 		this.mColor = pColor;
 	}
 	
+	////////////////////////////////////////////////////////////////////
+	////							Getter/Setter					////
+	////////////////////////////////////////////////////////////////////
 	public BlockColor getColor() {
 		return this.mColor;
 	}
