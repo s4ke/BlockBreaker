@@ -15,33 +15,29 @@ import de.hotware.blockbreaker.model.NextBlockListener.NextBlockChangedEvent;
  * @author Martin Braun
  */
 public class Level implements Serializable, Cloneable{
-	private static final long serialVersionUID = -1037049912770927906L;
-
-	public enum Gravity {
-		NORTH(0),
-		EAST(1),
-		SOUTH(2),
-		WEST(3);		
-		private int mX;		
-		private Gravity(int pX) {
-			this.mX = pX;
-		}
-		public int toNumber() {
-			return this.mX;
-		}
-	}
 	
+	////////////////////////////////////////////////////////////////////
+	////							Constants						////
+	////////////////////////////////////////////////////////////////////
+	private static final long serialVersionUID = -1037049912770927906L;	
+	protected static final int INFINITE_BLOCKS_LEFT = 999;
+	
+	////////////////////////////////////////////////////////////////////
+	////							Fields							////
+	////////////////////////////////////////////////////////////////////
 	protected Block[][] mMatrix;
 	protected Gravity mGravity;
 	protected Block mNextBlock;
 	protected ArrayList<Block> mReplacementList;
 	protected WinCondition mWinCondition;
-	protected static final int INFINITE_BLOCKS_LEFT = 999;
-	
 	protected NextBlockListener mNextBlockListener;
 	protected GameEndListener mGameEndListener;
 	protected GravityListener mGravityListener;
 	
+	////////////////////////////////////////////////////////////////////
+	////							Constructors					////
+	////////////////////////////////////////////////////////////////////
+
 	public Level(Block[][] pMatrix, Gravity pGravity, ArrayList<Block> pReplacementList, WinCondition pWinCondition) {
 		this.mMatrix = pMatrix;
 		this.mGravity = pGravity;
@@ -56,6 +52,9 @@ public class Level implements Serializable, Cloneable{
 		this.nextBlock();
 	}
 	
+	////////////////////////////////////////////////////////////////////
+	////							Methods							////
+	////////////////////////////////////////////////////////////////////
 	/**
 	 * kills a Block from the matrix at the specified position
 	 * @return the Block that was added after killing
@@ -148,6 +147,15 @@ public class Level implements Serializable, Cloneable{
 		}
 	}
 	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Level clone() {
+		return new Level(this.mMatrix.clone(),this.mGravity, (ArrayList<Block>)this.mReplacementList.clone(), (WinCondition) this.mWinCondition.clone());
+	}
+	
+
+	
 	private boolean checkRow(int pX, int pColorNumber) {
 		int winCount = this.mWinCondition.getWinCount(pColorNumber);
 		BlockColor colorCheck = BlockColor.numberToColor(pColorNumber);
@@ -182,11 +190,14 @@ public class Level implements Serializable, Cloneable{
 		return false;
 	}
 	
+	////////////////////////////////////////////////////////////////////
+	////							Getter/Setter					////
+	////////////////////////////////////////////////////////////////////
 	public Block getNextBlock() {
 		return this.mNextBlock;
 	}
 	
-	private int getBlocksLeft() {
+	public int getBlocksLeft() {
 		if(this.mReplacementList != null) {
 			return this.mReplacementList.size() + 1;
 		} else {
@@ -236,9 +247,20 @@ public class Level implements Serializable, Cloneable{
 		this.mGravityListener = pGravityListener;
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public Level clone() {
-		return new Level(this.mMatrix.clone(),this.mGravity, (ArrayList<Block>)this.mReplacementList.clone(), (WinCondition) this.mWinCondition.clone());
+	////////////////////////////////////////////////////////////////////
+	////							Inner Classes					////
+	////////////////////////////////////////////////////////////////////
+	public enum Gravity {
+		NORTH(0),
+		EAST(1),
+		SOUTH(2),
+		WEST(3);		
+		private int mX;		
+		private Gravity(int pX) {
+			this.mX = pX;
+		}
+		public int toNumber() {
+			return this.mX;
+		}
 	}
 }
