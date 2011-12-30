@@ -17,7 +17,7 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 
 import android.content.Intent;
 
-public abstract class SplashScreenActivity extends SimpleBaseGameActivity{
+public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
 		
 	private TextureRegion mLoadingScreenTextureRegion;
 	private int mWidth;
@@ -56,9 +56,9 @@ public abstract class SplashScreenActivity extends SimpleBaseGameActivity{
 			
         	@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
-        		Intent intent = new Intent(SplashScreenActivity.this, SplashScreenActivity.this.getFollowUpActivity());
-				SplashScreenActivity.this.finish();
-        		SplashScreenActivity.this.startActivity(intent);
+        		Intent intent = new Intent(BaseSplashScreenActivity.this, BaseSplashScreenActivity.this.getFollowUpActivity());
+				BaseSplashScreenActivity.this.finish();
+        		BaseSplashScreenActivity.this.startActivity(intent);
 			}
         	
         }));

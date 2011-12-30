@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import de.hotware.blockbreaker.model.Block.BlockColor;
-import de.hotware.blockbreaker.model.GameEndListener.GameEndEvent;
-import de.hotware.blockbreaker.model.GameEndListener.GameEndEvent.GameEndType;
-import de.hotware.blockbreaker.model.GravityListener.GravityEvent;
-import de.hotware.blockbreaker.model.NextBlockListener.NextBlockChangedEvent;
+import de.hotware.blockbreaker.model.IGameEndListener.GameEndEvent;
+import de.hotware.blockbreaker.model.IGameEndListener.GameEndEvent.GameEndType;
+import de.hotware.blockbreaker.model.IGravityListener.GravityEvent;
+import de.hotware.blockbreaker.model.INextBlockListener.NextBlockChangedEvent;
 
 /**
  * Class for the Game mechanics in BlockBreaker
@@ -30,9 +30,9 @@ public class Level implements Serializable, Cloneable{
 	protected Block mNextBlock;
 	protected ArrayList<Block> mReplacementList;
 	protected WinCondition mWinCondition;
-	protected NextBlockListener mNextBlockListener;
-	protected GameEndListener mGameEndListener;
-	protected GravityListener mGravityListener;
+	protected INextBlockListener mNextBlockListener;
+	protected IGameEndListener mGameEndListener;
+	protected IGravityListener mGravityListener;
 	
 	////////////////////////////////////////////////////////////////////
 	////							Constructors					////
@@ -232,15 +232,15 @@ public class Level implements Serializable, Cloneable{
 		return this.mWinCondition;
 	}
 	
-	public void setNextBlockListener(NextBlockListener pNextBlockListener) {
+	public void setNextBlockListener(INextBlockListener pNextBlockListener) {
 		this.mNextBlockListener = pNextBlockListener;
 	}
 	
-	public void setGameEndListener(GameEndListener pGameEndListener) {
+	public void setGameEndListener(IGameEndListener pGameEndListener) {
 		this.mGameEndListener = pGameEndListener;
 	}
 	
-	public void setGravityListener(GravityListener pGravityListener) {
+	public void setGravityListener(IGravityListener pGravityListener) {
 		this.mGravityListener = pGravityListener;
 	}
 	

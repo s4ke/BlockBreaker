@@ -2,9 +2,9 @@ package de.hotware.blockbreaker;
 
 import org.andengine.engine.options.EngineOptions.ScreenOrientation;
 
-import de.hotware.blockbreaker.util.activities.SplashScreenActivity;
+import de.hotware.blockbreaker.util.activities.BaseSplashScreenActivity;
 
-public class BlockBreakerLogoSplashScreenActivity extends SplashScreenActivity{
+public class BlockBreakerLogoSplashScreenActivity extends BaseSplashScreenActivity{
 	
 	private static final float WAIT_TIME_SECONDS = 2.0F;
 	private static final int WIDTH  = 480;

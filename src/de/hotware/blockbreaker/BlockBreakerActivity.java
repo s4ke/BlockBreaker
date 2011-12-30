@@ -35,8 +35,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import de.hotware.blockbreaker.model.GameEndListener;
-import de.hotware.blockbreaker.model.GameEndListener.GameEndEvent.GameEndType;
+import de.hotware.blockbreaker.model.IGameEndListener;
+import de.hotware.blockbreaker.model.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.model.LevelSerializer;
 import de.hotware.blockbreaker.view.UIConstants;
@@ -175,7 +175,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
         
         Scene scene;
         if(this.mLevel != null) {       
-	        this.mLevel.setGameEndListener(new GameEndListener() {
+	        this.mLevel.setGameEndListener(new IGameEndListener() {
 				@Override
 				public void onGameEnd(final GameEndEvent pEvt) {
 					BlockBreakerActivity.this.runOnUiThread(new Runnable() {
@@ -214,18 +214,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
         	scene = new Scene();
         }
         scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, this.mSceneBackgroundTextureRegion)));
-//        float scale;
-//        float indent;
-//        if(this.mCameraWidth > Constants.WIDTH) {
-//        	scale  = (float)this.mCameraHeight / (float)Constants.HEIGHT;
-//    	    indent = (this.mCameraWidth - Constants.WIDTH * scale)/2;
-//    	    scene.setPosition(indent, 0);
-//        } else {
-//        	scale  = (float)this.mCameraWidth / (float)Constants.WIDTH;
-//    	    indent = (this.mCameraHeight - Constants.HEIGHT * scale)/2;
-//    	    scene.setPosition(0,indent);
-//        }
-//        scene.setScale(scale);
 	    pCallback.onCreateSceneFinished(scene);
 	}
 
@@ -342,14 +330,15 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		builder.setMessage("Exit level?")
 		       .setCancelable(true)
 		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		                BlockBreakerActivity.this.setResult(RESULT_CANCELED);
+		           public void onClick(DialogInterface pDialog, int id) {
+		                pDialog.dismiss();
+		        	   	BlockBreakerActivity.this.setResult(RESULT_CANCELED);
 		                BlockBreakerActivity.this.finish();
 		           }
 		       })
 		       .setNegativeButton("No", new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		                
+		           public void onClick(DialogInterface pDialog, int pId) {
+		               	pDialog.dismiss();
 		           }
 		       });
 		AlertDialog alert = builder.create();
@@ -361,14 +350,15 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		builder.setMessage("Exit level?")
 		       .setCancelable(true)
 		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		                BlockBreakerActivity.this.setResult(pResult);
+		           public void onClick(DialogInterface pDialog, int pId) {
+		                pDialog.dismiss();
+		        	   	BlockBreakerActivity.this.setResult(pResult);
 		                BlockBreakerActivity.this.finish();
 		           }
 		       })
 		       .setNegativeButton("No", new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
-		                
+		           public void onClick(DialogInterface pDialog, int pId) {
+		                pDialog.dismiss();
 		           }
 		       });
 		AlertDialog alert = builder.create();

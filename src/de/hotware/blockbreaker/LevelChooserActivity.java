@@ -57,9 +57,10 @@ public class LevelChooserActivity extends Activity {
 		builder.setMessage("Resultcode: " + codeRepres + " (" + pResultCode + ")")
 		       .setCancelable(false)
 		       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-		           public void onClick(DialogInterface dialog, int id) {
+		           public void onClick(DialogInterface pDialog, int pId) {
 		        	   //TODO: maybe don't finish just let it stay like this?
-		        	   finish();
+		        	   pDialog.dismiss();
+		        	   LevelChooserActivity.this.finish();
 		           }
 		       });
 		AlertDialog alert = builder.create();

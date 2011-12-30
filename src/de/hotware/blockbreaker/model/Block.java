@@ -3,7 +3,7 @@ package de.hotware.blockbreaker.model;
 import java.io.Serializable;
 import java.util.Random;
 
-import de.hotware.blockbreaker.model.BlockPositionListener.BlockPositionChangedEvent;
+import de.hotware.blockbreaker.model.IBlockPositionListener.BlockPositionChangedEvent;
 
 /**
  * Representation class of the blocks for storing color information
@@ -23,7 +23,7 @@ public class Block implements Serializable, Cloneable{
 	private BlockColor mColor;
 	private int mX;
 	private int mY;
-	private BlockPositionListener mPositionListener;
+	private IBlockPositionListener mPositionListener;
 	
 	////////////////////////////////////////////////////////////////////
 	////							Costructors						////
@@ -82,11 +82,11 @@ public class Block implements Serializable, Cloneable{
 		}
 	}
 	
-	public void setBlockPositionListener(BlockPositionListener pPositionListener) {
+	public void setBlockPositionListener(IBlockPositionListener pPositionListener) {
 		this.mPositionListener = pPositionListener;
 	}
 	
-	public BlockPositionListener getBlockPositionListener() {
+	public IBlockPositionListener getBlockPositionListener() {
 		return this.mPositionListener;
 	}
 	
