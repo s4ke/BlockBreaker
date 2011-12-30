@@ -31,7 +31,6 @@ import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +39,7 @@ import de.hotware.blockbreaker.model.GameEndListener;
 import de.hotware.blockbreaker.model.GameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.model.LevelSerializer;
+import de.hotware.blockbreaker.view.UIConstants;
 import de.hotware.blockbreaker.view.LevelSceneFactory;
 
 /**
@@ -67,8 +67,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	    
     private Camera mCamera;
-    private int mCameraWidth;
-    private int mCameraHeight;
 	private BitmapTextureAtlas mBlockBitmapTextureAtlas;
     private TiledTextureRegion mBlockTiledTextureRegion;
     private BitmapTextureAtlas mArrowBitmapTextureAtlas;
@@ -90,12 +88,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		DisplayMetrics dm = new DisplayMetrics();
-		this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-		this.mCameraWidth = dm.widthPixels;
-		this.mCameraHeight = dm.heightPixels;
-		this.mCamera = new Camera(0, 0, this.mCameraWidth, this.mCameraHeight);
-        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FixedResolutionPolicy(LevelSceneFactory.WIDTH, LevelSceneFactory.HEIGHT), this.mCamera);
+		this.mCamera = new Camera(0, 0, UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT);
+        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FixedResolutionPolicy(UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT), this.mCamera);
         return engineOptions;
 	}
 	
@@ -178,17 +172,17 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			AlertDialog alert = builder.create();
 			alert.show();
 		}
+        
         Scene scene;
         if(this.mLevel != null) {       
 	        this.mLevel.setGameEndListener(new GameEndListener() {
 				@Override
-				public void onGameEnd(final GameEndEvent pEvt) { 
-					if(pEvt.getType() == GameEndType.WIN) {
-						BlockBreakerActivity.this.setResult(RESULT_WIN);
-					} else {
-						BlockBreakerActivity.this.setResult(RESULT_LOSE);
-					}
-					BlockBreakerActivity.this.finish();			
+				public void onGameEnd(final GameEndEvent pEvt) {
+					BlockBreakerActivity.this.runOnUiThread(new Runnable() {
+						public void run() {
+							BlockBreakerActivity.this.showEndDialog(pEvt.getType() == GameEndType.WIN ? RESULT_WIN : RESULT_LOSE);
+						}
+					});							
 				}
 	        	
 	        });
@@ -219,19 +213,19 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
         } else {
         	scene = new Scene();
         }
-        scene.setBackground(new SpriteBackground(new Sprite(0,0,this.mCameraWidth, this.mCameraHeight, this.mSceneBackgroundTextureRegion)));
-        float scale;
-        float indent;
-        if(this.mCameraWidth > LevelSceneFactory.WIDTH) {
-        	scale  = (float)this.mCameraHeight / (float)LevelSceneFactory.HEIGHT;
-    	    indent = (this.mCameraWidth - LevelSceneFactory.WIDTH * scale)/2;
-    	    scene.setPosition(indent, 0);
-        } else {
-        	scale  = (float)this.mCameraWidth / (float)LevelSceneFactory.WIDTH;
-    	    indent = (this.mCameraHeight - LevelSceneFactory.HEIGHT * scale)/2;
-    	    scene.setPosition(0,indent);
-        }
-        scene.setScale(scale);
+        scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, this.mSceneBackgroundTextureRegion)));
+//        float scale;
+//        float indent;
+//        if(this.mCameraWidth > Constants.WIDTH) {
+//        	scale  = (float)this.mCameraHeight / (float)Constants.HEIGHT;
+//    	    indent = (this.mCameraWidth - Constants.WIDTH * scale)/2;
+//    	    scene.setPosition(indent, 0);
+//        } else {
+//        	scale  = (float)this.mCameraWidth / (float)Constants.WIDTH;
+//    	    indent = (this.mCameraHeight - Constants.HEIGHT * scale)/2;
+//    	    scene.setPosition(0,indent);
+//        }
+//        scene.setScale(scale);
 	    pCallback.onCreateSceneFinished(scene);
 	}
 
@@ -350,6 +344,25 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 		           public void onClick(DialogInterface dialog, int id) {
 		                BlockBreakerActivity.this.setResult(RESULT_CANCELED);
+		                BlockBreakerActivity.this.finish();
+		           }
+		       })
+		       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		                
+		           }
+		       });
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
+	private void showEndDialog(final int pResult) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Exit level?")
+		       .setCancelable(true)
+		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		                BlockBreakerActivity.this.setResult(pResult);
 		                BlockBreakerActivity.this.finish();
 		           }
 		       })

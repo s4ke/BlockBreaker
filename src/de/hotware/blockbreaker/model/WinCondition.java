@@ -4,7 +4,9 @@ import java.io.Serializable;
 
 public class WinCondition implements Serializable, Cloneable {
 	private static final long serialVersionUID = 191894878776646913L;
+	
 	private int[] mWin;
+	
 	public WinCondition(int pBlue,
 			int pGreen,
 			int pRed,

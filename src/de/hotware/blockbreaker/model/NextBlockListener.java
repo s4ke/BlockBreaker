@@ -5,6 +5,7 @@ package de.hotware.blockbreaker.model;
  * @author Martin Braun
  */
 public interface NextBlockListener {
+	
 	/**
 	 * Listener method for Next Block changes
 	 * @param pEvt the corresponding NextBlockChangedEvent
@@ -16,6 +17,7 @@ public interface NextBlockListener {
 	 * @author Martin Braun
 	 */
 	public class NextBlockChangedEvent {
+		
 		private Block mNextBlock;
 		private Level mSource;
 		
@@ -23,9 +25,11 @@ public interface NextBlockListener {
 			this.mSource = pSource;
 			this.mNextBlock = pNextBlock;
 		}
+		
 		public Block getNextBlock() {
 			return this.mNextBlock;
 		}
+		
 		public Level getSource() {
 			return this.mSource;
 		}

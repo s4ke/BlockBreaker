@@ -86,6 +86,10 @@ public class Block implements Serializable, Cloneable{
 		this.mPositionListener = pPositionListener;
 	}
 	
+	public BlockPositionListener getBlockPositionListener() {
+		return this.mPositionListener;
+	}
+	
 	////////////////////////////////////////////////////////////////////
 	////							Inner Classes					////
 	////////////////////////////////////////////////////////////////////

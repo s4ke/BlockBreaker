@@ -41,6 +41,7 @@ public class Level implements Serializable, Cloneable{
 		this.mMatrix = pMatrix;
 		this.mGravity = pGravity;
 		this.mReplacementList = pReplacementList;
+		//TODO: dummy block!
 		this.mWinCondition = pWinCondition;
 		this.nextBlock();
 	}
@@ -104,7 +105,7 @@ public class Level implements Serializable, Cloneable{
 		if(this.mWinCondition != null) {
 			this.checkWin();
 		}	
-		notifyAll();	
+		notifyAll();
 		return newBlock;		
 	}
 	
@@ -195,7 +196,7 @@ public class Level implements Serializable, Cloneable{
 	
 	public int getBlocksLeft() {
 		if(this.mReplacementList != null) {
-			return this.mReplacementList.size() + 1;
+			return this.mReplacementList.size();
 		} else {
 			return INFINITE_BLOCKS_LEFT;
 		}

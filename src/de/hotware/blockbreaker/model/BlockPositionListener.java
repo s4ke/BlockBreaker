@@ -26,12 +26,15 @@ public interface BlockPositionListener {
 			this.mOldX = pOldX;
 			this.mOldY = pOldY;
 		}
+		
 		public Block getSource() {
 			return this.mSource;
-		}		
+		}
+		
 		public int getOldX() {
 			return this.mOldX;
-		}		
+		}	
+		
 		public int getOldY() {
 			return this.mOldY;
 		}

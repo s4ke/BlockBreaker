@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class LevelSerializer {
+	
 	public static void saveLevel(Level pLevel, String pPath) throws IOException {
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
@@ -15,6 +16,7 @@ public class LevelSerializer {
 		out.writeObject(pLevel);
 		out.close();
 	}
+	
 	public static Level readLevel(InputStream is) throws IOException, ClassNotFoundException{
 		ObjectInputStream in = null;
 		Level ret = null;

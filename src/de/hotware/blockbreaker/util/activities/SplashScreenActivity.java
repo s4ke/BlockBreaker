@@ -1,4 +1,4 @@
-package de.hotware.blockbreaker;
+package de.hotware.blockbreaker.util.activities;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -17,19 +17,26 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 
 import android.content.Intent;
 
-public class SplashScreenActivity extends SimpleBaseGameActivity{
-	
-	private static final float WAIT_TIME_SECONDS = 2.0F;
-	private static final int WIDTH  = 480;
-	private static final int HEIGHT = 320;
-	
+public abstract class SplashScreenActivity extends SimpleBaseGameActivity{
+		
 	private TextureRegion mLoadingScreenTextureRegion;
+	private int mWidth;
+	private int mHeight;
+	
+	protected abstract float getWaitTime();
+	protected abstract int getHeight();
+	protected abstract int getWidth();
+	protected abstract String getGfxImagePath();
+	protected abstract ScreenOrientation getScreenOrientation();
+	protected abstract Class<?> getFollowUpActivity();
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, 
-				new RatioResolutionPolicy(WIDTH,HEIGHT),
-				new Camera(0,0,WIDTH,HEIGHT));
+		this.mHeight = this.getHeight();
+		this.mWidth =  this.getWidth();
+		return new EngineOptions(true, this.getScreenOrientation(), 
+				new RatioResolutionPolicy(this.mWidth,this.mHeight),
+				new Camera(0,0,this.mWidth,this.mHeight));
 	}
 
 	@Override
@@ -37,19 +44,19 @@ public class SplashScreenActivity extends SimpleBaseGameActivity{
 		//Loading the Loading Screen splash
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 	    final BitmapTextureAtlas atlas = new BitmapTextureAtlas(960,640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-	    this.mLoadingScreenTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, "splash.png", 0, 0);   
+	    this.mLoadingScreenTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, this.getGfxImagePath(), 0, 0);   
 	    this.mEngine.getTextureManager().loadTexture(atlas);
 	}
 
 	@Override
 	protected Scene onCreateScene() {
 		final Scene scene = new Scene();
-		scene.setBackground(new SpriteBackground(new Sprite(0,0,WIDTH, HEIGHT, this.mLoadingScreenTextureRegion)));
-        scene.registerUpdateHandler(new TimerHandler(WAIT_TIME_SECONDS, new ITimerCallback() {
+		scene.setBackground(new SpriteBackground(new Sprite(0,0,this.mWidth, this.mHeight, this.mLoadingScreenTextureRegion)));
+        scene.registerUpdateHandler(new TimerHandler(this.getWaitTime(), new ITimerCallback() {
 			
         	@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
-        		Intent intent = new Intent(SplashScreenActivity.this, LevelChooserActivity.class);
+        		Intent intent = new Intent(SplashScreenActivity.this, SplashScreenActivity.this.getFollowUpActivity());
 				SplashScreenActivity.this.finish();
         		SplashScreenActivity.this.startActivity(intent);
 			}
