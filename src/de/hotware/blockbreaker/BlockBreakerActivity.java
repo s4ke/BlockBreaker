@@ -58,6 +58,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
     public static final int RESULT_ERROR = -1;
     public static final String LEVEL_ARG_KEY = "levelarg";
     public static final String IS_ASSET_KEY = "isasset";
+    public static final String RESULT_KEY = "result";
+    
     private static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
     private static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
 
@@ -82,7 +84,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
 	////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * sets the EngineOptions to the needs of the game
 	 */
@@ -151,70 +153,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
         	isAsset = args.getBoolean(IS_ASSET_KEY);
         }
         
-        try {
-        	InputStream stream;
-        	if(isAsset) {
-	        	AssetManager assetManager = this.getResources().getAssets();
-	        	stream = assetManager.open(levelPath);
-	        	this.mLevel = LevelSerializer.readLevel(stream);
-	        	//TODO add non asset stuff and move the readLevel part out of the if block
-			}
-		} catch (Exception e) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(e.getMessage() + "\nLeaving to main menu")
-			       .setCancelable(false)
-			       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			           public void onClick(DialogInterface dialog, int id) {
-			                BlockBreakerActivity.this.setResult(RESULT_CANCELED);
-			                BlockBreakerActivity.this.finish();
-			           }
-			       });
-			AlertDialog alert = builder.create();
-			alert.show();
-		}
-        
-        Scene scene;
-        if(this.mLevel != null) {       
-	        this.mLevel.setGameEndListener(new IGameEndListener() {
-				@Override
-				public void onGameEnd(final GameEndEvent pEvt) {
-					BlockBreakerActivity.this.runOnUiThread(new Runnable() {
-						public void run() {
-							BlockBreakerActivity.this.showEndDialog(pEvt.getType() == GameEndType.WIN ? RESULT_WIN : RESULT_LOSE);
-						}
-					});							
-				}
-	        	
-	        });
-	        
-	        //TODO some vars don't need to be a member!
-	        
-	        scene = LevelSceneFactory.createLevelScene(this.mLevel,
-	        	  	this.mEngine,
-	        		this.mSceneFont, 
-	        		this.mBlockTiledTextureRegion,
-	        		this.mArrowTiledTextureRegion);
-
-	        final HUD hud = new HUD();
-	        final FPSCounter counter = new FPSCounter();
-	        this.mEngine.registerUpdateHandler(counter);
-	        final ChangeableText fps = new ChangeableText(1, 1, this.mFPSFont , "FPS:", "FPS: XXXXX".length());
-	       	hud.attachChild(fps);
-	       	this.mCamera.setHUD(hud);
-	        
-	        scene.registerUpdateHandler(new TimerHandler(1/20F, true, 
-	        		new ITimerCallback() {
-						@Override
-						public void onTimePassed(TimerHandler arg0) {
-							fps.setText("FPS: " + counter.getFPS());
-						}            	
-	        		}
-	        ));
-        } else {
-        	scene = new Scene();
-        }
-        scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, this.mSceneBackgroundTextureRegion)));
-	    pCallback.onCreateSceneFinished(scene);
+        Scene sc = this.drawLevel(levelPath, isAsset);
+        pCallback.onCreateSceneFinished(sc);
 	}
 
 	@Override
@@ -321,6 +261,71 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////					Private Methods							////
 	////////////////////////////////////////////////////////////////////
+	
+	private Scene drawLevel(final String pLevelPath, final boolean pIsAsset) {
+		try {
+        	InputStream stream;
+        	if(pIsAsset) {
+	        	AssetManager assetManager = this.getResources().getAssets();
+	        	stream = assetManager.open(pLevelPath);
+	        	this.mLevel = LevelSerializer.readLevel(stream);
+	        	//TODO add non asset stuff and move the readLevel part out of the if block
+			}
+		} catch (Exception e) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(e.getMessage() + "\nLeaving to main menu")
+			       .setCancelable(false)
+			       .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			           public void onClick(DialogInterface dialog, int id) {
+			                BlockBreakerActivity.this.setResult(RESULT_CANCELED);
+			                BlockBreakerActivity.this.finish();
+			           }
+			       });
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
+        
+        Scene scene;
+        if(this.mLevel != null) {       
+	        this.mLevel.setGameEndListener(new IGameEndListener() {
+				@Override
+				public void onGameEnd(final GameEndEvent pEvt) {
+					BlockBreakerActivity.this.runOnUiThread(new Runnable() {
+						public void run() {
+							BlockBreakerActivity.this.showEndDialog(pEvt.getType() == GameEndType.WIN ? RESULT_WIN : RESULT_LOSE);
+						}
+					});							
+				}
+	        	
+	        });
+	        
+	        scene = LevelSceneFactory.createLevelScene(this.mLevel,
+	        	  	this.mEngine,
+	        		this.mSceneFont, 
+	        		this.mBlockTiledTextureRegion,
+	        		this.mArrowTiledTextureRegion);
+
+	        final HUD hud = new HUD();
+	        final FPSCounter counter = new FPSCounter();
+	        this.mEngine.registerUpdateHandler(counter);
+	        final ChangeableText fps = new ChangeableText(1, 1, this.mFPSFont , "FPS:", "FPS: XXXXX".length());
+	       	hud.attachChild(fps);
+	       	this.mCamera.setHUD(hud);
+	        
+	        scene.registerUpdateHandler(new TimerHandler(1/20F, true, 
+	        		new ITimerCallback() {
+						@Override
+						public void onTimePassed(TimerHandler arg0) {
+							fps.setText("FPS: " + counter.getFPS());
+						}            	
+	        		}
+	        ));
+        } else {
+        	scene = new Scene();
+        }
+        scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, this.mSceneBackgroundTextureRegion)));
+        return scene;
+	}
 	
 	/**
 	 * shows a Dialog which asks the user if he wants to exit the Activity

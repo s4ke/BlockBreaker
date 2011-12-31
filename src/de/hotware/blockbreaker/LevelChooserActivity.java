@@ -6,12 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-public class LevelChooserActivity extends Activity {
+public class LevelChooserActivity extends Activity{
 	private static final String CREATED_KEY = "bbacreated";
-		
 	private boolean mCreated = false;
-	
-	
+		
 	@Override
 	public void onCreate(Bundle pSavedInstanceState) {		
 		super.onCreate(pSavedInstanceState);
