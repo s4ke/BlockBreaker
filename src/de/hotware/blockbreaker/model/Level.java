@@ -114,7 +114,7 @@ public class Level implements Serializable, Cloneable{
 	/**
 	 * sets the nextBlock (either random or according to the replacement list)
 	 */
-	protected void nextBlock() {
+	protected synchronized void nextBlock() {
 		if(this.mReplacementList != null) {
 			if(this.mReplacementList.size() > 0) {
 				this.mNextBlock = this.mReplacementList.remove(0);
@@ -152,7 +152,9 @@ public class Level implements Serializable, Cloneable{
 	@SuppressWarnings("unchecked")
 	@Override
 	public Level clone() {
-		return new Level(this.mMatrix.clone(),this.mGravity, (ArrayList<Block>)this.mReplacementList.clone(), (WinCondition) this.mWinCondition.clone());
+		ArrayList<Block> repl = ((ArrayList<Block>)this.mReplacementList.clone());
+		repl.add(0,this.mNextBlock);
+		return new Level(this.mMatrix.clone(),this.mGravity, repl, (WinCondition) this.mWinCondition.clone());
 	}
 	
 	private boolean checkRow(int pX, int pColorNumber) {

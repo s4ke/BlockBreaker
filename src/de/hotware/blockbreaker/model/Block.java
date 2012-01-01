@@ -104,7 +104,7 @@ public class Block implements Serializable, Cloneable{
 		private int mColor;
 				
 		public static BlockColor random() {
-			return numberToColor(new Random().nextInt(6)-1);
+			return numberToColor(new Random().nextInt(5)+1);
 		}
 		
 		public static BlockColor numberToColor(int pX) {

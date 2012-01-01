@@ -29,6 +29,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 	protected void onHandleRecycleItem(final BlockSprite pBlockSprite) {
 		pBlockSprite.setIgnoreUpdate(true);
 		pBlockSprite.setVisible(false);
+		this.mScene.unregisterTouchArea(pBlockSprite);
 	}
 	
 	@Override

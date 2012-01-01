@@ -40,7 +40,7 @@ import de.hotware.blockbreaker.model.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.model.LevelSerializer;
 import de.hotware.blockbreaker.view.UIConstants;
-import de.hotware.blockbreaker.view.LevelSceneFactory;
+import de.hotware.blockbreaker.view.LevelSceneHandler;
 
 /**
  * (c) 2011 Martin Braun
@@ -63,7 +63,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
     private static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
     private static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
     
-    private static IGameActivityResultListener sGameActivityResultListener;
+    @SuppressWarnings("unused")
+	private static IGameActivityResultListener sGameActivityResultListener;
 
 	
 	////////////////////////////////////////////////////////////////////
@@ -82,7 +83,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private Font mSceneFont;
 	private BitmapTextureAtlas mFPSFontTexture;
 	private BitmapTextureAtlas mSceneFontTexture;
+    private LevelSceneHandler mLevelSceneHandler;
     
+    @SuppressWarnings("unused")
+	private IGameEndListener mGameEndListener;
+	
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
 	////////////////////////////////////////////////////////////////////
@@ -289,7 +294,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
         
         Scene scene;
         if(this.mLevel != null) {       
-	        this.mLevel.setGameEndListener(new IGameEndListener() {
+	        this.mLevel.setGameEndListener(this.mGameEndListener = new IGameEndListener() {
 				@Override
 				public void onGameEnd(final GameEndEvent pEvt) {
 					BlockBreakerActivity.this.runOnUiThread(new Runnable() {
@@ -300,12 +305,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				}
 	        	
 	        });
-	        
-	        scene = LevelSceneFactory.createLevelScene(this.mLevel,
-	        	  	this.mEngine,
-	        		this.mSceneFont, 
+	       
+	        this.mLevelSceneHandler = new LevelSceneHandler(this.mEngine,
+	        		this.mSceneFont,
 	        		this.mBlockTiledTextureRegion,
 	        		this.mArrowTiledTextureRegion);
+	        
+	        scene = this.mLevelSceneHandler.createLevelScene(this.mLevel);
 
 	        final HUD hud = new HUD();
 	        final FPSCounter counter = new FPSCounter();
