@@ -62,6 +62,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
     
     private static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
     private static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
+    
+    private static IGameActivityResultListener sGameActivityResultListener;
 
 	
 	////////////////////////////////////////////////////////////////////
@@ -368,5 +370,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		       });
 		AlertDialog alert = builder.create();
 		alert.show();
+	}
+	
+	public static void setGameActivityResultListener(IGameActivityResultListener pListener) {
+		sGameActivityResultListener = pListener;
 	}
 }

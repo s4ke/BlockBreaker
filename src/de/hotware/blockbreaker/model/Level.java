@@ -61,50 +61,52 @@ public class Level implements Serializable, Cloneable{
 	 */
 	public synchronized Block killBlock(int pX, int pY) {
 		Block newBlock = this.mNextBlock;
-		Block var;
-		switch(this.mGravity) {
-			case NORTH: {
-				for(int i = pY; i > 0; --i) {
-					var = this.mMatrix[pX][i-1];
-					var.setPosition(pX,i);
-					this.mMatrix[pX][i] = var;
+		if(newBlock.getColor() != BlockColor.NONE) {
+			Block var;
+			switch(this.mGravity) {
+				case NORTH: {
+					for(int i = pY; i > 0; --i) {
+						var = this.mMatrix[pX][i-1];
+						var.setPosition(pX,i);
+						this.mMatrix[pX][i] = var;
+					}
+					newBlock.setPosition(pX,0);
+					break;
 				}
-				newBlock.setPosition(pX,0);
-				break;
-			}
-			case EAST: {
-				for(int i = pX; i < this.mMatrix.length-1; ++i) {
-					var = this.mMatrix[i+1][pY];
-					var.setPosition(i, pY);
-					this.mMatrix[i][pY] = var;
+				case EAST: {
+					for(int i = pX; i < this.mMatrix.length-1; ++i) {
+						var = this.mMatrix[i+1][pY];
+						var.setPosition(i, pY);
+						this.mMatrix[i][pY] = var;
+					}
+					newBlock.setPosition(this.mMatrix.length-1,pY);;
+					break;
 				}
-				newBlock.setPosition(this.mMatrix.length-1,pY);;
-				break;
-			}
-			case SOUTH: {
-				for(int i = pY; i < this.mMatrix[0].length-1; ++i) {
-					var = this.mMatrix[pX][i+1];
-					var.setPosition(pX, i);
-					this.mMatrix[pX][i] = var;
+				case SOUTH: {
+					for(int i = pY; i < this.mMatrix[0].length-1; ++i) {
+						var = this.mMatrix[pX][i+1];
+						var.setPosition(pX, i);
+						this.mMatrix[pX][i] = var;
+					}
+					newBlock.setPosition(pX,this.mMatrix[0].length-1);
+					break;
 				}
-				newBlock.setPosition(pX,this.mMatrix[0].length-1);
-				break;
-			}
-			case WEST: {
-				for(int i = pX; i > 0; --i) {
-					var = this.mMatrix[i-1][pY];
-					var.setPosition(i, pY);
-					this.mMatrix[i][pY] = var;
+				case WEST: {
+					for(int i = pX; i > 0; --i) {
+						var = this.mMatrix[i-1][pY];
+						var.setPosition(i, pY);
+						this.mMatrix[i][pY] = var;
+					}
+					newBlock.setPosition(0,pY);
+					break;
 				}
-				newBlock.setPosition(0,pY);
-				break;
 			}
+			this.mMatrix[newBlock.getX()][newBlock.getY()] = newBlock;
+			this.nextBlock();
+			if(this.mWinCondition != null) {
+				this.checkWin();
+			}	
 		}
-		this.mMatrix[newBlock.getX()][newBlock.getY()] = newBlock;
-		this.nextBlock();
-		if(this.mWinCondition != null) {
-			this.checkWin();
-		}	
 		notifyAll();
 		return newBlock;		
 	}

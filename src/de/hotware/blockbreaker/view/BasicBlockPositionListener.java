@@ -21,5 +21,5 @@ public class BasicBlockPositionListener implements IBlockPositionListener {
 				(newX-oldX)*(this.mBlockSprite.getWidth()+1),
 				(newY-oldY)*(this.mBlockSprite.getHeight()+1));
 		this.mBlockSprite.registerEntityModifier(moveMod);
-	}	
+	}
 }
