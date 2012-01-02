@@ -4,9 +4,9 @@ import org.andengine.entity.modifier.MoveByModifier;
 import de.hotware.blockbreaker.model.IBlockPositionListener;
 
 public class BasicBlockPositionListener implements IBlockPositionListener {
-	
+
 	protected BlockSprite mBlockSprite;
-	
+
 	public BasicBlockPositionListener(BlockSprite pBlockSprite) {
 		this.mBlockSprite = pBlockSprite;
 	}

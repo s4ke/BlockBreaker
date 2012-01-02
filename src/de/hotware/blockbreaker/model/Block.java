@@ -11,12 +11,12 @@ import de.hotware.blockbreaker.model.IBlockPositionListener.BlockPositionChanged
  * @author Martin Braun
  */
 public class Block implements Serializable, Cloneable{
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
 	////////////////////////////////////////////////////////////////////
 	private static final long serialVersionUID = 2375568374819126825L;
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ public class Block implements Serializable, Cloneable{
 	private int mX;
 	private int mY;
 	private IBlockPositionListener mPositionListener;
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Costructors						////
 	////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ public class Block implements Serializable, Cloneable{
 		this.mX = pX;
 		this.mY = pY;
 	}
-	
+
 	/**
 	 * Constructor for later usage if Level kills a Block <br>
 	 * <strong>Attention: x and y have to be set after using this constructor!</strong>
@@ -45,30 +45,30 @@ public class Block implements Serializable, Cloneable{
 	public Block(BlockColor pColor) {
 		this.mColor = pColor;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Getter/Setter					////
 	////////////////////////////////////////////////////////////////////
 	public BlockColor getColor() {
 		return this.mColor;
 	}
-	
+
 	public int getX() {
 		return this.mX;
 	}
-	
+
 	public int getY() {
 		return this.mY;
 	}
-	
+
 	public void setX(int pX) {
 		this.mX = pX;
 	}
-	
+
 	public void setY(int pY) {
 		this.mY = pY;
 	}
-	
+
 	/**
 	 * Sets position according to the parameters and notifies an existing BlockPositionListener about the changes.
 	 */
@@ -81,15 +81,15 @@ public class Block implements Serializable, Cloneable{
 			this.mPositionListener.onPositionChanged(new BlockPositionChangedEvent(this, oldX, oldY));
 		}
 	}
-	
+
 	public void setBlockPositionListener(IBlockPositionListener pPositionListener) {
 		this.mPositionListener = pPositionListener;
 	}
-	
+
 	public IBlockPositionListener getBlockPositionListener() {
 		return this.mPositionListener;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Inner Classes					////
 	////////////////////////////////////////////////////////////////////
@@ -100,28 +100,28 @@ public class Block implements Serializable, Cloneable{
 		RED(3),
 		YELLOW(4),
 		PURPLE(5);
-		
+
 		private int mColor;
-				
+
 		public static BlockColor random() {
 			return numberToColor(new Random().nextInt(5)+1);
 		}
-		
+
 		public static BlockColor numberToColor(int pX) {
-				switch(pX) {
-				case 1:	return BLUE;
-				case 2:	return GREEN;
-				case 3:	return RED;
-				case 4: return YELLOW;
-				case 5: return PURPLE;
+			switch(pX) {
+			case 1:	return BLUE;
+			case 2:	return GREEN;
+			case 3:	return RED;
+			case 4: return YELLOW;
+			case 5: return PURPLE;
 			}
 			return NONE;
 		}
-		
+
 		private BlockColor(int pColor) {
 			this.mColor = pColor;
 		}
-		
+
 		public int toNumber() {
 			return this.mColor;
 		}		

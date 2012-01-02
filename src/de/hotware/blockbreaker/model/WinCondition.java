@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class WinCondition implements Serializable, Cloneable {
 	private static final long serialVersionUID = 191894878776646913L;
-	
+
 	private int[] mWin;
-	
+
 	public WinCondition(int pBlue,
 			int pGreen,
 			int pRed,
@@ -19,7 +19,7 @@ public class WinCondition implements Serializable, Cloneable {
 		this.mWin[3] = pYellow;
 		this.mWin[4] = pPurple;
 	}
-	
+
 	private WinCondition(int[] pWin) {
 		this.mWin = pWin;
 	}
@@ -27,7 +27,7 @@ public class WinCondition implements Serializable, Cloneable {
 	public int getWinCount(int pColorNumber) {
 		return this.mWin[pColorNumber - 1];
 	}
-	
+
 	@Override
 	public WinCondition clone() {
 		return new WinCondition(this.mWin.clone());

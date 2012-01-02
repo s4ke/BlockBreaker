@@ -15,20 +15,21 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegion
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 
 public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
-		
+
 	private TextureRegion mLoadingScreenTextureRegion;
 	private int mWidth;
 	private int mHeight;
-	
+
 	protected abstract float getWaitTime();
 	protected abstract int getHeight();
 	protected abstract int getWidth();
 	protected abstract String getGfxImagePath();
 	protected abstract ScreenOrientation getScreenOrientation();
-	protected abstract Class<?> getFollowUpActivity();
+	protected abstract Class<? extends Activity> getFollowUpActivity();
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -43,25 +44,25 @@ public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
 	protected void onCreateResources() {
 		//Loading the Loading Screen splash
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-	    final BitmapTextureAtlas atlas = new BitmapTextureAtlas(960,640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-	    this.mLoadingScreenTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, this.getGfxImagePath(), 0, 0);   
-	    this.mEngine.getTextureManager().loadTexture(atlas);
+		final BitmapTextureAtlas atlas = new BitmapTextureAtlas(960,640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mLoadingScreenTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, this.getGfxImagePath(), 0, 0);   
+		this.mEngine.getTextureManager().loadTexture(atlas);
 	}
 
 	@Override
 	protected Scene onCreateScene() {
 		final Scene scene = new Scene();
 		scene.setBackground(new SpriteBackground(new Sprite(0,0,this.mWidth, this.mHeight, this.mLoadingScreenTextureRegion)));
-        scene.registerUpdateHandler(new TimerHandler(this.getWaitTime(), new ITimerCallback() {
-			
-        	@Override
+		scene.registerUpdateHandler(new TimerHandler(this.getWaitTime(), new ITimerCallback() {
+
+			@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
-        		Intent intent = new Intent(BaseSplashScreenActivity.this, BaseSplashScreenActivity.this.getFollowUpActivity());
+				Intent intent = new Intent(BaseSplashScreenActivity.this, BaseSplashScreenActivity.this.getFollowUpActivity());
 				BaseSplashScreenActivity.this.finish();
-        		BaseSplashScreenActivity.this.startActivity(intent);
+				BaseSplashScreenActivity.this.startActivity(intent);
 			}
-        	
-        }));
+
+		}));
 		return scene;
 	}
 

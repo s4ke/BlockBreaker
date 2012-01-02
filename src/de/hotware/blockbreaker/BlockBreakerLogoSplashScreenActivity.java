@@ -2,10 +2,12 @@ package de.hotware.blockbreaker;
 
 import org.andengine.engine.options.EngineOptions.ScreenOrientation;
 
+import android.app.Activity;
+
 import de.hotware.blockbreaker.util.activities.BaseSplashScreenActivity;
 
 public class BlockBreakerLogoSplashScreenActivity extends BaseSplashScreenActivity{
-	
+
 	private static final float WAIT_TIME_SECONDS = 2.0F;
 	private static final int WIDTH  = 480;
 	private static final int HEIGHT = 320;
@@ -36,7 +38,7 @@ public class BlockBreakerLogoSplashScreenActivity extends BaseSplashScreenActivi
 	}
 
 	@Override
-	protected Class<?> getFollowUpActivity() {
+	protected Class<? extends Activity> getFollowUpActivity() {
 		return LevelChooserActivity.class;
 	}	
 }

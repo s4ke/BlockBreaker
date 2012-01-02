@@ -15,13 +15,13 @@ import de.hotware.blockbreaker.model.INextBlockListener.NextBlockChangedEvent;
  * @author Martin Braun
  */
 public class Level implements Serializable, Cloneable{
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
 	////////////////////////////////////////////////////////////////////
 	private static final long serialVersionUID = -1037049912770927906L;	
 	protected static final int INFINITE_BLOCKS_LEFT = 999;
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ public class Level implements Serializable, Cloneable{
 	protected INextBlockListener mNextBlockListener;
 	protected IGameEndListener mGameEndListener;
 	protected IGravityListener mGravityListener;
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Constructors					////
 	////////////////////////////////////////////////////////////////////
@@ -45,13 +45,13 @@ public class Level implements Serializable, Cloneable{
 		this.mWinCondition = pWinCondition;
 		this.nextBlock();
 	}
-	
+
 	public Level(Block[][] pMatrix, Gravity pGravity) {
 		this.mMatrix = pMatrix;
 		this.mGravity = pGravity;
 		this.nextBlock();
 	}
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Methods							////
 	////////////////////////////////////////////////////////////////////
@@ -64,42 +64,42 @@ public class Level implements Serializable, Cloneable{
 		if(newBlock.getColor() != BlockColor.NONE) {
 			Block var;
 			switch(this.mGravity) {
-				case NORTH: {
-					for(int i = pY; i > 0; --i) {
-						var = this.mMatrix[pX][i-1];
-						var.setPosition(pX,i);
-						this.mMatrix[pX][i] = var;
-					}
-					newBlock.setPosition(pX,0);
-					break;
+			case NORTH: {
+				for(int i = pY; i > 0; --i) {
+					var = this.mMatrix[pX][i-1];
+					var.setPosition(pX,i);
+					this.mMatrix[pX][i] = var;
 				}
-				case EAST: {
-					for(int i = pX; i < this.mMatrix.length-1; ++i) {
-						var = this.mMatrix[i+1][pY];
-						var.setPosition(i, pY);
-						this.mMatrix[i][pY] = var;
-					}
-					newBlock.setPosition(this.mMatrix.length-1,pY);;
-					break;
+				newBlock.setPosition(pX,0);
+				break;
+			}
+			case EAST: {
+				for(int i = pX; i < this.mMatrix.length-1; ++i) {
+					var = this.mMatrix[i+1][pY];
+					var.setPosition(i, pY);
+					this.mMatrix[i][pY] = var;
 				}
-				case SOUTH: {
-					for(int i = pY; i < this.mMatrix[0].length-1; ++i) {
-						var = this.mMatrix[pX][i+1];
-						var.setPosition(pX, i);
-						this.mMatrix[pX][i] = var;
-					}
-					newBlock.setPosition(pX,this.mMatrix[0].length-1);
-					break;
+				newBlock.setPosition(this.mMatrix.length-1,pY);;
+				break;
+			}
+			case SOUTH: {
+				for(int i = pY; i < this.mMatrix[0].length-1; ++i) {
+					var = this.mMatrix[pX][i+1];
+					var.setPosition(pX, i);
+					this.mMatrix[pX][i] = var;
 				}
-				case WEST: {
-					for(int i = pX; i > 0; --i) {
-						var = this.mMatrix[i-1][pY];
-						var.setPosition(i, pY);
-						this.mMatrix[i][pY] = var;
-					}
-					newBlock.setPosition(0,pY);
-					break;
+				newBlock.setPosition(pX,this.mMatrix[0].length-1);
+				break;
+			}
+			case WEST: {
+				for(int i = pX; i > 0; --i) {
+					var = this.mMatrix[i-1][pY];
+					var.setPosition(i, pY);
+					this.mMatrix[i][pY] = var;
 				}
+				newBlock.setPosition(0,pY);
+				break;
+			}
 			}
 			this.mMatrix[newBlock.getX()][newBlock.getY()] = newBlock;
 			this.nextBlock();
@@ -110,7 +110,7 @@ public class Level implements Serializable, Cloneable{
 		notifyAll();
 		return newBlock;		
 	}
-	
+
 	/**
 	 * sets the nextBlock (either random or according to the replacement list)
 	 */
@@ -128,7 +128,7 @@ public class Level implements Serializable, Cloneable{
 			this.mNextBlockListener.onNextBlockChanged(new NextBlockChangedEvent(this, this.mNextBlock));
 		}
 	}
-	
+
 	/**
 	 * Used for checking if player has won or lost. Only use this if WinCondition has been set!
 	 */
@@ -148,7 +148,7 @@ public class Level implements Serializable, Cloneable{
 			this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.LOSE));
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Level clone() {
@@ -156,7 +156,7 @@ public class Level implements Serializable, Cloneable{
 		repl.add(0,this.mNextBlock);
 		return new Level(this.mMatrix.clone(),this.mGravity, repl, (WinCondition) this.mWinCondition.clone());
 	}
-	
+
 	private boolean checkRow(int pX, int pColorNumber) {
 		int winCount = this.mWinCondition.getWinCount(pColorNumber);
 		BlockColor colorCheck = BlockColor.numberToColor(pColorNumber);
@@ -173,7 +173,7 @@ public class Level implements Serializable, Cloneable{
 		}
 		return false;
 	}
-	
+
 	private boolean checkColumn(int pY, int pColorNumber) {
 		int winCount = this.mWinCondition.getWinCount(pColorNumber);
 		int counter = 0;
@@ -190,14 +190,14 @@ public class Level implements Serializable, Cloneable{
 		}
 		return false;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Getter/Setter					////
 	////////////////////////////////////////////////////////////////////
 	public Block getNextBlock() {
 		return this.mNextBlock;
 	}
-	
+
 	public int getBlocksLeft() {
 		if(this.mReplacementList != null) {
 			return this.mReplacementList.size();
@@ -205,13 +205,13 @@ public class Level implements Serializable, Cloneable{
 			return INFINITE_BLOCKS_LEFT;
 		}
 	}
-	
+
 	public String getBlocksDisplayText() {
 		String turnsLeft = "00" + this.getBlocksLeft();
 		int length = turnsLeft.length();
 		return turnsLeft.substring(length-3, length);
 	}
-	
+
 	public synchronized void setGravity(Gravity pGravity) {
 		if(this.mGravity != pGravity) {
 			this.mGravity = pGravity;
@@ -221,33 +221,33 @@ public class Level implements Serializable, Cloneable{
 		}
 		notifyAll();
 	}
-	
+
 	public synchronized Gravity getGravity() {
 		Gravity grav = this.mGravity;
 		notifyAll();
 		return grav;	
 	}
-	
+
 	public Block[][] getMatrix() {
 		return this.mMatrix;
 	}
-	
+
 	public WinCondition getWinCondition() {
 		return this.mWinCondition;
 	}
-	
+
 	public void setNextBlockListener(INextBlockListener pNextBlockListener) {
 		this.mNextBlockListener = pNextBlockListener;
 	}
-	
+
 	public void setGameEndListener(IGameEndListener pGameEndListener) {
 		this.mGameEndListener = pGameEndListener;
 	}
-	
+
 	public void setGravityListener(IGravityListener pGravityListener) {
 		this.mGravityListener = pGravityListener;
 	}
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Inner Classes					////
 	////////////////////////////////////////////////////////////////////
