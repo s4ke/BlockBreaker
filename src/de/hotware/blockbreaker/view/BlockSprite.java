@@ -8,19 +8,19 @@ import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.view.IBlockSpriteTouchListener.BlockSpriteTouchEvent;
 
 public class BlockSprite extends TiledSprite {
-	
+
 	private static final float UNDEFINED_LOCATION = -999F;
-	
+
 	private IBlockSpriteTouchListener mBlockSpriteTouchListener;
 	private Block mBlock;
-	
+
 	public BlockSprite(float pX, float pY, float pTileWidth, float pTileHeight,TiledTextureRegion pTiledTextureRegion,
 			Block pBlock, 	IBlockSpriteTouchListener pBlockSpriteTouchListener) {
 		super(pX, pY, pTileWidth, pTileHeight, pTiledTextureRegion);
 		this.mBlock = pBlock;
 		this.mBlockSpriteTouchListener = pBlockSpriteTouchListener;
 	}
-	
+
 	public BlockSprite(float pTileWidth, float pTileHeight, TiledTextureRegion pTiledTextureRegion) {
 		super(UNDEFINED_LOCATION, UNDEFINED_LOCATION, pTileWidth, pTileHeight, pTiledTextureRegion);
 	}
@@ -33,7 +33,7 @@ public class BlockSprite extends TiledSprite {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void reset() {
 		super.reset();
@@ -42,7 +42,7 @@ public class BlockSprite extends TiledSprite {
 		this.mBlock = null;
 		this.mBlockSpriteTouchListener = null;
 	}
-	
+
 	public IBlockSpriteTouchListener getBlockSpriteTouchListener() {
 		return this.mBlockSpriteTouchListener;
 	}

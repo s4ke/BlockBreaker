@@ -7,15 +7,15 @@ import org.andengine.util.pool.GenericPool;
 import de.hotware.blockbreaker.model.Block;
 
 public class BlockSpritePool extends GenericPool<BlockSprite> {
-	
+
 	private Scene mScene;
 	private TiledTextureRegion mTiledTextureRegion;
-	
+
 	public BlockSpritePool(Scene pScene, TiledTextureRegion pTiledTextureRegion) {
 		this.mScene = pScene;
 		this.mTiledTextureRegion = pTiledTextureRegion;
 	}
-	
+
 	@Override
 	protected BlockSprite onAllocatePoolItem() {
 		BlockSprite bs = new BlockSprite(UIConstants.BASE_SPRITE_WIDTH, 
@@ -24,19 +24,19 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 		this.mScene.attachChild(bs);
 		return bs;
 	}
-	
+
 	@Override
 	protected void onHandleRecycleItem(final BlockSprite pBlockSprite) {
 		pBlockSprite.setIgnoreUpdate(true);
 		pBlockSprite.setVisible(false);
 		this.mScene.unregisterTouchArea(pBlockSprite);
 	}
-	
+
 	@Override
 	protected void onHandleObtainItem(final BlockSprite pBlockSprite) {
 		pBlockSprite.reset();
 	}
-	
+
 	public BlockSprite obtainBlockSprite(final int pX, int pY, final Block pBlock, final IBlockSpriteTouchListener pBlockSpriteTouchListener) {
 		BlockSprite bs = this.obtainPoolItem();
 		bs.setIgnoreUpdate(false);
