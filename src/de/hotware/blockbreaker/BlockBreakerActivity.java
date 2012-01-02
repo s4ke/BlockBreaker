@@ -242,8 +242,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			}
 		}
 	}
-	
-	
+		
 	/**
 	 * Fix for older SDK versions which don't have onBackPressed()	
 	 */
