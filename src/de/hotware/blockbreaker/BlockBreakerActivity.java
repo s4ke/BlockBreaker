@@ -35,10 +35,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import de.hotware.blockbreaker.IGameActivityResultListener.GameActivityResultEvent.GameActivityResultType;
+import de.hotware.blockbreaker.model.gen.LevelSerializer;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
-import de.hotware.blockbreaker.model.LevelSerializer;
 import de.hotware.blockbreaker.view.UIConstants;
 import de.hotware.blockbreaker.view.LevelSceneHandler;
 

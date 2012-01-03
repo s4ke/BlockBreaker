@@ -1,10 +1,12 @@
-package de.hotware.blockbreaker.model;
+package de.hotware.blockbreaker.model.gen;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import de.hotware.blockbreaker.model.Level;
 
 public class LevelSerializer {
 

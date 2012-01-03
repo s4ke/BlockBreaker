@@ -1,4 +1,6 @@
-package de.hotware.blockbreaker.model;
+package de.hotware.blockbreaker.model.gen;
+
+import de.hotware.blockbreaker.model.Level;
 
 @Deprecated
 @SuppressWarnings("unused")
