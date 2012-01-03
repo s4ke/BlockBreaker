@@ -4,17 +4,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import de.hotware.blockbreaker.model.Block.BlockColor;
-import de.hotware.blockbreaker.model.IGameEndListener.GameEndEvent;
-import de.hotware.blockbreaker.model.IGameEndListener.GameEndEvent.GameEndType;
-import de.hotware.blockbreaker.model.IGravityListener.GravityEvent;
-import de.hotware.blockbreaker.model.INextBlockListener.NextBlockChangedEvent;
+import de.hotware.blockbreaker.model.listeners.IGameEndListener;
+import de.hotware.blockbreaker.model.listeners.IGravityListener;
+import de.hotware.blockbreaker.model.listeners.INextBlockListener;
+import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent;
+import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
+import de.hotware.blockbreaker.model.listeners.IGravityListener.GravityEvent;
+import de.hotware.blockbreaker.model.listeners.INextBlockListener.NextBlockChangedEvent;
 
 /**
  * Class for the Game mechanics in BlockBreaker
  * TODO: GameEndListener
  * @author Martin Braun
  */
-public class Level implements Serializable, Cloneable{
+public class Level implements Serializable, Cloneable {
 
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////

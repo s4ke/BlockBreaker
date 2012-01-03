@@ -5,6 +5,7 @@ import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.util.pool.GenericPool;
 
 import de.hotware.blockbreaker.model.Block;
+import de.hotware.blockbreaker.view.listeners.IBlockSpriteTouchListener;
 
 public class BlockSpritePool extends GenericPool<BlockSprite> {
 

@@ -3,14 +3,15 @@ package de.hotware.blockbreaker.model;
 import java.io.Serializable;
 import java.util.Random;
 
-import de.hotware.blockbreaker.model.IBlockPositionListener.BlockPositionChangedEvent;
+import de.hotware.blockbreaker.model.listeners.IBlockPositionListener;
+import de.hotware.blockbreaker.model.listeners.IBlockPositionListener.BlockPositionChangedEvent;
 
 /**
  * Representation class of the blocks for storing color information
  * and position
  * @author Martin Braun
  */
-public class Block implements Serializable, Cloneable{
+public class Block implements Serializable, Cloneable {
 
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////

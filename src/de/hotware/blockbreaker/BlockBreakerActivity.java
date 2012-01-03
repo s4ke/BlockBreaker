@@ -35,8 +35,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import de.hotware.blockbreaker.IGameActivityResultListener.GameActivityResultEvent.GameActivityResultType;
-import de.hotware.blockbreaker.model.IGameEndListener;
-import de.hotware.blockbreaker.model.IGameEndListener.GameEndEvent.GameEndType;
+import de.hotware.blockbreaker.model.listeners.IGameEndListener;
+import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.model.LevelSerializer;
 import de.hotware.blockbreaker.view.UIConstants;
@@ -74,7 +74,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private TiledTextureRegion mArrowTiledTextureRegion;
 	private BitmapTextureAtlas mSceneBackgroundBitmapTextureAtlas;
 	private TextureRegion mSceneBackgroundTextureRegion;
-	@SuppressWarnings("unused")
 	private Scene mLevelScene;
 	private Font mFPSFont;
 	private Font mSceneFont;
@@ -86,7 +85,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private String mLevelPath = DEFAULT_LEVEL_PATH;
 	private boolean mIsAsset = true;
 
-	@SuppressWarnings("unused")
 	private IGameEndListener mGameEndListener;
 
 	////////////////////////////////////////////////////////////////////

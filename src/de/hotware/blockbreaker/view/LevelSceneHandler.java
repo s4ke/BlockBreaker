@@ -19,10 +19,11 @@ import org.andengine.util.modifier.IModifier;
 
 import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.model.Block.BlockColor;
-import de.hotware.blockbreaker.model.IGravityListener;
+import de.hotware.blockbreaker.model.listeners.IGravityListener;
+import de.hotware.blockbreaker.model.listeners.INextBlockListener;
 import de.hotware.blockbreaker.model.Level;
-import de.hotware.blockbreaker.model.INextBlockListener;
 import de.hotware.blockbreaker.model.WinCondition;
+import de.hotware.blockbreaker.view.listeners.IBlockSpriteTouchListener;
 
 public class LevelSceneHandler {
 

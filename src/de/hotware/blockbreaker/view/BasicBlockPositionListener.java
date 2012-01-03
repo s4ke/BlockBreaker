@@ -1,7 +1,8 @@
 package de.hotware.blockbreaker.view;
 
 import org.andengine.entity.modifier.MoveByModifier;
-import de.hotware.blockbreaker.model.IBlockPositionListener;
+
+import de.hotware.blockbreaker.model.listeners.IBlockPositionListener;
 
 public class BasicBlockPositionListener implements IBlockPositionListener {
 

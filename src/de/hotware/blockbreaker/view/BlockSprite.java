@@ -5,7 +5,8 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 
 import de.hotware.blockbreaker.model.Block;
-import de.hotware.blockbreaker.view.IBlockSpriteTouchListener.BlockSpriteTouchEvent;
+import de.hotware.blockbreaker.view.listeners.IBlockSpriteTouchListener;
+import de.hotware.blockbreaker.view.listeners.IBlockSpriteTouchListener.BlockSpriteTouchEvent;
 
 public class BlockSprite extends TiledSprite {
 
