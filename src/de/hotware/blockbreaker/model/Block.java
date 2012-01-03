@@ -109,11 +109,11 @@ public class Block implements Serializable, Cloneable{
 
 		public static BlockColor numberToColor(int pX) {
 			switch(pX) {
-			case 1:	return BLUE;
-			case 2:	return GREEN;
-			case 3:	return RED;
-			case 4: return YELLOW;
-			case 5: return PURPLE;
+				case 1:	return BLUE;
+				case 2:	return GREEN;
+				case 3:	return RED;
+				case 4: return YELLOW;
+				case 5: return PURPLE;
 			}
 			return NONE;
 		}

@@ -11,7 +11,7 @@ public class BlockBreakerLogoSplashScreenActivity extends BaseSplashScreenActivi
 	private static final float WAIT_TIME_SECONDS = 2.0F;
 	private static final int WIDTH  = 480;
 	private static final int HEIGHT = 320;
-
+	
 	@Override
 	protected float getWaitTime() {
 		return WAIT_TIME_SECONDS;
@@ -39,6 +39,6 @@ public class BlockBreakerLogoSplashScreenActivity extends BaseSplashScreenActivi
 
 	@Override
 	protected Class<? extends Activity> getFollowUpActivity() {
-		return LevelChooserActivity.class;
+		return BlockBreakerActivity.class;
 	}	
 }

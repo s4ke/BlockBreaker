@@ -54,10 +54,12 @@ public class LevelSceneHandler {
 
 	private Vector<BlockSprite> mBlockSpriteList;
 
-	public LevelSceneHandler(Engine pEngine,
+	public LevelSceneHandler(Scene pScene,
+			Engine pEngine,
 			Font pUIFont,
 			TiledTextureRegion pBlockTiledTextureRegion,
 			TiledTextureRegion pArrowTiledTextureRegion) {
+		this.mScene = pScene;
 		this.mEngine = pEngine;
 		this.mUIFont = pUIFont;
 		this.mBlockTiledTextureRegion = pBlockTiledTextureRegion;
@@ -66,13 +68,11 @@ public class LevelSceneHandler {
 		this.mBlockSpriteList = new Vector<BlockSprite>();
 	}
 
-	public Scene createLevelScene(final Level pLevel) {
-
+	public void initLevelScene(final Level pLevel) {
 		this.mLevel = pLevel;
 
 		//TODO make to: LevelSceneHandler mit reset Funktionalität, der nur das level killt und alles neu einstellt,
 		// wenn es gebraucht wird. LevelSceneHandler soll als einziger an Scene rumspielen (außer Hintergrund)
-		this.mScene = new Scene();
 		this.mBlockSpritePool = new BlockSpritePool(this.mScene, this.mBlockTiledTextureRegion);
 
 		//create surroundings
@@ -171,11 +171,10 @@ public class LevelSceneHandler {
 		pLevel.setGravityListener(this.mGravityListener = new IGravityListener() {
 			@Override
 			public void onGravityChanged(GravityEvent pEvt) {
-				gravityArrowSprite.setCurrentTileIndex(pLevel.getGravity().toNumber());
+				gravityArrowSprite.setCurrentTileIndex(pEvt.getGravity().toNumber());
 			}	    	
 		});	 
 		//init UI end  
-		return mScene;
 	}
 
 	private void initPlayField() {
