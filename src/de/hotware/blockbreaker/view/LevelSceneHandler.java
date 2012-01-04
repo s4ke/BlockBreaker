@@ -53,7 +53,7 @@ public class LevelSceneHandler {
 	private INextBlockListener mNextBlockListener;
 	private IGravityListener mGravityListener;
 
-	private Vector<BlockSprite> mBlockSpriteList;
+	private Vector<BlockSprite> mBlockSpriteVector;
 
 	public LevelSceneHandler(Scene pScene,
 			Engine pEngine,
@@ -66,7 +66,7 @@ public class LevelSceneHandler {
 		this.mBlockTiledTextureRegion = pBlockTiledTextureRegion;
 		this.mArrowTiledTextureRegion = pArrowTiledTextureRegion;		
 		this.mWinCondText = new ChangeableText[5];
-		this.mBlockSpriteList = new Vector<BlockSprite>();
+		this.mBlockSpriteVector = new Vector<BlockSprite>();
 	}
 
 	public void initLevelScene(final Level pLevel) {
@@ -202,10 +202,10 @@ public class LevelSceneHandler {
 	}
 
 	private void resetScene() {
-		for(BlockSprite bs : this.mBlockSpriteList) {
+		for(BlockSprite bs : this.mBlockSpriteVector) {
 			this.mBlockSpritePool.recyclePoolItem(bs);
 		}
-		this.mBlockSpriteList.clear();
+		this.mBlockSpriteVector.clear();
 	}
 
 	private BlockSprite addBlockSprite(final Block pBlock) {
@@ -215,7 +215,7 @@ public class LevelSceneHandler {
 				2 + VERTICAL_GAP + y * (SPRITE_TEXTURE_HEIGHT + 1),
 				pBlock, 
 				this.mBlockSpriteTouchListener);
-		this.mBlockSpriteList.add(sprite);
+		this.mBlockSpriteVector.add(sprite);
 		sprite.setCurrentTileIndex(pBlock.getColor().toNumber());
 		pBlock.setBlockPositionListener(new BasicBlockPositionListener(sprite));
 		this.mScene.registerTouchArea(sprite);
@@ -245,14 +245,13 @@ public class LevelSceneHandler {
 
 					@Override
 					public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-						LevelSceneHandler.this.mBlockSpriteList.remove(pItem);
+						LevelSceneHandler.this.mBlockSpriteVector.remove(pItem);
 						LevelSceneHandler.this.mBlockSpritePool.recyclePoolItem((BlockSprite) pItem);
 					}
 
 				}));
 
-				addBlockSprite(block)
-				.registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
+				addBlockSprite(block).registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
 			}	            	
 		}		
 	}

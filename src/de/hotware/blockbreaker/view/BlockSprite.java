@@ -40,6 +40,7 @@ public class BlockSprite extends TiledSprite {
 		super.reset();
 		this.clearUpdateHandlers();
 		this.clearEntityModifiers();
+		this.setAlpha(1.0F);
 		this.mBlock = null;
 		this.mBlockSpriteTouchListener = null;
 	}

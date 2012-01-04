@@ -36,12 +36,16 @@ public class Level implements Serializable, Cloneable {
 	protected INextBlockListener mNextBlockListener;
 	protected IGameEndListener mGameEndListener;
 	protected IGravityListener mGravityListener;
+	protected int sizeX;
+	protected int sizeY;
 
 	////////////////////////////////////////////////////////////////////
 	////							Constructors					////
 	////////////////////////////////////////////////////////////////////
 	public Level(Block[][] pMatrix, Gravity pGravity, ArrayList<Block> pReplacementList, WinCondition pWinCondition) {
 		this.mMatrix = pMatrix;
+		this.sizeX = pMatrix.length;
+		this.sizeY = pMatrix[0].length;
 		this.mGravity = pGravity;
 		this.mReplacementList = pReplacementList;
 		//TODO: dummy block!
@@ -77,21 +81,21 @@ public class Level implements Serializable, Cloneable {
 					break;
 				}
 				case EAST: {
-					for(int i = pX; i < this.mMatrix.length-1; ++i) {
+					for(int i = pX; i < this.sizeX-1; ++i) {
 						var = this.mMatrix[i+1][pY];
 						var.setPosition(i, pY);
 						this.mMatrix[i][pY] = var;
 					}
-					newBlock.setPosition(this.mMatrix.length-1,pY);;
+					newBlock.setPosition(this.sizeX-1,pY);;
 					break;
 				}
 				case SOUTH: {
-					for(int i = pY; i < this.mMatrix[0].length-1; ++i) {
+					for(int i = pY; i < this.sizeY-1; ++i) {
 						var = this.mMatrix[pX][i+1];
 						var.setPosition(pX, i);
 						this.mMatrix[pX][i] = var;
 					}
-					newBlock.setPosition(pX,this.mMatrix[0].length-1);
+					newBlock.setPosition(pX,this.sizeY-1);
 					break;
 				}
 				case WEST: {
@@ -138,8 +142,8 @@ public class Level implements Serializable, Cloneable {
 	protected void checkWin() {
 		boolean win = true; 
 		boolean help = false;
-		for(int i = 1; i < 6 && win; ++i) {
-			for(int j = 0; j < this.mMatrix.length && !help; ++j) {
+		for(int i = BlockColor.getLowestColorNumber(); i <= BlockColor.getBiggestColorNumber() && win; ++i) {
+			for(int j = 0; j < this.sizeX && !help; ++j) {
 				help = (help || this.checkRow(j, i) || this.checkColumn(j, i)) ;
 			}
 			win = win && help;
@@ -152,19 +156,33 @@ public class Level implements Serializable, Cloneable {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Level clone() {
-		ArrayList<Block> repl = ((ArrayList<Block>)this.mReplacementList.clone());
-		repl.add(0,this.mNextBlock);
-		return new Level(this.mMatrix.clone(),this.mGravity, repl, (WinCondition) this.mWinCondition.clone());
+		//deepcopy/create the ReplacementList
+		ArrayList<Block> repl = new ArrayList<Block>();
+		int x = this.mReplacementList.size();
+		Block var = null;
+		while(repl.size() < this.mReplacementList.size()) {
+			var = this.mReplacementList.get(x-1);
+			repl.add(0, new Block(var.getColor()));
+			--x;
+		}
+		repl.add(0,new Block(this.mNextBlock.getColor(), this.mNextBlock.getX(), this.mNextBlock.getY()));
+		//deepcopy the matrix
+		Block[][] matrix = new Block[this.sizeX][this.sizeY];
+		for(int i = 0; i < this.sizeX; ++i) {
+			for(int j = 0; j < this.sizeY; ++j) {
+				matrix[i][j] = new Block(this.mMatrix[i][j].getColor(), this.mMatrix[i][j].getX(), this.mMatrix[i][j].getY());
+			}
+		}
+		return new Level(matrix, this.mGravity, repl, (WinCondition) this.mWinCondition.clone());
 	}
 
 	private boolean checkRow(int pX, int pColorNumber) {
 		int winCount = this.mWinCondition.getWinCount(pColorNumber);
 		BlockColor colorCheck = BlockColor.numberToColor(pColorNumber);
 		int counter = 0;
-		for(int i = 0; i < this.mMatrix.length; ++i) {
+		for(int i = 0; i < this.sizeX; ++i) {
 			if(this.mMatrix[pX][i].getColor() == colorCheck) {
 				++counter;
 			} else {
@@ -181,7 +199,7 @@ public class Level implements Serializable, Cloneable {
 		int winCount = this.mWinCondition.getWinCount(pColorNumber);
 		int counter = 0;
 		BlockColor colorCheck = BlockColor.numberToColor(pColorNumber);
-		for(int i = 0; i < this.mMatrix[0].length; ++i) {
+		for(int i = 0; i < this.sizeY; ++i) {
 			if(this.mMatrix[i][pY].getColor() == colorCheck) {
 				++counter;
 			} else {

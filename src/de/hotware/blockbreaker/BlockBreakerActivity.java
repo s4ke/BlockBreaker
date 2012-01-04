@@ -265,6 +265,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mLevelPath = pLevelPath;
 		this.mIsAsset = pIsAsset;
 		this.loadLevel();
+		this.mLevel = this.mBackupLevel.clone();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
@@ -276,7 +277,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	public void randomLevel() {
-		this.mLevel = LevelGenerator.randomUncheckedLevel();
+		this.mBackupLevel = LevelGenerator.randomUncheckedLevel();
+		this.mLevel = this.mBackupLevel.clone();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
@@ -288,9 +290,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private void drawLevel() {
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
-		
-		loadLevel();
 
+		this.loadLevel();
+		
+		this.mLevel = this.mBackupLevel.clone();
+		
 		if(this.mLevel != null) {       
 			this.mLevel.setGameEndListener(this.mGameEndListener = new IGameEndListener() {
 				@Override
@@ -320,13 +324,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mCamera.setHUD(hud);
 
 			scene.registerUpdateHandler(new TimerHandler(1/20F, true, 
-					new ITimerCallback() {
-				@Override
-				public void onTimePassed(TimerHandler arg0) {
-					fps.setText("FPS: " + counter.getFPS());
-				}            	
-			}
-					));
+				new ITimerCallback() {
+					@Override
+					public void onTimePassed(TimerHandler arg0) {
+						fps.setText("FPS: " + counter.getFPS());
+					}            	
+				}
+			));
 		}
 		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, this.mSceneBackgroundTextureRegion)));
 	}
@@ -378,21 +382,25 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				AssetManager assetManager = this.getResources().getAssets();
 				stream = assetManager.open(this.mLevelPath);
 				this.mBackupLevel = LevelSerializer.readLevel(stream);
-				this.mLevel = this.mBackupLevel.clone();
 				//TODO add non asset stuff and move the readLevel part out of the if block
 			}
-		} catch (Exception e) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(e.getMessage() + "\nLeaving to main menu")
-			.setCancelable(false)
-			.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					BlockBreakerActivity.this.setResult(RESULT_CANCELED);
-					BlockBreakerActivity.this.finish();
+		} catch (final Exception e) {
+			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
+				public void run() {
+					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
+					builder.setMessage(e.getMessage() + "\nLeaving to main menu")
+					.setCancelable(false)
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							BlockBreakerActivity.this.setResult(RESULT_CANCELED);
+							BlockBreakerActivity.this.finish();
+						}
+					});
+					AlertDialog alert = builder.create();
+					alert.show();
 				}
-			});
-			AlertDialog alert = builder.create();
-			alert.show();
+			});	
+			
 		}
 	}
 }

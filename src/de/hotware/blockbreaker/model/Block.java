@@ -126,5 +126,13 @@ public class Block implements Serializable, Cloneable {
 		public int toNumber() {
 			return this.mColor;
 		}		
+		
+		public static int getBiggestColorNumber() {
+			return PURPLE.toNumber();
+		}
+		
+		public static int getLowestColorNumber() {
+			return BLUE.toNumber();
+		}
 	}
 }
