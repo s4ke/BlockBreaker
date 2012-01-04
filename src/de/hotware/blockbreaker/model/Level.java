@@ -58,6 +58,32 @@ public class Level implements Serializable, Cloneable {
 		this.mGravity = pGravity;
 		this.nextBlock();
 	}
+	
+	////////////////////////////////////////////////////////////////////
+	////					Overriden Methods						////
+	////////////////////////////////////////////////////////////////////
+	
+	@Override
+	public Level clone() {
+		//deepcopy/create the ReplacementList
+		ArrayList<Block> repl = new ArrayList<Block>();
+		int x = this.mReplacementList.size();
+		Block var = null;
+		while(repl.size() < this.mReplacementList.size()) {
+			var = this.mReplacementList.get(x-1);
+			repl.add(0, new Block(var.getColor()));
+			--x;
+		}
+		repl.add(0,new Block(this.mNextBlock.getColor(), this.mNextBlock.getX(), this.mNextBlock.getY()));
+		//deepcopy the matrix
+		Block[][] matrix = new Block[this.sizeX][this.sizeY];
+		for(int i = 0; i < this.sizeX; ++i) {
+			for(int j = 0; j < this.sizeY; ++j) {
+				matrix[i][j] = new Block(this.mMatrix[i][j].getColor(), this.mMatrix[i][j].getX(), this.mMatrix[i][j].getY());
+			}
+		}
+		return new Level(matrix, this.mGravity, repl, (WinCondition) this.mWinCondition.clone());
+	}
 
 	////////////////////////////////////////////////////////////////////
 	////							Methods							////
@@ -149,33 +175,13 @@ public class Level implements Serializable, Cloneable {
 			win = win && help;
 			help = false;
 		}
-		if(win){
-			this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.WIN));
-		} else if (this.mReplacementList.size() == 0 && this.mNextBlock.getColor() == BlockColor.NONE) {
-			this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.LOSE));
-		}
-	}
-
-	@Override
-	public Level clone() {
-		//deepcopy/create the ReplacementList
-		ArrayList<Block> repl = new ArrayList<Block>();
-		int x = this.mReplacementList.size();
-		Block var = null;
-		while(repl.size() < this.mReplacementList.size()) {
-			var = this.mReplacementList.get(x-1);
-			repl.add(0, new Block(var.getColor()));
-			--x;
-		}
-		repl.add(0,new Block(this.mNextBlock.getColor(), this.mNextBlock.getX(), this.mNextBlock.getY()));
-		//deepcopy the matrix
-		Block[][] matrix = new Block[this.sizeX][this.sizeY];
-		for(int i = 0; i < this.sizeX; ++i) {
-			for(int j = 0; j < this.sizeY; ++j) {
-				matrix[i][j] = new Block(this.mMatrix[i][j].getColor(), this.mMatrix[i][j].getX(), this.mMatrix[i][j].getY());
+		if(this.mGameEndListener != null) {
+			if(win){
+				this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.WIN));
+			} else if (this.mReplacementList.size() == 0 && this.mNextBlock.getColor() == BlockColor.NONE) {
+				this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.LOSE));
 			}
 		}
-		return new Level(matrix, this.mGravity, repl, (WinCondition) this.mWinCondition.clone());
 	}
 
 	private boolean checkRow(int pX, int pColorNumber) {

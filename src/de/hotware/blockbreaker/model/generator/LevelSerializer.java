@@ -11,11 +11,13 @@ import de.hotware.blockbreaker.model.Level;
 public class LevelSerializer {
 
 	public static void saveLevel(Level pLevel, String pPath) throws IOException {
+		//write an level without any listeners!
+		Level save = pLevel.clone();
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
 		fos = new FileOutputStream(pPath);
 		out = new ObjectOutputStream(fos);
-		out.writeObject(pLevel);
+		out.writeObject(save);
 		out.close();
 	}
 
