@@ -29,7 +29,17 @@ public interface IGameEndListener {
 
 		public enum GameEndType{
 			WIN,
-			LOSE
+			LOSE;
+			public String toString() {
+				switch(this) {
+					case WIN:
+						return "You win!";
+					case LOSE:
+						return "You lose!";
+					default:
+						return "WTF?";
+				}
+			}
 		}
 	}
 }

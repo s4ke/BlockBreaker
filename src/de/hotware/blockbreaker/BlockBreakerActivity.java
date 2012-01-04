@@ -34,8 +34,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import de.hotware.blockbreaker.IGameActivityResultListener.GameActivityResultEvent.GameActivityResultType;
-import de.hotware.blockbreaker.model.gen.LevelSerializer;
+import de.hotware.blockbreaker.model.generator.LevelGenerator;
+import de.hotware.blockbreaker.model.generator.LevelSerializer;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
@@ -81,6 +81,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private BitmapTextureAtlas mSceneFontTexture;
 	private LevelSceneHandler mLevelSceneHandler;
 	
+	private Level mBackupLevel;
 	private Level mLevel;
 	private String mLevelPath = DEFAULT_LEVEL_PATH;
 	private boolean mIsAsset = true;
@@ -153,8 +154,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 
 	@Override
-	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback){
-		
+	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback){		
 		this.drawLevel();
 		//TODO: setting scene only for testing purposes!!!
 		this.mEngine.setScene(this.mLevelScene);
@@ -221,12 +221,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			case R.id.mainmenu:
 			{
 				//TODO start Levelchoosing here!
-				this.showEndDialog(GameActivityResultType.RESULT_CANCELED);
+				this.showCancelDialog();
 				return true;
 			}
 			case R.id.restart:
 			{
-				this.updateLevel(this.mLevelPath, this.mIsAsset);
+				this.restartLevel();
 				return true;
 			}
 			default:
@@ -254,7 +254,31 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public void onBackPressed() {
-		this.showEndDialog(GameActivityResultType.RESULT_CANCELED);
+		this.showCancelDialog();
+	}
+	
+	////////////////////////////////////////////////////////////////////
+	////					Public Methods							////
+	////////////////////////////////////////////////////////////////////
+	
+	public void updateLevel(String pLevelPath, boolean pIsAsset) {
+		this.mLevelPath = pLevelPath;
+		this.mIsAsset = pIsAsset;
+		this.loadLevel();
+		this.mLevel.setGameEndListener(this.mGameEndListener);
+		this.mLevelSceneHandler.updateLevel(this.mLevel);
+	}
+	
+	public void restartLevel() {
+		this.mLevel = this.mBackupLevel.clone();
+		this.mLevel.setGameEndListener(this.mGameEndListener);
+		this.mLevelSceneHandler.updateLevel(this.mLevel);
+	}
+	
+	public void randomLevel() {
+		this.mLevel = LevelGenerator.randomUncheckedLevel();
+		this.mLevel.setGameEndListener(this.mGameEndListener);
+		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 
 	////////////////////////////////////////////////////////////////////
@@ -273,7 +297,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				public void onGameEnd(final GameEndEvent pEvt) {
 					BlockBreakerActivity.this.runOnUiThread(new Runnable() {
 						public void run() {
-							BlockBreakerActivity.this.showEndDialog(pEvt.getType() == GameEndType.WIN ? GameActivityResultType.RESULT_WIN : GameActivityResultType.RESULT_LOSE);
+							BlockBreakerActivity.this.showEndDialog(pEvt.getType());
 						}
 					});							
 				}
@@ -307,14 +331,34 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, this.mSceneBackgroundTextureRegion)));
 	}
 
-	private void showEndDialog(final GameActivityResultType pResult) {
+	private void showEndDialog(final GameEndType pResult) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Exit level?")
+		builder.setMessage(pResult.toString() + " Restart?")
 		.setCancelable(true)
 		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface pDialog, int pId) {
 				pDialog.dismiss();
-				//TODO start LevelChooserActivity here and get the path, maybe in method!!
+				BlockBreakerActivity.this.restartLevel();
+			}
+		})
+		.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface pDialog, int pId) {
+				pDialog.dismiss();
+				//TODO: Testing purposes!
+				BlockBreakerActivity.this.randomLevel();
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
+	private void showCancelDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Exit game?")
+		.setCancelable(true)
+		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface pDialog, int pId) {
+				pDialog.dismiss();
 				BlockBreakerActivity.this.finish();
 			}
 		})
@@ -333,7 +377,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			if(this.mIsAsset) {
 				AssetManager assetManager = this.getResources().getAssets();
 				stream = assetManager.open(this.mLevelPath);
-				this.mLevel = LevelSerializer.readLevel(stream);
+				this.mBackupLevel = LevelSerializer.readLevel(stream);
+				this.mLevel = this.mBackupLevel.clone();
 				//TODO add non asset stuff and move the readLevel part out of the if block
 			}
 		} catch (Exception e) {
@@ -349,13 +394,5 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			AlertDialog alert = builder.create();
 			alert.show();
 		}
-	}
-	
-	public void updateLevel(String pLevelPath, boolean pIsAsset) {
-		this.mLevelPath = pLevelPath;
-		this.mIsAsset = pIsAsset;
-		this.loadLevel();
-		this.mLevel.setGameEndListener(this.mGameEndListener);
-		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 }

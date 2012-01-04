@@ -1,4 +1,4 @@
-package de.hotware.blockbreaker.model.gen;
+package de.hotware.blockbreaker.model.generator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
