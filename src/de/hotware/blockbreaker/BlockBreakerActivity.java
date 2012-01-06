@@ -66,21 +66,20 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
-
-	private Camera mCamera;
+	
 	private BitmapTextureAtlas mBlockBitmapTextureAtlas;
 	private TiledTextureRegion mBlockTiledTextureRegion;
 	private BitmapTextureAtlas mArrowBitmapTextureAtlas;
 	private TiledTextureRegion mArrowTiledTextureRegion;
 	private BitmapTextureAtlas mSceneBackgroundBitmapTextureAtlas;
 	private TextureRegion mSceneBackgroundTextureRegion;
+	
+	private Camera mCamera;	
 	private Scene mLevelScene;
 	private Font mFPSFont;
-	private Font mSceneFont;
-	private BitmapTextureAtlas mFPSFontTexture;
-	private BitmapTextureAtlas mSceneFontTexture;
-	private LevelSceneHandler mLevelSceneHandler;
+	private Font mSceneUIFont;
 	
+	private LevelSceneHandler mLevelSceneHandler;
 	private Level mBackupLevel;
 	private Level mLevel;
 	private String mLevelPath = DEFAULT_LEVEL_PATH;
@@ -126,17 +125,17 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mEngine.getTextureManager().loadTexture(this.mSceneBackgroundBitmapTextureAtlas);
 
 		//loading fps font
-		this.mFPSFontTexture = new BitmapTextureAtlas(256,256, TextureOptions.BILINEAR);
-		this.mEngine.getTextureManager().loadTexture(this.mFPSFontTexture);
+		BitmapTextureAtlas fpsFontTexture = new BitmapTextureAtlas(256,256, TextureOptions.BILINEAR);
+		this.mEngine.getTextureManager().loadTexture(fpsFontTexture);
 		FontFactory.setAssetBasePath("font/");
-		this.mFPSFont = FontFactory.createFromAsset(this.mFPSFontTexture, this, "Droid.ttf", 12, true, Color.BLACK);   	
+		this.mFPSFont = FontFactory.createFromAsset(fpsFontTexture, this, "Droid.ttf", 12, true, Color.BLACK);   	
 		this.mEngine.getFontManager().loadFont(this.mFPSFont);
 
 		//loading scene font
-		this.mSceneFontTexture = new BitmapTextureAtlas(256,256,TextureOptions.BILINEAR);
-		this.mEngine.getTextureManager().loadTexture(this.mSceneFontTexture);
-		this.mSceneFont = FontFactory.createFromAsset(this.mSceneFontTexture, this, "Plok.ttf", 18, true, Color.BLACK);
-		this.mEngine.getFontManager().loadFont(this.mSceneFont);	
+		BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(256,256,TextureOptions.BILINEAR);
+		this.mEngine.getTextureManager().loadTexture(sceneFontTexture);
+		this.mSceneUIFont = FontFactory.createFromAsset(sceneFontTexture, this, "Plok.ttf", 18, true, Color.BLACK);
+		this.mEngine.getFontManager().loadFont(this.mSceneUIFont);	
 
 		pCallback.onCreateResourcesFinished();
 	}
@@ -308,13 +307,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 			});
 
-			this.mLevelSceneHandler = new LevelSceneHandler(scene,
-					this.mEngine,
-					this.mSceneFont,
+			this.mLevelSceneHandler = new LevelSceneHandler(scene);
+
+			this.mLevelSceneHandler.initLevelScene(this.mLevel, this.mSceneUIFont,
 					this.mBlockTiledTextureRegion,
 					this.mArrowTiledTextureRegion);
-
-			this.mLevelSceneHandler.initLevelScene(this.mLevel);
 
 			final HUD hud = new HUD();
 			final FPSCounter counter = new FPSCounter();

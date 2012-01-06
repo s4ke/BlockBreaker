@@ -2,7 +2,6 @@ package de.hotware.blockbreaker.view;
 
 import java.util.Vector;
 
-import org.andengine.engine.Engine;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.FadeInModifier;
 import org.andengine.entity.modifier.FadeOutModifier;
@@ -37,11 +36,6 @@ public class LevelSceneHandler {
 	private static final int VERTICAL_GAP =  VERTICAL_SPARE/2;
 	private static final int VERTICAL_SIZE = UIConstants.LEVEL_HEIGHT - VERTICAL_SPARE;
 
-	@SuppressWarnings("unused")
-	private Engine mEngine;
-	private Font mUIFont;
-	private TiledTextureRegion mBlockTiledTextureRegion;
-	private TiledTextureRegion mArrowTiledTextureRegion;
 	private Scene mScene;
 	private Level mLevel;
 	private BlockSpritePool mBlockSpritePool;
@@ -55,26 +49,18 @@ public class LevelSceneHandler {
 
 	private Vector<BlockSprite> mBlockSpriteVector;
 
-	public LevelSceneHandler(Scene pScene,
-			Engine pEngine,
-			Font pUIFont,
-			TiledTextureRegion pBlockTiledTextureRegion,
-			TiledTextureRegion pArrowTiledTextureRegion) {
+	public LevelSceneHandler(Scene pScene) {
 		this.mScene = pScene;
-		this.mEngine = pEngine;
-		this.mUIFont = pUIFont;
-		this.mBlockTiledTextureRegion = pBlockTiledTextureRegion;
-		this.mArrowTiledTextureRegion = pArrowTiledTextureRegion;		
 		this.mWinCondText = new ChangeableText[5];
 		this.mBlockSpriteVector = new Vector<BlockSprite>();
 	}
 
-	public void initLevelScene(final Level pLevel) {
+	public void initLevelScene(final Level pLevel, final Font pUIFont,
+			final TiledTextureRegion pBlockTiledTextureRegion,
+			final TiledTextureRegion pArrowTiledTextureRegion) {
 		this.mLevel = pLevel;
 
-		//TODO make to: LevelSceneHandler mit reset Funktionalität, der nur das level killt und alles neu einstellt,
-		// wenn es gebraucht wird. LevelSceneHandler soll als einziger an Scene rumspielen (außer Hintergrund)
-		this.mBlockSpritePool = new BlockSpritePool(this.mScene, this.mBlockTiledTextureRegion);
+		this.mBlockSpritePool = new BlockSpritePool(this.mScene, pBlockTiledTextureRegion);
 
 		//create surroundings
 		final Shape ground = new Rectangle(HORIZONTAL_GAP - 1, UIConstants.LEVEL_HEIGHT-VERTICAL_GAP + 1, HORIZONTAL_SIZE + 3, 1);
@@ -104,7 +90,7 @@ public class LevelSceneHandler {
 					17 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*i,
 					SPRITE_TEXTURE_WIDTH,
 					SPRITE_TEXTURE_HEIGHT,
-					this.mBlockTiledTextureRegion.deepCopy());
+					pBlockTiledTextureRegion.deepCopy());
 			winSpriteHelp.setCurrentTileIndex(i+1);
 			mScene.attachChild(winSpriteHelp);
 		}
@@ -115,13 +101,13 @@ public class LevelSceneHandler {
 			winDisplayText = new ChangeableText(
 					10 + SPRITE_TEXTURE_WIDTH,
 					30 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*(i-1),
-					this.mUIFont,
+					pUIFont,
 					Integer.toString(winCondition.getWinCount(i)), 1);
 			this.mWinCondText[i-1] = winDisplayText;
 			mScene.attachChild(winDisplayText);
 		}
 
-		final Text nextText = new Text(0, 0, this.mUIFont, "Next");
+		final Text nextText = new Text(0, 0, pUIFont, "Next");
 		nextText.setPosition(
 				UIConstants.LEVEL_WIDTH - nextText.getWidth() - 13,
 				2 + VERTICAL_GAP);
@@ -132,17 +118,17 @@ public class LevelSceneHandler {
 				nextText.getY() + nextText.getHeight() + 10,
 				SPRITE_TEXTURE_WIDTH,
 				SPRITE_TEXTURE_HEIGHT,
-				this.mBlockTiledTextureRegion.deepCopy());
+				pBlockTiledTextureRegion.deepCopy());
 		this.mNextBlockSprite.setCurrentTileIndex(pLevel.getNextBlock().getColor().toNumber());
 		mScene.attachChild(this.mNextBlockSprite);
 
-		final Text turnsText = new Text(0, 0, this.mUIFont, "Turns");
+		final Text turnsText = new Text(0, 0, pUIFont, "Turns");
 		turnsText.setPosition(
 				UIConstants.LEVEL_WIDTH - turnsText.getWidth() - 2,
 				this.mNextBlockSprite.getY() + this.mNextBlockSprite.getHeight() + 10);
 		mScene.attachChild(turnsText);
 
-		this.mTurnsLeftText = new ChangeableText(0, 0, this.mUIFont, pLevel.getBlocksDisplayText() , 3);
+		this.mTurnsLeftText = new ChangeableText(0, 0, pUIFont, pLevel.getBlocksDisplayText() , 3);
 		this.mTurnsLeftText.setPosition(
 				UIConstants.LEVEL_WIDTH - this.mTurnsLeftText.getWidth() - 22,
 				turnsText.getY() + turnsText.getHeight() + 10);
@@ -165,7 +151,7 @@ public class LevelSceneHandler {
 				turnsLeftText.getY() + turnsLeftText.getHeight() + 10,
 				SPRITE_TEXTURE_WIDTH,
 				SPRITE_TEXTURE_HEIGHT,
-				this.mArrowTiledTextureRegion.deepCopy());
+				pArrowTiledTextureRegion.deepCopy());
 		gravityArrowSprite.setCurrentTileIndex(pLevel.getGravity().toNumber());
 		mScene.attachChild(gravityArrowSprite);
 
