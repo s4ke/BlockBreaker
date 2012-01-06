@@ -32,4 +32,8 @@ public class WinCondition implements Serializable, Cloneable {
 	public WinCondition clone() {
 		return new WinCondition(this.mWin.clone());
 	}
+	
+	public int[] getWinClone() {
+		return this.mWin.clone();
+	}
 }

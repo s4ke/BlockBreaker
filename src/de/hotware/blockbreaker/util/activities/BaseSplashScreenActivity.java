@@ -65,5 +65,12 @@ public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
 		}));
 		return scene;
 	}
+	
+	@Override
+	public void onResumeGame() {
+		if(this.mEngine != null) {
+			super.onResumeGame();
+		}
+	}
 
 }
