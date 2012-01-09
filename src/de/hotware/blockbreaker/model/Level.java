@@ -11,6 +11,7 @@ import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.listeners.IGravityListener.GravityEvent;
 import de.hotware.blockbreaker.model.listeners.INextBlockListener.NextBlockChangedEvent;
+import de.hotware.blockbreaker.util.misc.Randomizer;
 
 /**
  * Class for the Game mechanics in BlockBreaker
@@ -36,16 +37,16 @@ public class Level implements Serializable, Cloneable {
 	protected INextBlockListener mNextBlockListener;
 	protected IGameEndListener mGameEndListener;
 	protected IGravityListener mGravityListener;
-	protected int sizeX;
-	protected int sizeY;
+	protected int mSizeX;
+	protected int mSizeY;
 
 	////////////////////////////////////////////////////////////////////
 	////							Constructors					////
 	////////////////////////////////////////////////////////////////////
 	public Level(Block[][] pMatrix, Gravity pGravity, ArrayList<Block> pReplacementList, WinCondition pWinCondition) {
 		this.mMatrix = pMatrix;
-		this.sizeX = pMatrix.length;
-		this.sizeY = pMatrix[0].length;
+		this.mSizeX = pMatrix.length;
+		this.mSizeY = pMatrix[0].length;
 		this.mGravity = pGravity;
 		this.mReplacementList = pReplacementList;
 		//TODO: dummy block!
@@ -76,9 +77,9 @@ public class Level implements Serializable, Cloneable {
 		}
 		repl.add(0,new Block(this.mNextBlock.getColor(), this.mNextBlock.getX(), this.mNextBlock.getY()));
 		//deepcopy the matrix
-		Block[][] matrix = new Block[this.sizeX][this.sizeY];
-		for(int i = 0; i < this.sizeX; ++i) {
-			for(int j = 0; j < this.sizeY; ++j) {
+		Block[][] matrix = new Block[this.mSizeX][this.mSizeY];
+		for(int i = 0; i < this.mSizeX; ++i) {
+			for(int j = 0; j < this.mSizeY; ++j) {
 				matrix[i][j] = new Block(this.mMatrix[i][j].getColor(), this.mMatrix[i][j].getX(), this.mMatrix[i][j].getY());
 			}
 		}
@@ -108,21 +109,21 @@ public class Level implements Serializable, Cloneable {
 					break;
 				}
 				case EAST: {
-					for(int i = pX; i < this.sizeX-1; ++i) {
+					for(int i = pX; i < this.mSizeX-1; ++i) {
 						var = this.mMatrix[i+1][pY];
 						var.setPosition(i, pY);
 						this.mMatrix[i][pY] = var;
 					}
-					newBlock.setPosition(this.sizeX-1,pY);;
+					newBlock.setPosition(this.mSizeX-1,pY);;
 					break;
 				}
 				case SOUTH: {
-					for(int i = pY; i < this.sizeY-1; ++i) {
+					for(int i = pY; i < this.mSizeY-1; ++i) {
 						var = this.mMatrix[pX][i+1];
 						var.setPosition(pX, i);
 						this.mMatrix[pX][i] = var;
 					}
-					newBlock.setPosition(pX,this.sizeY-1);
+					newBlock.setPosition(pX,this.mSizeY-1);
 					break;
 				}
 				case WEST: {
@@ -170,7 +171,7 @@ public class Level implements Serializable, Cloneable {
 		boolean win = true; 
 		boolean help = false;
 		for(int i = BlockColor.getLowestColorNumber(); i <= BlockColor.getBiggestColorNumber() && win; ++i) {
-			for(int j = 0; j < this.sizeX && !help; ++j) {
+			for(int j = 0; j < this.mSizeX && !help; ++j) {
 				help = (help || this.checkRow(j, i) || this.checkColumn(j, i)) ;
 			}
 			win = win && help;
@@ -189,7 +190,7 @@ public class Level implements Serializable, Cloneable {
 		int winCount = this.mWinCondition.getWinCount(pColorNumber);
 		BlockColor colorCheck = BlockColor.numberToColor(pColorNumber);
 		int counter = 0;
-		for(int i = 0; i < this.sizeX; ++i) {
+		for(int i = 0; i < this.mSizeX; ++i) {
 			if(this.mMatrix[pX][i].getColor() == colorCheck) {
 				++counter;
 			} else {
@@ -206,7 +207,7 @@ public class Level implements Serializable, Cloneable {
 		int winCount = this.mWinCondition.getWinCount(pColorNumber);
 		int counter = 0;
 		BlockColor colorCheck = BlockColor.numberToColor(pColorNumber);
-		for(int i = 0; i < this.sizeY; ++i) {
+		for(int i = 0; i < this.mSizeY; ++i) {
 			if(this.mMatrix[i][pY].getColor() == colorCheck) {
 				++counter;
 			} else {
@@ -285,12 +286,28 @@ public class Level implements Serializable, Cloneable {
 		SOUTH(2),
 		WEST(3);	
 		
-		private int mX;		
+		private int mX;	
+		
 		private Gravity(int pX) {
 			this.mX = pX;
 		}
+		
 		public int toNumber() {
 			return this.mX;
+		}
+		
+		public static Gravity random() {
+			return numberToGravity(Randomizer.nextInt(4));
+		}
+		
+		public static Gravity numberToGravity(int pX) {
+			switch(pX) {
+				case 0: return NORTH;
+				case 1: return EAST;
+				case 2: return SOUTH;
+				case 3: return WEST;
+				default: return NORTH;
+			}
 		}
 	}
 }

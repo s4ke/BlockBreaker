@@ -1,10 +1,10 @@
 package de.hotware.blockbreaker.model;
 
 import java.io.Serializable;
-import java.util.Random;
 
 import de.hotware.blockbreaker.model.listeners.IBlockPositionListener;
 import de.hotware.blockbreaker.model.listeners.IBlockPositionListener.BlockPositionChangedEvent;
+import de.hotware.blockbreaker.util.misc.Randomizer;
 
 /**
  * Representation class of the blocks for storing color information
@@ -105,7 +105,7 @@ public class Block implements Serializable, Cloneable {
 		private int mColor;
 
 		public static BlockColor random() {
-			return numberToColor(new Random().nextInt(5)+1);
+			return numberToColor(Randomizer.nextInt(5)+1);
 		}
 
 		public static BlockColor numberToColor(int pX) {
