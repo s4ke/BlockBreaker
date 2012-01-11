@@ -278,7 +278,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	public void randomLevel() {
-		this.mBackupLevel = LevelGenerator.randomUncheckedLevel();
+		this.mBackupLevel = LevelGenerator.createRandomLevel(9);
 		this.mLevel = this.mBackupLevel.clone();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
@@ -375,6 +375,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	private void loadLevel() {
+		if(true) {
+			this.mBackupLevel = LevelGenerator.createRandomLevel(9);
+			return;
+		}
 		try {
 			InputStream stream;
 			if(this.mIsAsset) {
