@@ -2,7 +2,7 @@ package de.hotware.blockbreaker.util.misc;
 
 import java.util.Random;
 
-public class Randomizer{
+public class Randomizer {
 	
 	private static final Random RANDOM = new Random();
 	

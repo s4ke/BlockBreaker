@@ -8,4 +8,5 @@
         android:title="Restart" 
         android:titleCondensed="Restart">
     </item>
+    <item android:id="@+id/next" android:title="next Level" android:titleCondensed="next"></item>
 </menu>

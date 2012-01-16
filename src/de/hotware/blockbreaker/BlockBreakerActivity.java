@@ -1,7 +1,5 @@
 package de.hotware.blockbreaker;
 
-import java.io.InputStream;
-
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -28,14 +26,12 @@ import org.andengine.ui.activity.BaseGameActivity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import de.hotware.blockbreaker.model.generator.LevelGenerator;
-import de.hotware.blockbreaker.model.generator.LevelSerializer;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
@@ -82,7 +78,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private LevelSceneHandler mLevelSceneHandler;
 	private Level mBackupLevel;
 	private Level mLevel;
+	@SuppressWarnings("unused")
 	private String mLevelPath = DEFAULT_LEVEL_PATH;
+	@SuppressWarnings("unused")
 	private boolean mIsAsset = true;
 
 	private IGameEndListener mGameEndListener;
@@ -153,7 +151,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 
 	@Override
-	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback){		
+	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback){	
+		this.loadLevel();
 		this.drawLevel();
 		//TODO: setting scene only for testing purposes!!!
 		this.mEngine.setScene(this.mLevelScene);
@@ -164,8 +163,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onResumeGame() {
 		if(this.mEngine != null) {
 			super.onResumeGame();
-		}		
-		this.enableOrientationSensor(this);
+			this.enableOrientationSensor(this);
+		}
 	}
 
 	@Override
@@ -230,6 +229,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.restartLevel();
 				return true;
 			}
+			case R.id.next:
+			{
+				this.randomLevel();
+			}
 			default:
 			{
 				return super.onOptionsItemSelected(item);
@@ -242,9 +245,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public boolean onKeyDown(int pKeyCode, KeyEvent pEvent) {
-		if(USE_MENU_WORKAROUND
-				&& pKeyCode == KeyEvent.KEYCODE_BACK 
-				&& pEvent.getRepeatCount() == 0) {
+		if(USE_MENU_WORKAROUND && 
+				pKeyCode == KeyEvent.KEYCODE_BACK && 
+				pEvent.getRepeatCount() == 0) {
 			this.onBackPressed();
 		}
 		return super.onKeyDown(pKeyCode, pEvent);
@@ -278,7 +281,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	public void randomLevel() {
-		this.mBackupLevel = LevelGenerator.createRandomLevel(9);
+		this.mBackupLevel = LevelGenerator.createRandomLevel(16);
 		this.mLevel = this.mBackupLevel.clone();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
@@ -291,8 +294,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private void drawLevel() {
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
-
-		this.loadLevel();
 		
 		this.mLevel = this.mBackupLevel.clone();
 		
@@ -375,35 +376,32 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	private void loadLevel() {
-		if(true) {
-			this.mBackupLevel = LevelGenerator.createRandomLevel(9);
-			return;
-		}
-		try {
-			InputStream stream;
-			if(this.mIsAsset) {
-				AssetManager assetManager = this.getResources().getAssets();
-				stream = assetManager.open(this.mLevelPath);
-				this.mBackupLevel = LevelSerializer.readLevel(stream);
-				//TODO add non asset stuff and move the readLevel part out of the if block
-			}
-		} catch (final Exception e) {
-			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
-				public void run() {
-					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
-					builder.setMessage(e.getMessage() + "\nLeaving to main menu")
-					.setCancelable(false)
-					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							BlockBreakerActivity.this.setResult(RESULT_CANCELED);
-							BlockBreakerActivity.this.finish();
-						}
-					});
-					AlertDialog alert = builder.create();
-					alert.show();
-				}
-			});	
-			
-		}
+		this.mBackupLevel = LevelGenerator.createRandomLevel(16);
+//		try {
+//			InputStream stream;
+//			if(this.mIsAsset) {
+//				AssetManager assetManager = this.getResources().getAssets();
+//				stream = assetManager.open(this.mLevelPath);
+//				this.mBackupLevel = LevelSerializer.readLevel(stream);
+//				//TODO add non asset stuff and move the readLevel part out of the if block
+//			}
+//		} catch (final Exception e) {
+//			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
+//				public void run() {
+//					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
+//					builder.setMessage(e.getMessage() + "\nLeaving to main menu")
+//					.setCancelable(false)
+//					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//						public void onClick(DialogInterface dialog, int id) {
+//							BlockBreakerActivity.this.setResult(RESULT_CANCELED);
+//							BlockBreakerActivity.this.finish();
+//						}
+//					});
+//					AlertDialog alert = builder.create();
+//					alert.show();
+//				}
+//			});	
+//			
+//		}
 	}
 }

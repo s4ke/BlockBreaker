@@ -3,8 +3,6 @@ package de.hotware.blockbreaker.model.generator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.Comparator;
-import java.util.TreeMap;
 
 import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.model.Level;
@@ -40,6 +38,31 @@ public class LevelGenerator {
 		return level;
 	}
 	
+	private static class WinValuePair implements Comparable<WinValuePair>{
+		
+		private final BlockColor mBlockColor;
+		private final int mWinCount;
+		
+		public WinValuePair(BlockColor pBlockColor, int pWinCount) {
+			this.mBlockColor = pBlockColor;
+			this.mWinCount = pWinCount;
+		}
+		
+		public BlockColor getBlockColor() {
+			return this.mBlockColor;
+		}
+		
+		public int getWinCount() {
+			return this.mWinCount;
+		}
+
+		@Override
+		public int compareTo(WinValuePair pOther) {
+			return pOther.getWinCount() - this.mWinCount;
+		}
+		
+	}
+	
 	public static Level createRandomLevel(int pNumberOfMoves) {
 		Block[][] matrix = new Block[6][6];
 		Random random = new Random();
@@ -49,19 +72,14 @@ public class LevelGenerator {
 	        		random.nextInt(7),
 	        		random.nextInt(7));
 		
-		TreeMap<Integer, BlockColor> map = new TreeMap<Integer, BlockColor>(new Comparator<Integer>() {
-
-			@Override
-			public int compare(Integer lhs, Integer rhs) {
-				return rhs - lhs;
-			}
-			
-		});
+		WinValuePair[] sorting = new WinValuePair[5];
+		for(int i = 0; i < sorting.length; ++i) {
+			sorting[i] = new WinValuePair(BlockColor.numberToColor(i+1), win.getWinCount(i+1));
+		}
 		
-		int[] winArray = win.getWinClone();
-		Arrays.sort(winArray);
+		Arrays.sort(sorting);
 		
-		fillMatrixWithConditionalBlocks(matrix, map);
+		fillMatrixWithConditionalBlocks(matrix, sorting);
 		
 		fillRestOfMatrixWithRandomBlocks(matrix);
 		
@@ -76,11 +94,6 @@ public class LevelGenerator {
 	 * @return the Replacementlist for the given matrix
 	 */
 	private static ArrayList<Block> createReplacementList(Block[][] pMatrix, int pNumberOfMoves) {
-		if(true) {
-			ArrayList<Block> test = new ArrayList<Block>();
-			test.add(new Block(BlockColor.random()));
-			return test;
-		}
 		ArrayList<Block> ret = new ArrayList<Block>();
 		Gravity grav;
 		Block var;
@@ -100,34 +113,34 @@ public class LevelGenerator {
 						var.setPosition(x,i);
 						pMatrix[x][i] = var;
 					}
-					pMatrix[x][LEVEL_HEIGHT - 1] = new Block(BlockColor.random(), x, LEVEL_HEIGHT - 1);
+					pMatrix[x][0] = new Block(BlockColor.random(), x, 0);
 					break;
 				}
 				case EAST: {
-					for(int i = 0; i < pMatrix.length - 1; ++i) {
+					for(int i = 0; i < LEVEL_WIDTH - 1; ++i) {
 						var = pMatrix[i+1][y];
 						var.setPosition(i, y);
 						pMatrix[i][y] = var;
 					}
-					pMatrix[0][y] = new Block(BlockColor.random(), 0, y);
+					pMatrix[LEVEL_WIDTH - 1][y] = new Block(BlockColor.random(), LEVEL_WIDTH - 1, y);
 					break;
 				}
 				case SOUTH: {
-					for(int i = 0; i < pMatrix[0].length - 1; ++i) {
+					for(int i = 0; i < LEVEL_HEIGHT - 1; ++i) {
 						var = pMatrix[x][i+1];
 						var.setPosition(x, i);
 						pMatrix[x][i] = var;
 					}
-					pMatrix[x][0] = new Block(BlockColor.random(), x, 0);
+					pMatrix[x][LEVEL_HEIGHT - 1] = new Block(BlockColor.random(), x, LEVEL_HEIGHT - 1);
 					break;
 				}
 				case WEST: {
-					for(int i = LEVEL_WIDTH - 1; i < pMatrix.length - 1; --i) {
+					for(int i = LEVEL_WIDTH - 1; i > 0; --i) {
 						var = pMatrix[i-1][y];
 						var.setPosition(i, y);
 						pMatrix[i][y] = var;
 					}
-					pMatrix[LEVEL_WIDTH - 1][y] = new Block(BlockColor.random(), LEVEL_WIDTH - 1, y);
+					pMatrix[0][y] = new Block(BlockColor.random(), 0, y);
 					break;
 				}
 			}
@@ -145,12 +158,15 @@ public class LevelGenerator {
         }
 	}
 	
-	private static void fillMatrixWithConditionalBlocks(Block[][] pMatrix, TreeMap<Integer, BlockColor> pSortedWinCondition) {
+	private static void fillMatrixWithConditionalBlocks(Block[][] pMatrix, WinValuePair[] pWinValuePairs) {
 		BlockColor blockColor;
 		int winCount;
-		while(!pSortedWinCondition.isEmpty()) {
-			winCount = pSortedWinCondition.firstKey();
-			blockColor = pSortedWinCondition.remove(winCount);
+		for(int i = 0; i < pWinValuePairs.length; ++i) {
+			winCount = pWinValuePairs[i].getWinCount();
+			if(winCount == 0) {
+				break;
+			}
+			blockColor = pWinValuePairs[i].getBlockColor();
 			if((Randomizer.nextInt(1) + 1) == 1) {
 				if(!setToRow(pMatrix, blockColor, winCount)) {
 					setToColumn(pMatrix, blockColor, winCount);
@@ -190,10 +206,12 @@ public class LevelGenerator {
 					++count;
 				}
 			}
-			int pos[] = new int[count];
-			int randomPosNumber = pos[Randomizer.nextInt(count)];
-			setToPositionInRow(pMatrix, randomRowNumber, randomPosNumber, pColor, pSize);
-			return true;
+			if(count > 0) {
+				int pos[] = new int[count];
+				int randomPosNumber = pos[Randomizer.nextInt(count)];
+				setToPositionInRow(pMatrix, randomRowNumber, randomPosNumber, pColor, pSize);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -254,10 +272,12 @@ public class LevelGenerator {
 					++count;
 				}
 			}
-			int pos[] = new int[count];
-			int randomPosNumber = pos[Randomizer.nextInt(count)];
-			setToPositionInColumn(pMatrix, randomColumnNumber, randomPosNumber, pColor, pSize);
-			return true;
+			if(count > 0) {
+				int pos[] = new int[count];
+				int randomPosNumber = pos[Randomizer.nextInt(count)];
+				setToPositionInColumn(pMatrix, randomColumnNumber, randomPosNumber, pColor, pSize);
+				return true;
+			}
 		}
 		return false;
 	}

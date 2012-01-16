@@ -168,7 +168,7 @@ public class LevelSceneHandler {
 		Block[][] matrix = this.mLevel.getMatrix();
 		for(int i = 0; i < 6; ++i) {
 			for(int j = 0; j < 6; ++j) {
-				addBlockSprite(matrix[i][j]);
+				addBlockSprite(matrix[i][j]).registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
 			}
 		}
 	}

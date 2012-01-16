@@ -79,6 +79,7 @@ public class LevelChooserActivity extends Activity{
 		this.startActivity(intent);
 	}
 	
+	@SuppressWarnings("unused")
 	private class BasicGameActivityResultListener implements IGameActivityResultListener {
 
 		@Override
