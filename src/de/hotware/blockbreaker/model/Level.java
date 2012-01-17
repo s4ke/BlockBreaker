@@ -43,7 +43,9 @@ public class Level implements Serializable, Cloneable {
 	////////////////////////////////////////////////////////////////////
 	////							Constructors					////
 	////////////////////////////////////////////////////////////////////
-	public Level(Block[][] pMatrix, Gravity pGravity, ArrayList<Block> pReplacementList, WinCondition pWinCondition) {
+	public Level(Block[][] pMatrix, Gravity pGravity, 
+			ArrayList<Block> pReplacementList, 
+			WinCondition pWinCondition) {
 		this.mMatrix = pMatrix;
 		this.mSizeX = pMatrix.length;
 		this.mSizeY = pMatrix[0].length;

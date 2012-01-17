@@ -61,6 +61,13 @@ public class LevelGenerator {
 		
 	}
 	
+	public static Level createRandomLevelFromSeed(long pSeed, int pNumberOfMoves) {
+		Randomizer.setSeed(pSeed);
+		Level level = createRandomLevel(pNumberOfMoves);
+		Randomizer.newRandomObject();
+		return level;
+	}
+	
 	public static Level createRandomLevel(int pNumberOfMoves) {
 		Block[][] matrix = new Block[6][6];
 		
