@@ -138,9 +138,13 @@ public class Level implements Serializable, Cloneable {
 			}
 			this.mMatrix[newBlock.getX()][newBlock.getY()] = newBlock;
 			this.nextBlock();
-			if(this.mWinCondition != null) {
-				this.checkWin();
-			}	
+			if(this.mWinCondition != null && this.mGameEndListener != null) {
+				if(this.checkWin()){
+					this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.WIN));
+				} else if (this.mReplacementList.size() == 0 && this.mNextBlock.getColor() == BlockColor.NONE) {
+					this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.LOSE));
+				}
+			}
 		}
 		notifyAll();
 		return newBlock;		
@@ -167,7 +171,7 @@ public class Level implements Serializable, Cloneable {
 	/**
 	 * Used for checking if player has won or lost. Only use this if WinCondition has been set!
 	 */
-	protected void checkWin() {
+	public boolean checkWin() {
 		boolean win = true; 
 		boolean help = false;
 		for(int i = BlockColor.getLowestColorNumber(); i <= BlockColor.getBiggestColorNumber() && win; ++i) {
@@ -177,13 +181,7 @@ public class Level implements Serializable, Cloneable {
 			win = win && help;
 			help = false;
 		}
-		if(this.mGameEndListener != null) {
-			if(win){
-				this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.WIN));
-			} else if (this.mReplacementList.size() == 0 && this.mNextBlock.getColor() == BlockColor.NONE) {
-				this.mGameEndListener.onGameEnd(new GameEndEvent(this,GameEndType.LOSE));
-			}
-		}
+		return win;
 	}
 
 	private boolean checkRow(int pX, int pColorNumber) {

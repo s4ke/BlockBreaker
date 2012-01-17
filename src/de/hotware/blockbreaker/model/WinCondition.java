@@ -27,6 +27,14 @@ public class WinCondition implements Serializable, Cloneable {
 	public int getWinCount(int pColorNumber) {
 		return this.mWin[pColorNumber - 1];
 	}
+	
+	public int getTotalWinCount() {
+		int ret = 0;
+		for(int i = 0; i < this.mWin.length; ++i) {
+			ret += this.mWin[i];
+		}
+		return ret;
+	}
 
 	@Override
 	public WinCondition clone() {

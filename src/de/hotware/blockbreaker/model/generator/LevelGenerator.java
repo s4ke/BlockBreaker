@@ -2,7 +2,6 @@ package de.hotware.blockbreaker.model.generator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.model.Level;
@@ -64,12 +63,17 @@ public class LevelGenerator {
 	
 	public static Level createRandomLevel(int pNumberOfMoves) {
 		Block[][] matrix = new Block[6][6];
-		Random random = new Random();
-		WinCondition win = new WinCondition(random.nextInt(7),
-	        		random.nextInt(7),
-	        		random.nextInt(7),
-	        		random.nextInt(7),
-	        		random.nextInt(7));
+		
+		WinCondition win = null;
+		
+		while(win == null || win.getTotalWinCount() < 10) {
+			win = new WinCondition(Randomizer.nextInt(7),
+					Randomizer.nextInt(7),
+	        		Randomizer.nextInt(7),
+	        		Randomizer.nextInt(7),
+	        		Randomizer.nextInt(7));
+		}
+	        		
 		
 		WinValuePair[] sorting = new WinValuePair[5];
 		for(int i = 0; i < sorting.length; ++i) {
@@ -82,8 +86,13 @@ public class LevelGenerator {
 		
 		fillRestOfMatrixWithRandomBlocks(matrix);
 		
-		ArrayList<Block> repl = createReplacementList(matrix, pNumberOfMoves);
+		ArrayList<Block> repl = new ArrayList<Block>();
 		Level level = new Level(matrix, Gravity.NORTH, repl, win);
+		
+		while(level.checkWin()) {
+			repl.clear();
+			createReplacementList(matrix, pNumberOfMoves, repl);
+		}
 		
 		return level;
 	}
@@ -92,8 +101,7 @@ public class LevelGenerator {
 	 * Moves the blocks in the Array around and creates a ReplacementList
 	 * @return the Replacementlist for the given matrix
 	 */
-	private static ArrayList<Block> createReplacementList(Block[][] pMatrix, int pNumberOfMoves) {
-		ArrayList<Block> ret = new ArrayList<Block>();
+	private static void createReplacementList(Block[][] pMatrix, int pNumberOfMoves, ArrayList<Block> pReplacementList) {
 		Gravity grav;
 		Block var;
 		int x;
@@ -104,7 +112,7 @@ public class LevelGenerator {
 			x = Randomizer.nextInt(6);
 			y = Randomizer.nextInt(6);
 			old = pMatrix[x][y];
-			ret.add(new Block(old.getColor()));
+			pReplacementList.add(new Block(old.getColor()));
 			switch(grav) {
 				case NORTH: {					
 					for(int i = LEVEL_HEIGHT - 1; i > 0; --i) {
@@ -144,7 +152,6 @@ public class LevelGenerator {
 				}
 			}
 		}
-		return ret;
 	}
 	
 	private static void fillRestOfMatrixWithRandomBlocks(Block[][] pMatrix) {
