@@ -270,12 +270,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mIsAsset = pIsAsset;
 		this.loadLevel();
 		this.mLevel = this.mBackupLevel.clone();
+		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 	
 	public void restartLevel() {
 		this.mLevel = this.mBackupLevel.clone();
+		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
@@ -283,6 +285,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void randomLevel() {
 		this.mBackupLevel = LevelGenerator.createRandomLevel(16);
 		this.mLevel = this.mBackupLevel.clone();
+		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
@@ -296,6 +299,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mLevelScene = scene;
 		
 		this.mLevel = this.mBackupLevel.clone();
+		this.mLevel.start();
 		
 		if(this.mLevel != null) {       
 			this.mLevel.setGameEndListener(this.mGameEndListener = new IGameEndListener() {

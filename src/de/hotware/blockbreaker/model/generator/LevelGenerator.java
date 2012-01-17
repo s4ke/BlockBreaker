@@ -108,7 +108,9 @@ public class LevelGenerator {
 	 * Moves the blocks in the Array around and creates a ReplacementList
 	 * @return the Replacementlist for the given matrix
 	 */
-	private static void createReplacementList(Block[][] pMatrix, int pNumberOfMoves, ArrayList<Block> pReplacementList) {
+	private static void createReplacementList(Block[][] pMatrix, 
+			int pNumberOfMoves, 
+			ArrayList<Block> pReplacementList) {
 		Gravity grav;
 		Block var;
 		int x;

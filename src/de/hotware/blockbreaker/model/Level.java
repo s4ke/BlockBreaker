@@ -39,6 +39,7 @@ public class Level implements Serializable, Cloneable {
 	protected IGravityListener mGravityListener;
 	protected int mSizeX;
 	protected int mSizeY;
+	protected boolean mStarted;
 
 	////////////////////////////////////////////////////////////////////
 	////							Constructors					////
@@ -53,13 +54,11 @@ public class Level implements Serializable, Cloneable {
 		this.mReplacementList = pReplacementList;
 		//TODO: dummy block!
 		this.mWinCondition = pWinCondition;
-		this.nextBlock();
 	}
 
 	public Level(Block[][] pMatrix, Gravity pGravity) {
 		this.mMatrix = pMatrix;
 		this.mGravity = pGravity;
-		this.nextBlock();
 	}
 	
 	////////////////////////////////////////////////////////////////////
@@ -77,7 +76,6 @@ public class Level implements Serializable, Cloneable {
 			repl.add(0, new Block(var.getColor()));
 			--x;
 		}
-		repl.add(0,new Block(this.mNextBlock.getColor(), this.mNextBlock.getX(), this.mNextBlock.getY()));
 		//deepcopy the matrix
 		Block[][] matrix = new Block[this.mSizeX][this.mSizeY];
 		for(int i = 0; i < this.mSizeX; ++i) {
@@ -91,6 +89,16 @@ public class Level implements Serializable, Cloneable {
 	////////////////////////////////////////////////////////////////////
 	////							Methods							////
 	////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * initializes the Level
+	 */
+	public synchronized void start() {
+		if(!this.mStarted) {
+			this.nextBlock();
+			this.mStarted = true;
+		}
+	}
 	
 	/**
 	 * kills a Block from the matrix at the specified position
