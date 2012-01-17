@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/mainmenu" 
-        android:title="Menu" 
-        android:titleCondensed="Menu">
+        android:title="@string/menu" 
+        android:titleCondensed="@string/menu">
     </item>
     <item android:id="@+id/restart" 
-        android:title="Restart" 
-        android:titleCondensed="Restart">
+        android:title="@string/restart_level" 
+        android:titleCondensed="@string/restart">
     </item>
-    <item android:id="@+id/next" android:title="next Level" android:titleCondensed="next"></item>
+    <item android:id="@+id/next" android:title="@string/next_level" android:titleCondensed="@string/next"></item>
 </menu>

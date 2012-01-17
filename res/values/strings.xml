@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BlockBreaker</string>
-
+    <string name="menu">Menu</string>
+    <string name="restart">Restart</string>
+    <string name="restart_level">Restart Level</string>
+    <string name="next">Next</string>
+    <string name="next_level">Next Level</string>
 </resources>
