@@ -28,17 +28,16 @@ public class LevelGenerator {
         		list.add(new Block(BlockColor.random()));        		
         	}
         }
-        Random random = new Random();
-        WinCondition win = new WinCondition(random.nextInt(7),
-        		random.nextInt(7),
-        		random.nextInt(7),
-        		random.nextInt(7),
-        		random.nextInt(7));
+        WinCondition win = new WinCondition(Randomizer.nextInt(7),
+        		Randomizer.nextInt(7),
+        		Randomizer.nextInt(7),
+        		Randomizer.nextInt(7),
+        		Randomizer.nextInt(7));
 		Level level = new Level(matrix, Gravity.NORTH, list, win);
 		return level;
 	}
 	
-	private static class WinValuePair implements Comparable<WinValuePair>{
+	private static class WinValuePair implements Comparable<WinValuePair> {
 		
 		private final BlockColor mBlockColor;
 		private final int mWinCount;
@@ -167,7 +166,7 @@ public class LevelGenerator {
 				break;
 			}
 			blockColor = pWinValuePairs[i].getBlockColor();
-			if((Randomizer.nextInt(1) + 1) == 1) {
+			if((Randomizer.nextInt(1)) == 1) {
 				if(!setToRow(pMatrix, blockColor, winCount)) {
 					setToColumn(pMatrix, blockColor, winCount);
 				}
