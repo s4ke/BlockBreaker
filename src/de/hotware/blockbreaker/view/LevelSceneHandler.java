@@ -67,7 +67,7 @@ public class LevelSceneHandler {
 		final Shape roof = new Rectangle(HORIZONTAL_GAP - 1, VERTICAL_GAP - 1, HORIZONTAL_SIZE + 3, 1);
 		final Shape left = new Rectangle(HORIZONTAL_GAP-1, VERTICAL_GAP - 1, 1, VERTICAL_SIZE + 4);
 		final Shape right = new Rectangle(UIConstants.LEVEL_WIDTH - HORIZONTAL_GAP + 1, VERTICAL_GAP -1, 1, VERTICAL_SIZE + 4);
-
+		
 		this.mScene.attachChild(ground);
 		this.mScene.attachChild(roof);
 		this.mScene.attachChild(left);

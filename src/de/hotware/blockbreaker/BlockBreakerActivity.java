@@ -88,7 +88,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
 	////////////////////////////////////////////////////////////////////
-
+	
 	/**
 	 * sets the EngineOptions to the needs of the game
 	 */
@@ -151,7 +151,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 
 	@Override
-	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback){	
+	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback) {
 		this.loadLevel();
 		this.drawLevel();
 		//TODO: setting scene only for testing purposes!!!
@@ -313,11 +313,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			});
 
 			this.mLevelSceneHandler = new LevelSceneHandler(scene);
-
-			this.mLevelSceneHandler.initLevelScene(this.mLevel, this.mSceneUIFont,
-					this.mBlockTiledTextureRegion,
-					this.mArrowTiledTextureRegion);
-
+		
+			BlockBreakerActivity.this.mLevelSceneHandler.initLevelScene(BlockBreakerActivity.this.mLevel, 
+			BlockBreakerActivity.this.mSceneUIFont,
+			BlockBreakerActivity.this.mBlockTiledTextureRegion,
+			BlockBreakerActivity.this.mArrowTiledTextureRegion);
+			
 			final HUD hud = new HUD();
 			final FPSCounter counter = new FPSCounter();
 			this.mEngine.registerUpdateHandler(counter);
@@ -334,7 +335,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				}
 			));
 		}
-		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, this.mSceneBackgroundTextureRegion)));
+		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, BlockBreakerActivity.this.mSceneBackgroundTextureRegion)));
 	}
 
 	private void showEndDialog(final GameEndType pResult) {

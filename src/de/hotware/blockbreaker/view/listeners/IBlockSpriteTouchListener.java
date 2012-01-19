@@ -15,7 +15,7 @@ public interface IBlockSpriteTouchListener {
 			super(pSource);
 			this.mBlock = pBlock;
 		}
-
+		
 		public Block getBlock() {
 			return this.mBlock;
 		}

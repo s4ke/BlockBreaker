@@ -57,9 +57,7 @@ public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
 
 			@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
-				Intent intent = new Intent(BaseSplashScreenActivity.this, BaseSplashScreenActivity.this.getFollowUpActivity());
-				BaseSplashScreenActivity.this.finish();
-				BaseSplashScreenActivity.this.startActivity(intent);
+				BaseSplashScreenActivity.this.startFollowUpActivity();
 			}
 
 		}));
@@ -69,6 +67,12 @@ public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
 	@Override
 	public void onResumeGame() {
 		super.onResumeGame();
+	}
+	
+	private void startFollowUpActivity() {
+		Intent intent = new Intent(BaseSplashScreenActivity.this, BaseSplashScreenActivity.this.getFollowUpActivity());
+		BaseSplashScreenActivity.this.finish();
+		BaseSplashScreenActivity.this.startActivity(intent);
 	}
 
 }
