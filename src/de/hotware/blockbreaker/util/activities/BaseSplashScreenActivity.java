@@ -68,9 +68,7 @@ public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
 	
 	@Override
 	public void onResumeGame() {
-		if(this.mEngine != null) {
-			super.onResumeGame();
-		}
+		super.onResumeGame();
 	}
 
 }

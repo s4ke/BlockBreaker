@@ -161,10 +161,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	@Override
 	public void onResumeGame() {
-		if(this.mEngine != null) {
-			super.onResumeGame();
-			this.enableOrientationSensor(this);
-		}
+		super.onResumeGame();
+		this.enableOrientationSensor(this);
 	}
 
 	@Override

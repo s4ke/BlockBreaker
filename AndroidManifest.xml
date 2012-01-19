@@ -12,7 +12,8 @@
         android:label="@string/app_name">
         <activity
             android:label="@string/app_name"
-            android:name=".BlockBreakerLogoSplashScreenActivity">
+            android:name=".BlockBreakerLogoSplashScreenActivity"
+            android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -21,6 +22,7 @@
         <activity
             android:label="@string/app_name"
             android:name=".LevelChooserActivity"
+            android:configChanges="orientation"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,6 +32,7 @@
         <activity
             android:label="@string/app_name"
             android:name=".BlockBreakerActivity"
+            android:configChanges="orientation"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
