@@ -3,6 +3,7 @@ package de.hotware.blockbreaker.view;
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.view.listeners.IBlockSpriteTouchListener;
@@ -15,8 +16,8 @@ public class BlockSprite extends TiledSprite {
 	private IBlockSpriteTouchListener mBlockSpriteTouchListener;
 	private Block mBlock;
 
-	public BlockSprite(float pTileWidth, float pTileHeight, TiledTextureRegion pTiledTextureRegion) {
-		super(UNDEFINED_LOCATION, UNDEFINED_LOCATION, pTileWidth, pTileHeight, pTiledTextureRegion);
+	public BlockSprite(float pTileWidth, float pTileHeight, TiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(UNDEFINED_LOCATION, UNDEFINED_LOCATION, pTileWidth, pTileHeight, pTiledTextureRegion, pVertexBufferObjectManager);
 	}
 
 	@Override

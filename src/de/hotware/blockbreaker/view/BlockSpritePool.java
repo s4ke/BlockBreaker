@@ -2,6 +2,7 @@ package de.hotware.blockbreaker.view;
 
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.pool.GenericPool;
 
 import de.hotware.blockbreaker.model.Block;
@@ -11,17 +12,19 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 
 	private Scene mScene;
 	private TiledTextureRegion mTiledTextureRegion;
+	private VertexBufferObjectManager mVertexBufferObjectManager;
 
-	public BlockSpritePool(Scene pScene, TiledTextureRegion pTiledTextureRegion) {
+	public BlockSpritePool(Scene pScene, TiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
 		this.mScene = pScene;
 		this.mTiledTextureRegion = pTiledTextureRegion;
+		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 	}
 
 	@Override
 	protected BlockSprite onAllocatePoolItem() {
 		BlockSprite bs = new BlockSprite(UIConstants.BASE_SPRITE_WIDTH, 
 				UIConstants.BASE_SPRITE_HEIGHT, 
-				this.mTiledTextureRegion.deepCopy());
+				this.mTiledTextureRegion.deepCopy(), this.mVertexBufferObjectManager);
 		this.mScene.attachChild(bs);
 		return bs;
 	}

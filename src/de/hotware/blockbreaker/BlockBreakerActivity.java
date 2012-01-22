@@ -20,6 +20,7 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.sensor.orientation.IOrientationListener;
 import org.andengine.sensor.orientation.OrientationData;
 import org.andengine.ui.activity.BaseGameActivity;
@@ -143,10 +144,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public void onCreateScene(OnCreateSceneCallback pCallback) {
-		this.mEngine.registerUpdateHandler(new FPSLogger());
-		
-		//init some kind of levelchoosing here and save it in a variable.
-		
+		this.mEngine.registerUpdateHandler(new FPSLogger());		
 		pCallback.onCreateSceneFinished(new Scene());
 	}
 
@@ -297,45 +295,45 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mLevelScene = scene;
 		
 		this.mLevel = this.mBackupLevel.clone();
-		this.mLevel.start();
+		this.mLevel.start();  
 		
-		if(this.mLevel != null) {       
-			this.mLevel.setGameEndListener(this.mGameEndListener = new IGameEndListener() {
+		this.mLevel.setGameEndListener(this.mGameEndListener = new IGameEndListener() {
+			@Override
+			public void onGameEnd(final GameEndEvent pEvt) {
+				BlockBreakerActivity.this.runOnUiThread(new Runnable() {
+					public void run() {
+						BlockBreakerActivity.this.showEndDialog(pEvt.getType());
+					}
+				});							
+			}
+
+		});
+		
+		VertexBufferObjectManager vboManager = this.mEngine.getVertexBufferObjectManager();
+		
+		this.mLevelSceneHandler = new LevelSceneHandler(scene, vboManager);
+	
+		BlockBreakerActivity.this.mLevelSceneHandler.initLevelScene(BlockBreakerActivity.this.mLevel, 
+		BlockBreakerActivity.this.mSceneUIFont,
+		BlockBreakerActivity.this.mBlockTiledTextureRegion,
+		BlockBreakerActivity.this.mArrowTiledTextureRegion);
+		
+		final HUD hud = new HUD();
+		final FPSCounter counter = new FPSCounter();
+		this.mEngine.registerUpdateHandler(counter);
+		final ChangeableText fps = new ChangeableText(1, 1, this.mFPSFont , "FPS:", "FPS: XXXXX".length(), vboManager);
+		hud.attachChild(fps);
+		this.mCamera.setHUD(hud);
+
+		scene.registerUpdateHandler(new TimerHandler(1/20F, true, 
+			new ITimerCallback() {
 				@Override
-				public void onGameEnd(final GameEndEvent pEvt) {
-					BlockBreakerActivity.this.runOnUiThread(new Runnable() {
-						public void run() {
-							BlockBreakerActivity.this.showEndDialog(pEvt.getType());
-						}
-					});							
-				}
-
-			});
-
-			this.mLevelSceneHandler = new LevelSceneHandler(scene);
-		
-			BlockBreakerActivity.this.mLevelSceneHandler.initLevelScene(BlockBreakerActivity.this.mLevel, 
-			BlockBreakerActivity.this.mSceneUIFont,
-			BlockBreakerActivity.this.mBlockTiledTextureRegion,
-			BlockBreakerActivity.this.mArrowTiledTextureRegion);
-			
-			final HUD hud = new HUD();
-			final FPSCounter counter = new FPSCounter();
-			this.mEngine.registerUpdateHandler(counter);
-			final ChangeableText fps = new ChangeableText(1, 1, this.mFPSFont , "FPS:", "FPS: XXXXX".length());
-			hud.attachChild(fps);
-			this.mCamera.setHUD(hud);
-
-			scene.registerUpdateHandler(new TimerHandler(1/20F, true, 
-				new ITimerCallback() {
-					@Override
-					public void onTimePassed(TimerHandler arg0) {
-						fps.setText("FPS: " + counter.getFPS());
-					}            	
-				}
-			));
-		}
-		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, BlockBreakerActivity.this.mSceneBackgroundTextureRegion)));
+				public void onTimePassed(TimerHandler arg0) {
+					fps.setText("FPS: " + counter.getFPS());
+				}            	
+			}
+		));
+		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, BlockBreakerActivity.this.mSceneBackgroundTextureRegion, vboManager)));
 	}
 
 	private void showEndDialog(final GameEndType pResult) {

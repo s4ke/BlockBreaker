@@ -52,7 +52,7 @@ public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
 	@Override
 	protected Scene onCreateScene() {
 		final Scene scene = new Scene();
-		scene.setBackground(new SpriteBackground(new Sprite(0,0,this.mWidth, this.mHeight, this.mLoadingScreenTextureRegion)));
+		scene.setBackground(new SpriteBackground(new Sprite(0,0,this.mWidth, this.mHeight, this.mLoadingScreenTextureRegion, this.mEngine.getVertexBufferObjectManager())));
 		scene.registerUpdateHandler(new TimerHandler(this.getWaitTime(), new ITimerCallback() {
 
 			@Override
