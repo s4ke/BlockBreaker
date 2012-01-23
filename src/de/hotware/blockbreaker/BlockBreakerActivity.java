@@ -40,9 +40,9 @@ import de.hotware.blockbreaker.view.UIConstants;
 import de.hotware.blockbreaker.view.LevelSceneHandler;
 
 /**
- * (c) 2011 Martin Braun
+ * (c) 2012 Martin Braun
  * @author Martin Braun
- * @since 14:27 7. Dec 2011
+ * @since Dec 2011
  */
 public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener {
 	////////////////////////////////////////////////////////////////////
@@ -256,12 +256,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onBackPressed() {
 		this.showCancelDialog();
 	}
-	
+
 	////////////////////////////////////////////////////////////////////
-	////					Public Methods							////
+	////					Private Methods							////
 	////////////////////////////////////////////////////////////////////
 	
-	public void updateLevel(String pLevelPath, boolean pIsAsset) {
+	@SuppressWarnings("unused")
+	private void updateLevel(String pLevelPath, boolean pIsAsset) {
 		this.mLevelPath = pLevelPath;
 		this.mIsAsset = pIsAsset;
 		this.loadLevel();
@@ -271,24 +272,20 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 	
-	public void restartLevel() {
+	private void restartLevel() {
 		this.mLevel = this.mBackupLevel.clone();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 	
-	public void randomLevel() {
+	private void randomLevel() {
 		this.mBackupLevel = LevelGenerator.createRandomLevel(16);
 		this.mLevel = this.mBackupLevel.clone();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
-
-	////////////////////////////////////////////////////////////////////
-	////					Private Methods							////
-	////////////////////////////////////////////////////////////////////
 
 	private void drawLevel() {
 		final Scene scene = new Scene();

@@ -2,6 +2,8 @@ package de.hotware.blockbreaker.view;
 
 import java.util.Vector;
 
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.FadeInModifier;
 import org.andengine.entity.modifier.FadeOutModifier;
@@ -226,7 +228,7 @@ public class LevelSceneHandler {
 			int x = oldBlock.getX();
 			int y = oldBlock.getY();
 
-			Block block = LevelSceneHandler.this.mLevel.killBlock(x, y);
+			final Block block = LevelSceneHandler.this.mLevel.killBlock(x, y);
 
 			if(block.getColor() != BlockColor.NONE) {
 				pEvt.getSource().registerEntityModifier(new FadeOutModifier(UIConstants.SPRITE_FADE_OUT_TIME, new IEntityModifierListener() {
@@ -246,7 +248,15 @@ public class LevelSceneHandler {
 
 				}));
 
-				addBlockSprite(block).registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
+				final BlockSprite bs = addBlockSprite(block);
+				bs.setVisible(false);
+				bs.registerUpdateHandler(new TimerHandler(UIConstants.SPRITE_FADE_IN_TIME, new ITimerCallback() {
+						@Override
+						public void onTimePassed(TimerHandler pTimerHandler) {
+							bs.setVisible(true);
+							bs.registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
+						} 
+				}));
 			}	            	
 		}		
 	}
