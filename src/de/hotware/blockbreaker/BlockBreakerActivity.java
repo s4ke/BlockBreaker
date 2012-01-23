@@ -214,23 +214,19 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public boolean onOptionsItemSelected(MenuItem item) {
 		//TODO use AndEngines Menu System!
 		switch(item.getItemId()) {
-			case R.id.mainmenu:
-			{
+			case R.id.mainmenu: {
 				//TODO start Levelchoosing here!
 				this.showCancelDialog();
 				return true;
 			}
-			case R.id.restart:
-			{
+			case R.id.restart: {
 				this.restartLevel();
 				return true;
 			}
-			case R.id.next:
-			{
+			case R.id.next:	{
 				this.randomLevel();
 			}
-			default:
-			{
+			default: {
 				return super.onOptionsItemSelected(item);
 			}
 		}
