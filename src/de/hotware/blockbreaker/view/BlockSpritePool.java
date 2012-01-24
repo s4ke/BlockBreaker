@@ -24,7 +24,8 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 	protected BlockSprite onAllocatePoolItem() {
 		BlockSprite bs = new BlockSprite(UIConstants.BASE_SPRITE_WIDTH, 
 				UIConstants.BASE_SPRITE_HEIGHT, 
-				this.mTiledTextureRegion.deepCopy(), this.mVertexBufferObjectManager);
+				this.mTiledTextureRegion.deepCopy(),
+				this.mVertexBufferObjectManager);
 		this.mScene.attachChild(bs);
 		return bs;
 	}

@@ -1,5 +1,7 @@
 package de.hotware.blockbreaker;
 
+import java.util.Random;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -59,10 +61,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	private static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
 	private static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
-
+	
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
+
+	private static final Random sRandomSeedObject = new Random();
 	
 	private BitmapTextureAtlas mBlockBitmapTextureAtlas;
 	private TiledTextureRegion mBlockTiledTextureRegion;
@@ -276,7 +280,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	private void randomLevel() {
-		this.mBackupLevel = LevelGenerator.createRandomLevel(16);
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(sRandomSeedObject.nextLong(),16);
 		this.mLevel = this.mBackupLevel.clone();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
@@ -370,7 +374,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	private void loadLevel() {
-		this.mBackupLevel = LevelGenerator.createRandomLevel(16);
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(sRandomSeedObject.nextLong(), 16);
 //		try {
 //			InputStream stream;
 //			if(this.mIsAsset) {
