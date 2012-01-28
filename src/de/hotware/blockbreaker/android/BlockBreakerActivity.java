@@ -12,7 +12,7 @@ import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.entity.text.ChangeableText;
+import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSCounter;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.opengl.font.Font;
@@ -319,7 +319,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		final HUD hud = new HUD();
 		final FPSCounter counter = new FPSCounter();
 		this.mEngine.registerUpdateHandler(counter);
-		final ChangeableText fps = new ChangeableText(1, 1, this.mFPSFont , "FPS:", "FPS: XXXXX".length(), vboManager);
+		final Text fps = new Text(1, 1, this.mFPSFont , "FPS:", "FPS: XXXXX".length(), vboManager);
 		hud.attachChild(fps);
 		this.mCamera.setHUD(hud);
 

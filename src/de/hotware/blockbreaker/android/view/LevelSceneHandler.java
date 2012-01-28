@@ -12,7 +12,6 @@ import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.TiledSprite;
-import org.andengine.entity.text.ChangeableText;
 import org.andengine.entity.text.Text;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
@@ -43,8 +42,8 @@ public class LevelSceneHandler {
 	private Level mLevel;
 	private BlockSpritePool mBlockSpritePool;
 	private TiledSprite mNextBlockSprite;
-	private ChangeableText mTurnsLeftText;
-	private ChangeableText[] mWinCondText;
+	private Text mTurnsLeftText;
+	private Text[] mWinCondText;
 
 	private IBlockSpriteTouchListener mBlockSpriteTouchListener;
 	private INextBlockListener mNextBlockListener;
@@ -56,7 +55,7 @@ public class LevelSceneHandler {
 
 	public LevelSceneHandler(Scene pScene, VertexBufferObjectManager pVertexBufferObjectManager) {
 		this.mScene = pScene;
-		this.mWinCondText = new ChangeableText[5];
+		this.mWinCondText = new Text[5];
 		this.mBlockSpriteVector = new Vector<BlockSprite>();
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 	}
@@ -103,9 +102,9 @@ public class LevelSceneHandler {
 		}
 
 		final WinCondition winCondition = pLevel.getWinCondition();
-		ChangeableText winDisplayText;
+		Text winDisplayText;
 		for(int i = 1; i < 6; ++i) {
-			winDisplayText = new ChangeableText(
+			winDisplayText = new Text(
 					10 + SPRITE_TEXTURE_WIDTH,
 					30 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*(i-1),
 					pUIFont,
@@ -138,14 +137,14 @@ public class LevelSceneHandler {
 				this.mNextBlockSprite.getY() + this.mNextBlockSprite.getHeight() + 10);
 		mScene.attachChild(turnsText);
 
-		this.mTurnsLeftText = new ChangeableText(0, 0, pUIFont, pLevel.getBlocksDisplayText() , 3, this.mVertexBufferObjectManager);
+		this.mTurnsLeftText = new Text(0, 0, pUIFont, pLevel.getBlocksDisplayText() , 3, this.mVertexBufferObjectManager);
 		this.mTurnsLeftText.setPosition(
 				UIConstants.LEVEL_WIDTH - this.mTurnsLeftText.getWidth() - 22,
 				turnsText.getY() + turnsText.getHeight() + 10);
 		mScene.attachChild(this.mTurnsLeftText);
 
 		final TiledSprite nextBlockSprite = this.mNextBlockSprite;
-		final ChangeableText turnsLeftText = this.mTurnsLeftText;
+		final Text turnsLeftText = this.mTurnsLeftText;
 		pLevel.setNextBlockListener(this.mNextBlockListener = new INextBlockListener() {	
 
 			@Override
