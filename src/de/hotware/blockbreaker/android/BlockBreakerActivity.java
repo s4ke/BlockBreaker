@@ -78,7 +78,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	
 	private Camera mCamera;	
 	private Scene mLevelScene;
-	private Font mFPSFont;
+	private Font mMiscFont;
 	private Font mSceneUIFont;
 	
 	private LevelSceneHandler mLevelSceneHandler;
@@ -132,8 +132,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		BitmapTextureAtlas fpsFontTexture = new BitmapTextureAtlas(256,256, TextureOptions.BILINEAR);
 		this.mEngine.getTextureManager().loadTexture(fpsFontTexture);
 		FontFactory.setAssetBasePath("font/");
-		this.mFPSFont = FontFactory.createFromAsset(fpsFontTexture, this, "Droid.ttf", 12, true, Color.BLACK);   	
-		this.mEngine.getFontManager().loadFont(this.mFPSFont);
+		this.mMiscFont = FontFactory.createFromAsset(fpsFontTexture, this, "Droid.ttf", 12, true, Color.BLACK);   	
+		this.mEngine.getFontManager().loadFont(this.mMiscFont);
 
 		//loading scene font
 		BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(256,256,TextureOptions.BILINEAR);
@@ -281,7 +281,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	private void randomLevel() {
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(sRandomSeedObject.nextLong(),16);
+		long seed = sRandomSeedObject.nextLong();
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, 16);
 		this.mLevel = this.mBackupLevel.clone();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
@@ -319,7 +320,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		final HUD hud = new HUD();
 		final FPSCounter counter = new FPSCounter();
 		this.mEngine.registerUpdateHandler(counter);
-		final Text fps = new Text(1, 1, this.mFPSFont , "FPS:", "FPS: XXXXX".length(), vboManager);
+		final int maxLength = "FPS: XXXXX".length();
+		final Text fps = new Text(1, 1, this.mMiscFont , "FPS:", maxLength, vboManager);
 		hud.attachChild(fps);
 		this.mCamera.setHUD(hud);
 
@@ -327,7 +329,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			new ITimerCallback() {
 				@Override
 				public void onTimePassed(TimerHandler arg0) {
-					fps.setText("FPS: " + counter.getFPS());
+					fps.setText(("FPS: " + counter.getFPS()).substring(0,maxLength));
 				}            	
 			}
 		));

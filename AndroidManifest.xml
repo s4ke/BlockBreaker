@@ -12,7 +12,7 @@
         android:label="@string/app_name">
         <activity
             android:label="@string/app_name"
-            android:name=".BlockBreakerLogoSplashScreenActivity"
+            android:name=".android.BlockBreakerLogoSplashScreenActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -22,7 +22,7 @@
         </activity>
         <activity
             android:label="@string/app_name"
-            android:name=".LevelChooserActivity"
+            android:name=".android.LevelChooserActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape">
             <intent-filter>

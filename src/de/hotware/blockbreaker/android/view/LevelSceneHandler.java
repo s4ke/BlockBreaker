@@ -98,7 +98,7 @@ public class LevelSceneHandler {
 					pBlockTiledTextureRegion.deepCopy(),
 					this.mVertexBufferObjectManager);
 			winSpriteHelp.setCurrentTileIndex(i+1);
-			mScene.attachChild(winSpriteHelp);
+			this.mScene.attachChild(winSpriteHelp);
 		}
 
 		final WinCondition winCondition = pLevel.getWinCondition();
@@ -112,14 +112,14 @@ public class LevelSceneHandler {
 					1,
 					this.mVertexBufferObjectManager);
 			this.mWinCondText[i-1] = winDisplayText;
-			mScene.attachChild(winDisplayText);
+			this.mScene.attachChild(winDisplayText);
 		}
 
 		final Text nextText = new Text(0, 0, pUIFont, "Next", this.mVertexBufferObjectManager);
 		nextText.setPosition(
 				UIConstants.LEVEL_WIDTH - nextText.getWidth() - 13,
 				2 + VERTICAL_GAP);
-		mScene.attachChild(nextText);
+		this.mScene.attachChild(nextText);
 
 		this.mNextBlockSprite = new TiledSprite(
 				UIConstants.LEVEL_WIDTH - SPRITE_TEXTURE_WIDTH - 24,
@@ -129,19 +129,19 @@ public class LevelSceneHandler {
 				pBlockTiledTextureRegion.deepCopy(),
 				this.mVertexBufferObjectManager);
 		this.mNextBlockSprite.setCurrentTileIndex(pLevel.getNextBlock().getColor().toNumber());
-		mScene.attachChild(this.mNextBlockSprite);
+		this.mScene.attachChild(this.mNextBlockSprite);
 
 		final Text turnsText = new Text(0, 0, pUIFont, "Turns", this.mVertexBufferObjectManager);
 		turnsText.setPosition(
 				UIConstants.LEVEL_WIDTH - turnsText.getWidth() - 2,
 				this.mNextBlockSprite.getY() + this.mNextBlockSprite.getHeight() + 10);
-		mScene.attachChild(turnsText);
+		this.mScene.attachChild(turnsText);
 
 		this.mTurnsLeftText = new Text(0, 0, pUIFont, pLevel.getBlocksDisplayText() , 3, this.mVertexBufferObjectManager);
 		this.mTurnsLeftText.setPosition(
 				UIConstants.LEVEL_WIDTH - this.mTurnsLeftText.getWidth() - 22,
 				turnsText.getY() + turnsText.getHeight() + 10);
-		mScene.attachChild(this.mTurnsLeftText);
+		this.mScene.attachChild(this.mTurnsLeftText);
 
 		final TiledSprite nextBlockSprite = this.mNextBlockSprite;
 		final Text turnsLeftText = this.mTurnsLeftText;
@@ -163,14 +163,14 @@ public class LevelSceneHandler {
 				pArrowTiledTextureRegion.deepCopy(),
 				this.mVertexBufferObjectManager);
 		gravityArrowSprite.setCurrentTileIndex(pLevel.getGravity().toNumber());
-		mScene.attachChild(gravityArrowSprite);
+		this.mScene.attachChild(gravityArrowSprite);
 
 		pLevel.setGravityListener(this.mGravityListener = new IGravityListener() {
 			@Override
 			public void onGravityChanged(GravityEvent pEvt) {
 				gravityArrowSprite.setCurrentTileIndex(pEvt.getGravity().toNumber());
 			}	    	
-		});	 
+		});
 		//init UI end  
 	}
 
@@ -194,9 +194,8 @@ public class LevelSceneHandler {
 		}
 		this.mTurnsLeftText.setText(pLevel.getBlocksDisplayText());
 		this.mNextBlockSprite.setCurrentTileIndex(pLevel.getNextBlock().getColor().toNumber());
-
 	}
-
+	
 	private void resetScene() {
 		for(BlockSprite bs : this.mBlockSpriteVector) {
 			this.mBlockSpritePool.recyclePoolItem(bs);
