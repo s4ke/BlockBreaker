@@ -1,5 +1,6 @@
 package de.hotware.blockbreaker.android.view;
 
+import java.util.Properties;
 import java.util.Vector;
 
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -62,7 +63,8 @@ public class LevelSceneHandler {
 
 	public void initLevelScene(final Level pLevel, final Font pUIFont,
 			final TiledTextureRegion pBlockTiledTextureRegion,
-			final TiledTextureRegion pArrowTiledTextureRegion) {
+			final TiledTextureRegion pArrowTiledTextureRegion,
+			final Properties pStringProperties) {
 		this.mLevel = pLevel;
 
 		this.mBlockSpritePool = new BlockSpritePool(this.mScene, pBlockTiledTextureRegion, this.mVertexBufferObjectManager);
@@ -115,7 +117,9 @@ public class LevelSceneHandler {
 			this.mScene.attachChild(winDisplayText);
 		}
 
-		final Text nextText = new Text(0, 0, pUIFont, "Next", this.mVertexBufferObjectManager);
+		final Text nextText = new Text(0, 0, pUIFont, 
+				pStringProperties.getProperty(UIConstants.NEXT_PROPERTY_KEY),
+				this.mVertexBufferObjectManager);
 		nextText.setPosition(
 				UIConstants.LEVEL_WIDTH - nextText.getWidth() - 13,
 				2 + VERTICAL_GAP);
@@ -131,7 +135,9 @@ public class LevelSceneHandler {
 		this.mNextBlockSprite.setCurrentTileIndex(pLevel.getNextBlock().getColor().toNumber());
 		this.mScene.attachChild(this.mNextBlockSprite);
 
-		final Text turnsText = new Text(0, 0, pUIFont, "Turns", this.mVertexBufferObjectManager);
+		final Text turnsText = new Text(0, 0, pUIFont, 
+				pStringProperties.getProperty(UIConstants.TURNS_PROPERTY_KEY),
+				this.mVertexBufferObjectManager);
 		turnsText.setPosition(
 				UIConstants.LEVEL_WIDTH - turnsText.getWidth() - 2,
 				this.mNextBlockSprite.getY() + this.mNextBlockSprite.getHeight() + 10);

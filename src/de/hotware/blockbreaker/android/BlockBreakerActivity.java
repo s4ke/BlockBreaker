@@ -1,5 +1,8 @@
 package de.hotware.blockbreaker.android;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
@@ -29,6 +32,7 @@ import org.andengine.ui.activity.BaseGameActivity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -41,6 +45,7 @@ import de.hotware.blockbreaker.model.generator.LevelGenerator;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
+import de.hotware.blockbreaker.util.misc.StreamUtil;
 
 /**
  * (c) 2012 Martin Braun
@@ -51,14 +56,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
 	////////////////////////////////////////////////////////////////////
-	public static final int RESULT_CANCELED = -2;
-	public static final int RESULT_RESTART = -3;
-	public static final int RESULT_WIN = 1;
-	public static final int RESULT_LOSE = 2;
-	public static final int RESULT_ERROR = -1;
-	public static final String LEVEL_ARG_KEY = "levelarg";
-	public static final String IS_ASSET_KEY = "isasset";
-	public static final String RESULT_KEY = "result";
+//	public static final int RESULT_CANCELED = -2;
+//	public static final int RESULT_RESTART = -3;
+//	public static final int RESULT_WIN = 1;
+//	public static final int RESULT_LOSE = 2;
+//	public static final int RESULT_ERROR = -1;
+//	public static final String LEVEL_ARG_KEY = "levelarg";
+//	public static final String IS_ASSET_KEY = "isasset";
+//	public static final String RESULT_KEY = "result";
 
 	private static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
 	private static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
@@ -75,6 +80,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private TiledTextureRegion mArrowTiledTextureRegion;
 	private BitmapTextureAtlas mSceneBackgroundBitmapTextureAtlas;
 	private TextureRegion mSceneBackgroundTextureRegion;
+	
+	private Properties mStringProperties;
 	
 	private Camera mCamera;	
 	private Scene mLevelScene;
@@ -112,6 +119,25 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onCreateResources(OnCreateResourcesCallback pCallback) {
 
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+		
+		//TODO: Language choosing
+		this.mStringProperties = new Properties();
+		AssetManager assetManager = this.getResources().getAssets();
+		InputStream is = null;
+		boolean fail = false;
+		try {
+			is = assetManager.open(UIConstants.DEFAULT_PROPERTIES_PATH);
+			this.mStringProperties.load(is);
+		} catch (IOException e) {
+			fail = true;
+			this.showFailDialog(e.getMessage());
+		} finally {
+			StreamUtil.closeQuietly(is);
+		}
+		
+		if(fail) {
+			this.finish();
+		}
 
 		//loading block textures
 		this.mBlockBitmapTextureAtlas = new BitmapTextureAtlas(276,46,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -207,9 +233,22 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.levelmenu, menu);
-		return true;
+		if(this.mStringProperties != null) {
+			menu.add(Menu.NONE,
+					UIConstants.MENU_MENU_ID,
+					Menu.NONE,
+					this.mStringProperties.getProperty(UIConstants.MENU_PROPERTY_KEY));
+			menu.add(Menu.NONE,
+					UIConstants.RESTART_MENU_ID,
+					Menu.NONE,
+					this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY));
+			menu.add(Menu.NONE, 
+					UIConstants.NEXT_MENU_ID, 
+					Menu.NONE, 
+					this.mStringProperties.getProperty(UIConstants.NEXT_PROPERTY_KEY));
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -219,16 +258,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public boolean onOptionsItemSelected(MenuItem item) {
 		//TODO use AndEngines Menu System!
 		switch(item.getItemId()) {
-			case R.id.mainmenu: {
+			case UIConstants.MENU_MENU_ID: {
 				//TODO start Levelchoosing here!
 				this.showCancelDialog();
 				return true;
 			}
-			case R.id.restart: {
+			case UIConstants.RESTART_MENU_ID: {
 				this.restartLevel();
 				return true;
 			}
-			case R.id.next:	{
+			case UIConstants.NEXT_MENU_ID:	{
 				this.randomLevel();
 			}
 			default: {
@@ -315,12 +354,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		BlockBreakerActivity.this.mLevelSceneHandler.initLevelScene(BlockBreakerActivity.this.mLevel, 
 		BlockBreakerActivity.this.mSceneUIFont,
 		BlockBreakerActivity.this.mBlockTiledTextureRegion,
-		BlockBreakerActivity.this.mArrowTiledTextureRegion);
+		BlockBreakerActivity.this.mArrowTiledTextureRegion,
+		this.mStringProperties);
 		
 		final HUD hud = new HUD();
 		final FPSCounter counter = new FPSCounter();
 		this.mEngine.registerUpdateHandler(counter);
-		final int maxLength = "FPS: XXXXX".length();
+		final int maxLength = "FPS: XXXXXXX".length();
 		final Text fps = new Text(1, 1, this.mMiscFont , "FPS:", maxLength, vboManager);
 		hud.attachChild(fps);
 		this.mCamera.setHUD(hud);
@@ -329,7 +369,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			new ITimerCallback() {
 				@Override
 				public void onTimePassed(TimerHandler arg0) {
-					fps.setText(("FPS: " + counter.getFPS()).substring(0,maxLength));
+					fps.setText("FPS: " + Float.toString(counter.getFPS()).substring(0, 5));
 				}            	
 			}
 		));
@@ -337,16 +377,29 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 
 	private void showEndDialog(final GameEndType pResult) {
+		String resString;
+		
+		switch(pResult) {
+			case WIN:
+				resString = this.mStringProperties.getProperty(UIConstants.WIN_GAME_PROPERTY_KEY);
+				break;
+			case LOSE:
+				resString = this.mStringProperties.getProperty(UIConstants.LOSE_GAME_PROPERTY_KEY);
+				break;
+			default:
+				resString = "WTF?";
+		}
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(pResult.toString() + " Restart?")
+		builder.setMessage(resString + " " + this.mStringProperties.getProperty(UIConstants.RESTART_QUESTION_PROPERTY_KEY))
 		.setCancelable(true)
-		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.YES_PROPERTY_KEY), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface pDialog, int pId) {
 				pDialog.dismiss();
 				BlockBreakerActivity.this.restartLevel();
 			}
 		})
-		.setNegativeButton("No", new DialogInterface.OnClickListener() {
+		.setNegativeButton(this.mStringProperties.getProperty(UIConstants.NO_PROPERTY_KEY), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface pDialog, int pId) {
 				pDialog.dismiss();
 				//TODO: Testing purposes!
@@ -359,17 +412,31 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	
 	private void showCancelDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Exit game?")
+		builder.setMessage(this.mStringProperties.getProperty(UIConstants.EXIT_GAME_QUESTION_PROPERTY_KEY))
 		.setCancelable(true)
-		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.YES_PROPERTY_KEY), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface pDialog, int pId) {
 				pDialog.dismiss();
 				BlockBreakerActivity.this.finish();
 			}
 		})
-		.setNegativeButton("No", new DialogInterface.OnClickListener() {
+		.setNegativeButton(this.mStringProperties.getProperty(UIConstants.NO_PROPERTY_KEY), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface pDialog, int pId) {
 				pDialog.dismiss();
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
+	private void showFailDialog(String pMessage) {
+		//Don't use Properties here because this is used for failures in property loading as well
+		AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
+		builder.setMessage(pMessage + "\nQuitting!")
+		.setCancelable(false)
+		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				BlockBreakerActivity.this.finish();
 			}
 		});
 		AlertDialog alert = builder.create();
