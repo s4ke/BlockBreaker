@@ -26,8 +26,8 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegion
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.sensor.orientation.IOrientationListener;
-import org.andengine.sensor.orientation.OrientationData;
+import org.andengine.input.sensor.orientation.IOrientationListener;
+import org.andengine.input.sensor.orientation.OrientationData;
 import org.andengine.ui.activity.BaseGameActivity;
 
 import android.app.AlertDialog;

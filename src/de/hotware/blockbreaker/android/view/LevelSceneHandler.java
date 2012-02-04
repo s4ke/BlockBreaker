@@ -1,7 +1,6 @@
 package de.hotware.blockbreaker.android.view;
 
 import java.util.Properties;
-import java.util.Vector;
 
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
@@ -18,6 +17,8 @@ import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.modifier.IModifier;
+import org.andengine.util.adt.list.CircularList;
+import org.andengine.util.adt.list.concurrent.SynchronizedList;
 
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
@@ -50,14 +51,14 @@ public class LevelSceneHandler {
 	private INextBlockListener mNextBlockListener;
 	private IGravityListener mGravityListener;
 
-	private Vector<BlockSprite> mBlockSpriteVector;
+	private SynchronizedList<BlockSprite> mBlockSpriteVector;
 	
 	private VertexBufferObjectManager mVertexBufferObjectManager;
 
 	public LevelSceneHandler(Scene pScene, VertexBufferObjectManager pVertexBufferObjectManager) {
 		this.mScene = pScene;
 		this.mWinCondText = new Text[5];
-		this.mBlockSpriteVector = new Vector<BlockSprite>();
+		this.mBlockSpriteVector = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>());
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 	}
 
@@ -203,8 +204,8 @@ public class LevelSceneHandler {
 	}
 	
 	private void resetScene() {
-		for(BlockSprite bs : this.mBlockSpriteVector) {
-			this.mBlockSpritePool.recyclePoolItem(bs);
+		for(int i = 0; i < this.mBlockSpriteVector.size(); ++i) {
+			this.mBlockSpritePool.recyclePoolItem(this.mBlockSpriteVector.get(i));
 		}
 		this.mBlockSpriteVector.clear();
 	}
@@ -246,7 +247,7 @@ public class LevelSceneHandler {
 
 					@Override
 					public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-						LevelSceneHandler.this.mBlockSpriteVector.remove(pItem);
+						LevelSceneHandler.this.mBlockSpriteVector.remove((BlockSprite)pItem);
 						LevelSceneHandler.this.mBlockSpritePool.recyclePoolItem((BlockSprite) pItem);
 					}
 

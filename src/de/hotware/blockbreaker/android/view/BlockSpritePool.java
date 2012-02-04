@@ -3,7 +3,7 @@ package de.hotware.blockbreaker.android.view;
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.pool.GenericPool;
+import org.andengine.util.adt.pool.GenericPool;
 
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
