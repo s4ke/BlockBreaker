@@ -34,9 +34,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Color;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
 import de.hotware.blockbreaker.model.generator.LevelGenerator;
@@ -85,6 +88,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private Scene mLevelScene;
 	private Font mMiscFont;
 	private Font mSceneUIFont;
+	
+	private Text mSeedText;
 	
 	private LevelSceneHandler mLevelSceneHandler;
 	private Level mBackupLevel;
@@ -179,8 +184,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	@Override
 	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback) {
-		this.loadLevel();
-		this.drawLevel();
+		this.loadFirstLevel();
+		this.initLevel();
+		this.mCamera.getHUD().attachChild(this.mSeedText);
 		//TODO: setting scene only for testing purposes!!!
 		this.mEngine.setScene(this.mLevelScene);
 		pCallback.onPopulateSceneFinished();
@@ -237,6 +243,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					Menu.NONE,
 					this.mStringProperties.getProperty(UIConstants.MENU_PROPERTY_KEY));
 			menu.add(Menu.NONE,
+					UIConstants.FROM_SEED_MENU_ID,
+					Menu.NONE,
+					this.mStringProperties.getProperty(UIConstants.FROM_SEED_PROPERTY_KEY));
+			menu.add(Menu.NONE,
 					UIConstants.RESTART_MENU_ID,
 					Menu.NONE,
 					this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY));
@@ -259,6 +269,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			case UIConstants.MENU_MENU_ID: {
 				//TODO start Levelchoosing here!
 				this.showCancelDialog();
+				return true;
+			}
+			case UIConstants.FROM_SEED_MENU_ID: {
+				this.showInputSeedDialog();
 				return true;
 			}
 			case UIConstants.RESTART_MENU_ID: {
@@ -301,17 +315,18 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	
 	@SuppressWarnings("unused")
 	private void updateLevel(String pLevelPath, boolean pIsAsset) {
+		this.mSeedText.setText("");
 		this.mLevelPath = pLevelPath;
 		this.mIsAsset = pIsAsset;
-		this.loadLevel();
-		this.mLevel = this.mBackupLevel.clone();
+		this.loadFirstLevel();
+		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 	
 	private void restartLevel() {
-		this.mLevel = this.mBackupLevel.clone();
+		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
@@ -319,18 +334,23 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	
 	private void randomLevel() {
 		long seed = sRandomSeedObject.nextLong();
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, 16);
-		this.mLevel = this.mBackupLevel.clone();
+		this.randomLevelFromSeed(seed);
+	}
+	
+	private void randomLevelFromSeed(long pSeed) {
+		this.mSeedText.setText("Seed: " + Long.toString(pSeed));
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, 16);
+		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 
-	private void drawLevel() {
+	private void initLevel() {
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
 		
-		this.mLevel = this.mBackupLevel.clone();
+		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();  
 		
 		this.mLevel.setGameEndListener(this.mGameEndListener = new IGameEndListener() {
@@ -359,15 +379,23 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		final FPSCounter counter = new FPSCounter();
 		this.mEngine.registerUpdateHandler(counter);
 		final int maxLength = "FPS: XXXXXXX".length();
-		final Text fps = new Text(1, 1, this.mMiscFont , "FPS:", maxLength, vboManager);
+		final Text fps = new Text(1, 
+				1, 
+				this.mMiscFont, 
+				"FPS:", 
+				maxLength, 
+				vboManager);
 		hud.attachChild(fps);
+		
 		this.mCamera.setHUD(hud);
 
 		scene.registerUpdateHandler(new TimerHandler(1/20F, true, 
 			new ITimerCallback() {
 				@Override
 				public void onTimePassed(TimerHandler arg0) {
-					fps.setText("FPS: " + Float.toString(counter.getFPS()).substring(0, 5));
+					String fpsString = Float.toString(counter.getFPS());
+					int length = fpsString.length();
+					fps.setText("FPS: " + fpsString.substring(0, length >= 5 ? 5 : length));
 				}            	
 			}
 		));
@@ -378,14 +406,18 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		String resString;
 		
 		switch(pResult) {
-			case WIN:
+			case WIN: {
 				resString = this.mStringProperties.getProperty(UIConstants.WIN_GAME_PROPERTY_KEY);
 				break;
-			case LOSE:
+			}
+			case LOSE: {
 				resString = this.mStringProperties.getProperty(UIConstants.LOSE_GAME_PROPERTY_KEY);
 				break;
-			default:
+			}
+			default: {
 				resString = "WTF?";
+				break;
+			}
 		}
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -404,8 +436,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				BlockBreakerActivity.this.randomLevel();
 			}
 		});
-		AlertDialog alert = builder.create();
-		alert.show();
+		builder.create().show();
 	}
 	
 	private void showCancelDialog() {
@@ -423,8 +454,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				pDialog.dismiss();
 			}
 		});
-		AlertDialog alert = builder.create();
-		alert.show();
+		builder.create().show();
 	}
 	
 	private void showFailDialog(String pMessage) {
@@ -437,37 +467,52 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				BlockBreakerActivity.this.finish();
 			}
 		});
-		AlertDialog alert = builder.create();
-		alert.show();
+		builder.create().show();
 	}
 	
-	private void loadLevel() {
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(sRandomSeedObject.nextLong(), 16);
-//		try {
-//			InputStream stream;
-//			if(this.mIsAsset) {
-//				AssetManager assetManager = this.getResources().getAssets();
-//				stream = assetManager.open(this.mLevelPath);
-//				this.mBackupLevel = LevelSerializer.readLevel(stream);
-//				//TODO add non asset stuff and move the readLevel part out of the if block
-//			}
-//		} catch (final Exception e) {
-//			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
-//				public void run() {
-//					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
-//					builder.setMessage(e.getMessage() + "\nLeaving to main menu")
-//					.setCancelable(false)
-//					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//						public void onClick(DialogInterface dialog, int id) {
-//							BlockBreakerActivity.this.setResult(RESULT_CANCELED);
-//							BlockBreakerActivity.this.finish();
-//						}
-//					});
-//					AlertDialog alert = builder.create();
-//					alert.show();
-//				}
-//			});	
-//			
-//		}
+	private void showInputSeedDialog() {	
+		FrameLayout fl = new FrameLayout(this);
+		final EditText input = new EditText(this);
+		input.setGravity(Gravity.CENTER);
+		fl.addView(input, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(this.mStringProperties.getProperty(UIConstants.INPUT_SEED_QUESTION_KEY))
+		.setView(fl)
+		.setCancelable(true)
+		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.OK_PROPERTY_KEY), 
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						try {
+							long seed = Long.parseLong(input.getText().toString());
+							BlockBreakerActivity.this.randomLevelFromSeed(seed);
+						} catch (NumberFormatException e) {}
+					}
+			})
+			.setNegativeButton(this.mStringProperties.getProperty(UIConstants.CANCEL_PROPERTY_KEY),
+					new DialogInterface.OnClickListener() {						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+			}
+		);
+		builder.create().show();
+	}
+	
+	/**
+	 * loads the first randomly generated Level and initializes the SeedText
+	 */
+	private void loadFirstLevel() {
+		long seed = sRandomSeedObject.nextLong();
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, 16);
+		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 1;
+		this.mSeedText = new Text(1,
+				UIConstants.LEVEL_HEIGHT - 15,
+				this.mMiscFont,
+				"Seed: " + seed,
+				maxLength,
+				this.mEngine.getVertexBufferObjectManager());
 	}
 }
