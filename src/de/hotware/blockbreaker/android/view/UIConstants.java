@@ -22,7 +22,8 @@ public class UIConstants {
 	public static final String NO_PROPERTY_KEY = "no";
 	public static final String OK_PROPERTY_KEY = "ok";
 	public static final String CANCEL_PROPERTY_KEY = "cancel";
-	public static final String INPUT_SEED_QUESTION_KEY = "input_seed_question";
+	public static final String INPUT_SEED_QUESTION_PROPERTY_KEY = "input_seed_question";
+	public static final String WRONG_SEED_INPUT_PROPERTY_KEY = "wrong_seed_input";
 	public static final String EXIT_GAME_QUESTION_PROPERTY_KEY = "exit_game_question";
 	public static final String WIN_GAME_PROPERTY_KEY = "win";
 	public static final String LOSE_GAME_PROPERTY_KEY = "lose";

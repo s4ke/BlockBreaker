@@ -463,38 +463,48 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		builder.setMessage(pMessage + "\nQuitting!")
 		.setCancelable(false)
 		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
+			public void onClick(DialogInterface pDialog, int pId) {
 				BlockBreakerActivity.this.finish();
 			}
 		});
 		builder.create().show();
 	}
 	
-	private void showInputSeedDialog() {	
+	private void showInputSeedDialog() {
+		this.showInputSeedDialog(
+				this.mStringProperties.getProperty(UIConstants.INPUT_SEED_QUESTION_PROPERTY_KEY));
+	}
+	
+	private void showInputSeedDialog(String pText) {	
 		FrameLayout fl = new FrameLayout(this);
 		final EditText input = new EditText(this);
 		input.setGravity(Gravity.CENTER);
 		fl.addView(input, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(this.mStringProperties.getProperty(UIConstants.INPUT_SEED_QUESTION_KEY))
+		builder.setMessage(pText)
 		.setView(fl)
 		.setCancelable(true)
 		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.OK_PROPERTY_KEY), 
 				new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialog, int id) {
+					public void onClick(DialogInterface pDialog, int pId) {
 						try {
 							long seed = Long.parseLong(input.getText().toString());
 							BlockBreakerActivity.this.randomLevelFromSeed(seed);
-						} catch (NumberFormatException e) {}
+							pDialog.dismiss();
+						} catch (NumberFormatException e) {
+							BlockBreakerActivity.this.showInputSeedDialog(
+									BlockBreakerActivity.this.mStringProperties.getProperty(
+											UIConstants.WRONG_SEED_INPUT_PROPERTY_KEY));					
+						}
 					}
 			})
 			.setNegativeButton(this.mStringProperties.getProperty(UIConstants.CANCEL_PROPERTY_KEY),
 					new DialogInterface.OnClickListener() {						
 						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
+						public void onClick(DialogInterface pDialog, int pId) {
+							pDialog.dismiss();
 						}
 			}
 		);
