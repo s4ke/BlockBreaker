@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BlockBreaker</string>
+    <string name="use_orient_sens">Use Orientation Sensor</string>
+    <string name="use_orient_sens_sum">check this to use the orientation sensor to control the gravity of the blocks</string>
+    <string name="gameplay_options">Gameplay Options</string>
 </resources>

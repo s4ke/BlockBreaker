@@ -32,8 +32,11 @@ import org.andengine.ui.activity.BaseGameActivity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -57,23 +60,15 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
 	////////////////////////////////////////////////////////////////////
-//	public static final int RESULT_CANCELED = -2;
-//	public static final int RESULT_RESTART = -3;
-//	public static final int RESULT_WIN = 1;
-//	public static final int RESULT_LOSE = 2;
-//	public static final int RESULT_ERROR = -1;
-//	public static final String LEVEL_ARG_KEY = "levelarg";
-//	public static final String IS_ASSET_KEY = "isasset";
-//	public static final String RESULT_KEY = "result";
-
 	private static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
 	private static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
 	
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
-
 	private static final Random sRandomSeedObject = new Random();
+	
+	private boolean mUseOrientSensor = false;
 	
 	private BitmapTextureAtlas mBlockBitmapTextureAtlas;
 	private TiledTextureRegion mBlockTiledTextureRegion;
@@ -104,6 +99,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
 	////////////////////////////////////////////////////////////////////
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		this.getPrefs();
+	}
 	
 	/**
 	 * sets the EngineOptions to the needs of the game
@@ -168,7 +169,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(256,256,TextureOptions.BILINEAR);
 		this.mEngine.getTextureManager().loadTexture(sceneFontTexture);
 		this.mSceneUIFont = FontFactory.createFromAsset(sceneFontTexture, this, "Plok.ttf", 18, true, Color.BLACK);
-		this.mEngine.getFontManager().loadFont(this.mSceneUIFont);	
+		this.mEngine.getFontManager().loadFont(this.mSceneUIFont);
 
 		pCallback.onCreateResourcesFinished();
 	}
@@ -210,23 +211,25 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public void onOrientationChanged(OrientationData pOrientData) {
-		if(this.mLevel != null) {
-			float pitch,roll;
-			pitch = pOrientData.getPitch();
-			roll = pOrientData.getRoll();
-			if(roll == 0 && pitch == 0) {
-				this.mLevel.setGravity(Level.Gravity.NORTH);
-			} else if(Math.max(Math.abs(pitch), Math.abs(roll)) == Math.abs(pitch)){
-				if(-pitch < 0) {
-					this.mLevel.setGravity(Level.Gravity.SOUTH);
-				} else {
+		if(this.mUseOrientSensor) {
+			if(this.mLevel != null) {
+				float pitch,roll;
+				pitch = pOrientData.getPitch();
+				roll = pOrientData.getRoll();
+				if(roll == 0 && pitch == 0) {
 					this.mLevel.setGravity(Level.Gravity.NORTH);
-				}
-			} else {
-				if(roll < 0) {
-					this.mLevel.setGravity(Level.Gravity.EAST);
+				} else if(Math.max(Math.abs(pitch), Math.abs(roll)) == Math.abs(pitch)){
+					if(-pitch < 0) {
+						this.mLevel.setGravity(Level.Gravity.SOUTH);
+					} else {
+						this.mLevel.setGravity(Level.Gravity.NORTH);
+					}
 				} else {
-					this.mLevel.setGravity(Level.Gravity.WEST);
+					if(roll < 0) {
+						this.mLevel.setGravity(Level.Gravity.EAST);
+					} else {
+						this.mLevel.setGravity(Level.Gravity.WEST);
+					}
 				}
 			}
 		}
@@ -268,7 +271,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		switch(item.getItemId()) {
 			case UIConstants.MENU_MENU_ID: {
 				//TODO start Levelchoosing here!
-				this.showCancelDialog();
+                Intent settingsActivity = new Intent(getBaseContext(),
+                        BlockBreakerPreferencesActivity.class);
+                this.startActivity(settingsActivity);
 				return true;
 			}
 			case UIConstants.FROM_SEED_MENU_ID: {
@@ -525,4 +530,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				maxLength,
 				this.mEngine.getVertexBufferObjectManager());
 	}
+	
+	 private void getPrefs() {
+         // Get the xml/preferences.xml preferences
+		 // Don't save this in a constant, because it will only be used in code here
+         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+         this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
+	 }
 }

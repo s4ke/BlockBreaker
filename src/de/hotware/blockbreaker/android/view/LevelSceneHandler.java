@@ -13,6 +13,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.entity.text.Text;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -168,8 +169,21 @@ public class LevelSceneHandler {
 				SPRITE_TEXTURE_WIDTH,
 				SPRITE_TEXTURE_HEIGHT,
 				pArrowTiledTextureRegion.deepCopy(),
-				this.mVertexBufferObjectManager);
+				this.mVertexBufferObjectManager) {
+			
+			@Override
+			public boolean onAreaTouched(TouchEvent pAreaTouchEvent,
+					float pTouchAreaLocalX,
+					float pTouchAreaLocalY) {
+				if(pAreaTouchEvent.isActionDown()) {
+					LevelSceneHandler.this.mLevel.switchToNextGravity();
+				}
+				return true;
+			}
+			
+		};
 		gravityArrowSprite.setCurrentTileIndex(pLevel.getGravity().toNumber());
+		this.mScene.registerTouchArea(gravityArrowSprite);
 		this.mScene.attachChild(gravityArrowSprite);
 
 		pLevel.setGravityListener(this.mGravityListener = new IGravityListener() {
