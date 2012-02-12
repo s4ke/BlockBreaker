@@ -60,39 +60,40 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
 	////////////////////////////////////////////////////////////////////
-	private static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
-	private static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
+	static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
+	static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
 	
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
-	private static final Random sRandomSeedObject = new Random();
+	static final Random sRandomSeedObject = new Random();
 	
-	private boolean mUseOrientSensor = false;
+	boolean mUseOrientSensor = false;
 	
-	private BitmapTextureAtlas mBlockBitmapTextureAtlas;
-	private TiledTextureRegion mBlockTiledTextureRegion;
-	private BitmapTextureAtlas mArrowBitmapTextureAtlas;
-	private TiledTextureRegion mArrowTiledTextureRegion;
-	private BitmapTextureAtlas mSceneBackgroundBitmapTextureAtlas;
-	private TextureRegion mSceneBackgroundTextureRegion;
+	BitmapTextureAtlas mBlockBitmapTextureAtlas;
+	TiledTextureRegion mBlockTiledTextureRegion;
+	BitmapTextureAtlas mArrowBitmapTextureAtlas;
+	TiledTextureRegion mArrowTiledTextureRegion;
+	BitmapTextureAtlas mSceneBackgroundBitmapTextureAtlas;
+	TextureRegion mSceneBackgroundTextureRegion;
 	
-	private Properties mStringProperties;
+	Properties mStringProperties;
 	
-	private Camera mCamera;	
-	private Scene mLevelScene;
-	private Font mMiscFont;
-	private Font mSceneUIFont;
+	Camera mCamera;	
+	Scene mLevelScene;
+	Font mMiscFont;
+	Font mSceneUIFont;
 	
-	private Text mSeedText;
+	Text mSeedText;
 	
-	private LevelSceneHandler mLevelSceneHandler;
-	private Level mBackupLevel;
-	private Level mLevel;
-	@SuppressWarnings("unused")
-	private String mLevelPath = DEFAULT_LEVEL_PATH;
-	@SuppressWarnings("unused")
-	private boolean mIsAsset = true;
+	LevelSceneHandler mLevelSceneHandler;
+	Level mBackupLevel;
+	Level mLevel;
+	
+	//currently not used
+	String mLevelPath = DEFAULT_LEVEL_PATH;
+	boolean mIsAsset = true;
+	//not used end
 
 	private IGameEndListener mGameEndListener;
 
@@ -196,7 +197,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	@Override
 	public void onResumeGame() {
 		super.onResumeGame();
-		this.enableOrientationSensor(this);
+		if(this.mUseOrientSensor) {
+			this.enableOrientationSensor(this);
+		} else {
+			this.disableOrientationSensor();
+		}
 	}
 
 	@Override
@@ -213,12 +218,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onOrientationChanged(OrientationData pOrientData) {
 		if(this.mUseOrientSensor) {
 			if(this.mLevel != null) {
-				float pitch,roll;
-				pitch = pOrientData.getPitch();
-				roll = pOrientData.getRoll();
+				float pitch = pOrientData.getPitch();
+				float roll = pOrientData.getRoll();
 				if(roll == 0 && pitch == 0) {
 					this.mLevel.setGravity(Level.Gravity.NORTH);
-				} else if(Math.max(Math.abs(pitch), Math.abs(roll)) == Math.abs(pitch)){
+				} else if(Math.max(Math.abs(pitch), Math.abs(roll)) == Math.abs(pitch)) {
 					if(-pitch < 0) {
 						this.mLevel.setGravity(Level.Gravity.SOUTH);
 					} else {
@@ -318,8 +322,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////					Private Methods							////
 	////////////////////////////////////////////////////////////////////
 	
-	@SuppressWarnings("unused")
-	private void updateLevel(String pLevelPath, boolean pIsAsset) {
+	void updateLevel(String pLevelPath, boolean pIsAsset) {
 		this.mSeedText.setText("");
 		this.mLevelPath = pLevelPath;
 		this.mIsAsset = pIsAsset;
@@ -330,19 +333,19 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 	
-	private void restartLevel() {
+	void restartLevel() {
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 	
-	private void randomLevel() {
+	void randomLevel() {
 		long seed = sRandomSeedObject.nextLong();
 		this.randomLevelFromSeed(seed);
 	}
 	
-	private void randomLevelFromSeed(long pSeed) {
+	void randomLevelFromSeed(long pSeed) {
 		this.mSeedText.setText("Seed: " + Long.toString(pSeed));
 		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, 16);
 		this.mLevel = this.mBackupLevel.copy();
@@ -374,10 +377,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		
 		this.mLevelSceneHandler = new LevelSceneHandler(scene, vboManager);
 	
-		BlockBreakerActivity.this.mLevelSceneHandler.initLevelScene(BlockBreakerActivity.this.mLevel, 
-		BlockBreakerActivity.this.mSceneUIFont,
-		BlockBreakerActivity.this.mBlockTiledTextureRegion,
-		BlockBreakerActivity.this.mArrowTiledTextureRegion,
+		this.mLevelSceneHandler.initLevelScene(BlockBreakerActivity.this.mLevel, 
+		this.mSceneUIFont,
+		this.mBlockTiledTextureRegion,
+		this.mArrowTiledTextureRegion,
 		this.mStringProperties);
 		
 		final HUD hud = new HUD();
@@ -407,7 +410,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, BlockBreakerActivity.this.mSceneBackgroundTextureRegion, vboManager)));
 	}
 
-	private void showEndDialog(final GameEndType pResult) {
+	void showEndDialog(final GameEndType pResult) {
 		String resString;
 		
 		switch(pResult) {
@@ -444,7 +447,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		builder.create().show();
 	}
 	
-	private void showCancelDialog() {
+	void showCancelDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(this.mStringProperties.getProperty(UIConstants.EXIT_GAME_QUESTION_PROPERTY_KEY))
 		.setCancelable(true)
@@ -462,7 +465,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		builder.create().show();
 	}
 	
-	private void showFailDialog(String pMessage) {
+	void showFailDialog(String pMessage) {
 		//Don't use Properties here because this is used for failures in property loading as well
 		AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
 		builder.setMessage(pMessage + "\nQuitting!")
@@ -475,12 +478,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		builder.create().show();
 	}
 	
-	private void showInputSeedDialog() {
+	void showInputSeedDialog() {
 		this.showInputSeedDialog(
 				this.mStringProperties.getProperty(UIConstants.INPUT_SEED_QUESTION_PROPERTY_KEY));
 	}
 	
-	private void showInputSeedDialog(String pText) {	
+	void showInputSeedDialog(String pText) {	
 		FrameLayout fl = new FrameLayout(this);
 		final EditText input = new EditText(this);
 		input.setGravity(Gravity.CENTER);
@@ -522,7 +525,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private void loadFirstLevel() {
 		long seed = sRandomSeedObject.nextLong();
 		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, 16);
-		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 1;
+		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 99; //+1 was here
 		this.mSeedText = new Text(1,
 				UIConstants.LEVEL_HEIGHT - 15,
 				this.mMiscFont,

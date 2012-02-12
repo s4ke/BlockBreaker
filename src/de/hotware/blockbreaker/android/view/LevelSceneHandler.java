@@ -31,30 +31,30 @@ import de.hotware.blockbreaker.model.WinCondition;
 
 public class LevelSceneHandler {
 
-	private static final int SPRITE_TEXTURE_HEIGHT = UIConstants.BASE_SPRITE_HEIGHT;
-	private static final int SPRITE_TEXTURE_WIDTH = UIConstants.BASE_SPRITE_WIDTH;
+	static final int SPRITE_TEXTURE_HEIGHT = UIConstants.BASE_SPRITE_HEIGHT;
+	static final int SPRITE_TEXTURE_WIDTH = UIConstants.BASE_SPRITE_WIDTH;
 
-	private static final int HORIZONTAL_SPARE = (UIConstants.LEVEL_WIDTH - (6 * SPRITE_TEXTURE_WIDTH)) - 7;
-	private static final int HORIZONTAL_GAP =  HORIZONTAL_SPARE/2;
-	private static final int HORIZONTAL_SIZE = UIConstants.LEVEL_WIDTH - HORIZONTAL_SPARE;
-	private static final int VERTICAL_SPARE = UIConstants.LEVEL_HEIGHT - 6 * SPRITE_TEXTURE_HEIGHT - 7;
-	private static final int VERTICAL_GAP =  VERTICAL_SPARE/2;
-	private static final int VERTICAL_SIZE = UIConstants.LEVEL_HEIGHT - VERTICAL_SPARE;
+	static final int HORIZONTAL_SPARE = (UIConstants.LEVEL_WIDTH - (6 * SPRITE_TEXTURE_WIDTH)) - 7;
+	static final int HORIZONTAL_GAP =  HORIZONTAL_SPARE/2;
+	static final int HORIZONTAL_SIZE = UIConstants.LEVEL_WIDTH - HORIZONTAL_SPARE;
+	static final int VERTICAL_SPARE = UIConstants.LEVEL_HEIGHT - 6 * SPRITE_TEXTURE_HEIGHT - 7;
+	static final int VERTICAL_GAP =  VERTICAL_SPARE/2;
+	static final int VERTICAL_SIZE = UIConstants.LEVEL_HEIGHT - VERTICAL_SPARE;
 
-	private Scene mScene;
-	private Level mLevel;
-	private BlockSpritePool mBlockSpritePool;
-	private TiledSprite mNextBlockSprite;
-	private Text mTurnsLeftText;
-	private Text[] mWinCondText;
+	Scene mScene;
+	Level mLevel;
+	BlockSpritePool mBlockSpritePool;
+	TiledSprite mNextBlockSprite;
+	Text mTurnsLeftText;
+	Text[] mWinCondText;
 
-	private IBlockSpriteTouchListener mBlockSpriteTouchListener;
-	private INextBlockListener mNextBlockListener;
-	private IGravityListener mGravityListener;
+	IBlockSpriteTouchListener mBlockSpriteTouchListener;
+	INextBlockListener mNextBlockListener;
+	IGravityListener mGravityListener;
 
-	private SynchronizedList<BlockSprite> mBlockSpriteVector;
+	SynchronizedList<BlockSprite> mBlockSpriteVector;
 	
-	private VertexBufferObjectManager mVertexBufferObjectManager;
+	VertexBufferObjectManager mVertexBufferObjectManager;
 
 	public LevelSceneHandler(Scene pScene, VertexBufferObjectManager pVertexBufferObjectManager) {
 		this.mScene = pScene;
