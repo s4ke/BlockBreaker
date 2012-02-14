@@ -54,6 +54,8 @@ import de.hotware.blockbreaker.util.misc.StreamUtil;
 /**
  * (c) 2012 Martin Braun
  * TODO: change behavious via different GameEndListener, Do we need Timed Mode?
+ * TODO: make amount of turns variable via Preferences
+ * TODO: save levels (Preferences checkbox if dialog should appear)
  * @author Martin Braun
  * @since Dec 2011
  */
