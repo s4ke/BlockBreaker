@@ -53,6 +53,7 @@ import de.hotware.blockbreaker.util.misc.StreamUtil;
 
 /**
  * (c) 2012 Martin Braun
+ * TODO: change behavious via different GameEndListener, Do we need Timed Mode?
  * @author Martin Braun
  * @since Dec 2011
  */
