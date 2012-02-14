@@ -325,15 +325,19 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////					Private Methods							////
 	////////////////////////////////////////////////////////////////////
 	
-	void updateLevel(String pLevelPath, boolean pIsAsset) {
+	void updateLevel(String pLevelPath, boolean pIsAsset) throws Exception {
 		this.mSeedText.setText("");
 		this.mLevelPath = pLevelPath;
 		this.mIsAsset = pIsAsset;
-		this.loadFirstLevel();
+		this.loadLevelFromAsset();
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
+	}
+	
+	private void loadLevelFromAsset() throws Exception{
+		throw new Exception("not Implemented!");
 	}
 	
 	void restartLevel() {

@@ -45,6 +45,7 @@ public class LevelSceneHandler {
 	Level mLevel;
 	BlockSpritePool mBlockSpritePool;
 	TiledSprite mNextBlockSprite;
+    TiledSprite mGravityArrowSprite;
 	Text mTurnsLeftText;
 	Text[] mWinCondText;
 
@@ -163,7 +164,7 @@ public class LevelSceneHandler {
 
 		});
 
-		final TiledSprite gravityArrowSprite = new TiledSprite(
+		mGravityArrowSprite = new TiledSprite(
 				UIConstants.LEVEL_WIDTH - SPRITE_TEXTURE_WIDTH - 24,
 				turnsLeftText.getY() + turnsLeftText.getHeight() + 10,
 				SPRITE_TEXTURE_WIDTH,
@@ -182,14 +183,14 @@ public class LevelSceneHandler {
 			}
 			
 		};
-		gravityArrowSprite.setCurrentTileIndex(pLevel.getGravity().toNumber());
-		this.mScene.registerTouchArea(gravityArrowSprite);
-		this.mScene.attachChild(gravityArrowSprite);
+		mGravityArrowSprite.setCurrentTileIndex(pLevel.getGravity().toNumber());
+		this.mScene.registerTouchArea(mGravityArrowSprite);
+		this.mScene.attachChild(mGravityArrowSprite);
 
 		pLevel.setGravityListener(this.mGravityListener = new IGravityListener() {
 			@Override
 			public void onGravityChanged(GravityEvent pEvt) {
-				gravityArrowSprite.setCurrentTileIndex(pEvt.getGravity().toNumber());
+				mGravityArrowSprite.setCurrentTileIndex(pEvt.getGravity().toNumber());
 			}	    	
 		});
 		//init UI end  
@@ -208,6 +209,7 @@ public class LevelSceneHandler {
 		this.resetScene();
 		this.mLevel = pLevel;
 		this.initPlayField();
+		this.mGravityArrowSprite.setCurrentTileIndex(0);
 		pLevel.setGravityListener(this.mGravityListener);
 		pLevel.setNextBlockListener(this.mNextBlockListener);
 		for(int i = 1; i < 6; ++i) {
