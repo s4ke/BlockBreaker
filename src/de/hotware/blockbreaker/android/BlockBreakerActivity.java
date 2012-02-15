@@ -20,6 +20,8 @@ import org.andengine.entity.util.FPSCounter;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
+import org.andengine.opengl.font.FontManager;
+import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -147,32 +149,36 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.finish();
 		}
 
+		TextureManager textureManager = this.mEngine.getTextureManager();
+		
 		//loading block textures
-		this.mBlockBitmapTextureAtlas = new BitmapTextureAtlas(276,46,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mBlockBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 276, 46, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBlockBitmapTextureAtlas, this, "blocks_tiled.png", 0,0, 6,1);
 		this.mEngine.getTextureManager().loadTexture(this.mBlockBitmapTextureAtlas);
 
 		//loading arrow sprites
-		this.mArrowBitmapTextureAtlas = new BitmapTextureAtlas(512,128,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mArrowBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 512, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mArrowTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mArrowBitmapTextureAtlas, this, "arrow_tiled.png", 0,0, 4,1);
 		this.mEngine.getTextureManager().loadTexture(this.mArrowBitmapTextureAtlas);
 
 		//Loading Background
-		this.mSceneBackgroundBitmapTextureAtlas = new BitmapTextureAtlas(960,640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mSceneBackgroundBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 960, 640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mSceneBackgroundTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mSceneBackgroundBitmapTextureAtlas, this, "background.png", 0, 0);   
 		this.mEngine.getTextureManager().loadTexture(this.mSceneBackgroundBitmapTextureAtlas);
 
+		FontManager fontManager = this.mEngine.getFontManager();
+		
 		//loading fps font
-		BitmapTextureAtlas fpsFontTexture = new BitmapTextureAtlas(256,256, TextureOptions.BILINEAR);
+		BitmapTextureAtlas fpsFontTexture = new BitmapTextureAtlas(textureManager, 256, 256, TextureOptions.BILINEAR);
 		this.mEngine.getTextureManager().loadTexture(fpsFontTexture);
 		FontFactory.setAssetBasePath("font/");
-		this.mMiscFont = FontFactory.createFromAsset(fpsFontTexture, this, "Droid.ttf", 12, true, Color.BLACK);   	
+		this.mMiscFont = FontFactory.createFromAsset(fontManager, fpsFontTexture, assetManager, "Droid.ttf", 12, true, Color.BLACK);   	
 		this.mEngine.getFontManager().loadFont(this.mMiscFont);
 
 		//loading scene font
-		BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(256,256,TextureOptions.BILINEAR);
+		BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(textureManager, 256, 256, TextureOptions.BILINEAR);
 		this.mEngine.getTextureManager().loadTexture(sceneFontTexture);
-		this.mSceneUIFont = FontFactory.createFromAsset(sceneFontTexture, this, "Plok.ttf", 18, true, Color.BLACK);
+		this.mSceneUIFont = FontFactory.createFromAsset(fontManager, sceneFontTexture, assetManager, "Plok.ttf", 18, true, Color.BLACK);
 		this.mEngine.getFontManager().loadFont(this.mSceneUIFont);
 
 		pCallback.onCreateResourcesFinished();
@@ -548,4 +554,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
          this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
          this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
 	 }
+
+	@Override
+	public void onOrientationAccuracyChanged(OrientationData pOrientationData) {
+		// TODO Auto-generated method stub
+		
+	}
 }

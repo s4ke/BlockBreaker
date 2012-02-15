@@ -44,7 +44,7 @@ public abstract class BaseSplashScreenActivity extends SimpleBaseGameActivity{
 	protected void onCreateResources() {
 		//Loading the Loading Screen splash
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		final BitmapTextureAtlas atlas = new BitmapTextureAtlas(960,640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		final BitmapTextureAtlas atlas = new BitmapTextureAtlas(this.mEngine.getTextureManager(), 960, 640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mLoadingScreenTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.createFromAsset(atlas, this, this.getGfxImagePath(), 0, 0);   
 		this.mEngine.getTextureManager().loadTexture(atlas);
 	}
