@@ -537,7 +537,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	private void loadFirstLevel() {
 		long seed = sRandomSeedObject.nextLong();
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, 16);
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, this.mNumberOfTurns);
 		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 99; //+1 was here
 		this.mSeedText = new Text(1,
 				UIConstants.LEVEL_HEIGHT - 15,
