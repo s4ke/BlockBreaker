@@ -103,6 +103,7 @@ public class LevelSceneHandler {
 					pBlockTiledTextureRegion.deepCopy(),
 					this.mVertexBufferObjectManager);
 			winSpriteHelp.setCurrentTileIndex(i+1);
+			winSpriteHelp.setIgnoreUpdate(true);
 			this.mScene.attachChild(winSpriteHelp);
 		}
 
@@ -126,6 +127,7 @@ public class LevelSceneHandler {
 		nextText.setPosition(
 				UIConstants.LEVEL_WIDTH - nextText.getWidth() - 13,
 				2 + VERTICAL_GAP);
+		nextText.setIgnoreUpdate(true);
 		this.mScene.attachChild(nextText);
 
 		this.mNextBlockSprite = new TiledSprite(
@@ -144,6 +146,7 @@ public class LevelSceneHandler {
 		turnsText.setPosition(
 				UIConstants.LEVEL_WIDTH - turnsText.getWidth() - 2,
 				this.mNextBlockSprite.getY() + this.mNextBlockSprite.getHeight() + 10);
+		turnsText.setIgnoreUpdate(true);
 		this.mScene.attachChild(turnsText);
 
 		this.mTurnsLeftText = new Text(0, 0, pUIFont, pLevel.getBlocksDisplayText() , 3, this.mVertexBufferObjectManager);
