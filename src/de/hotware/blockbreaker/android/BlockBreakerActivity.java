@@ -53,8 +53,7 @@ import de.hotware.blockbreaker.util.misc.StreamUtil;
 
 /**
  * (c) 2012 Martin Braun
- * TODO: change behavious via different GameEndListener, Do we need Timed Mode?
- * TODO: make amount of turns variable via Preferences
+ * TODO: change behaviours via different GameEndListener, Do we need Timed Mode?
  * TODO: save levels (Preferences checkbox if dialog should appear)
  * @author Martin Braun
  * @since Dec 2011
@@ -72,6 +71,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	static final Random sRandomSeedObject = new Random();
 	
 	boolean mUseOrientSensor = false;
+	int mNumberOfTurns = 16;
 	
 	BitmapTextureAtlas mBlockBitmapTextureAtlas;
 	TiledTextureRegion mBlockTiledTextureRegion;
@@ -354,7 +354,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	
 	void randomLevelFromSeed(long pSeed) {
 		this.mSeedText.setText("Seed: " + Long.toString(pSeed));
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, 16);
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, this.mNumberOfTurns);
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameEndListener);
@@ -546,5 +546,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		 // Don't save this in a constant, because it will only be used in code here
          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
          this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
+         this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
 	 }
 }
