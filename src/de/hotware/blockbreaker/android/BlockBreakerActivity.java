@@ -292,22 +292,25 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		//TODO use AndEngines Menu System!
 		switch(item.getItemId()) {
 			case UIConstants.MENU_MENU_ID: {
-				//TODO start Levelchoosing here!
+				this.mGameTypeHandler.onLeaveFocus();
                 Intent settingsActivity = new Intent(getBaseContext(),
                         BlockBreakerPreferencesActivity.class);
                 this.startActivity(settingsActivity);
 				return true;
 			}
 			case UIConstants.FROM_SEED_MENU_ID: {
-				this.showInputSeedDialog();
+				if(!this.mTimeAttackMode) {
+					this.showInputSeedDialog();
+				}
 				return true;
 			}
 			case UIConstants.RESTART_MENU_ID: {
-				this.restartLevel();
+				this.mGameTypeHandler.requestRestart();
 				return true;
 			}
 			case UIConstants.NEXT_MENU_ID:	{
-				this.randomLevel();
+				this.mGameTypeHandler.requestNextLevel();
+				return true;
 			}
 			default: {
 				return super.onOptionsItemSelected(item);
@@ -384,6 +387,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private void initLevel() {
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
+		
+		this.mGameTypeHandler.requestFirstLevel();
 		
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
@@ -560,9 +565,19 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	     this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
 	 }
 	 
-	 interface IGameTypeHandler extends IGameEndListener{
+	////////////////////////////////////////////////////////////////////
+	////					Inner Classes & Interfaces				////
+	////////////////////////////////////////////////////////////////////
+	 
+	 interface IGameTypeHandler extends IGameEndListener {
+		 		 
+		 public void onLeaveFocus();
 		 
-		 public void onRequestLevel();
+		 public void requestFirstLevel();
+		 
+		 public void requestNextLevel();
+		 
+		 public void requestRestart();
 		 
 	 }
 	 
@@ -576,11 +591,25 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				}
 			});
 		}
+		
+		@Override
+		public void onLeaveFocus() {
+			//nothing to do here
+		}
 
 		@Override
-		public void onRequestLevel() {
-			// TODO Auto-generated method stub
-			
+		public void requestFirstLevel() {
+			//nothing to do here
+		}
+
+		@Override
+		public void requestRestart() {
+			BlockBreakerActivity.this.restartLevel();
+		}
+
+		@Override
+		public void requestNextLevel() {
+			BlockBreakerActivity.this.randomLevel();
 		}
 		 
 	 }
@@ -589,13 +618,26 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		@Override
 		public void onGameEnd(GameEndEvent pEvt) {
-			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void onLeaveFocus() {
 			
 		}
 
 		@Override
-		public void onRequestLevel() {
-			// TODO Auto-generated method stub
+		public void requestFirstLevel() {
+			
+		}
+
+		@Override
+		public void requestRestart() {
+			
+		}
+
+		@Override
+		public void requestNextLevel() {
 			
 		}
 		 
