@@ -113,11 +113,17 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	@Override
 	public void onStart() {
 		super.onStart();
+		boolean oldTimeAttackMode = this.mTimeAttackMode;
 		this.getPrefs();
-		if(this.mTimeAttackMode) {
-			this.mGameTypeHandler = new TimeAttackGameHandler();
-		} else {
-			this.mGameTypeHandler = new DefaultGameHandler();
+		if(oldTimeAttackMode ^ this.mTimeAttackMode || this.mGameTypeHandler == null) {
+			if(this.mGameTypeHandler != null) {
+				this.mGameTypeHandler.cleanUp();
+			}
+			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameHandler() : new DefaultGameHandler();
+			if(this.mLevel != null) {
+				this.mLevel.setGameEndListener(this.mGameTypeHandler);
+				this.mGameTypeHandler.start();
+			}
 		}
 	}
 	
@@ -210,6 +216,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		//TODO: setting scene only for testing purposes!!!
 		this.mEngine.setScene(this.mLevelScene);
 		pCallback.onPopulateSceneFinished();
+		this.mGameTypeHandler.start();
 	}
 
 	@Override
@@ -220,12 +227,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		} else {
 			this.disableOrientationSensor();
 		}
+		this.mGameTypeHandler.onEnterFocus();
 	}
 
 	@Override
 	public void onPauseGame() {
 		super.onPauseGame();
 		this.disableOrientationSensor();
+		this.mGameTypeHandler.onLeaveFocus();
 	}
 
 	/**
@@ -292,10 +301,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		//TODO use AndEngines Menu System!
 		switch(item.getItemId()) {
 			case UIConstants.MENU_MENU_ID: {
-				this.mGameTypeHandler.onLeaveFocus();
-                Intent settingsActivity = new Intent(getBaseContext(),
-                        BlockBreakerPreferencesActivity.class);
-                this.startActivity(settingsActivity);
+				if(this.mGameTypeHandler.requestLeaveToMenu()) {
+	                Intent settingsActivity = new Intent(getBaseContext(),
+	                        BlockBreakerPreferencesActivity.class);
+	                this.startActivity(settingsActivity);
+				}
 				return true;
 			}
 			case UIConstants.FROM_SEED_MENU_ID: {
@@ -387,8 +397,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private void initLevel() {
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
-		
-		this.mGameTypeHandler.requestFirstLevel();
 		
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
@@ -572,12 +580,18 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 interface IGameTypeHandler extends IGameEndListener {
 		 		 
 		 public void onLeaveFocus();
-		 
-		 public void requestFirstLevel();
+
+		 public void onEnterFocus();
 		 
 		 public void requestNextLevel();
 		 
+		 public boolean requestLeaveToMenu();
+		 
 		 public void requestRestart();
+		 
+		 public void start();
+		 
+		 public void cleanUp();
 		 
 	 }
 	 
@@ -596,10 +610,15 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void onLeaveFocus() {
 			//nothing to do here
 		}
-
+		
 		@Override
-		public void requestFirstLevel() {
+		public void onEnterFocus() {
 			//nothing to do here
+		}
+		
+		@Override
+		public boolean requestLeaveToMenu() {
+			return true;
 		}
 
 		@Override
@@ -611,9 +630,20 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void requestNextLevel() {
 			BlockBreakerActivity.this.randomLevel();
 		}
+		
+		@Override
+		public void start() {
+			//nothing to do here
+		}
+
+		@Override
+		public void cleanUp() {
+			BlockBreakerActivity.this.randomLevel();
+		}
 		 
 	 }
 	 
+	 //TODO: Implement all this stuff
 	 class TimeAttackGameHandler implements IGameTypeHandler {
 
 		@Override
@@ -622,13 +652,17 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		}
 		
 		@Override
+		public void onEnterFocus() {
+			
+		}
+		
+		@Override
 		public void onLeaveFocus() {
 			
 		}
-
-		@Override
-		public void requestFirstLevel() {
-			
+		
+		public boolean requestLeaveToMenu() {
+			return true;
 		}
 
 		@Override
@@ -640,6 +674,17 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void requestNextLevel() {
 			
 		}
+		
+		@Override
+		public void start() {
+			
+		}
+
+		@Override
+		public void cleanUp() {
+			
+		}
 		 
 	 }
+	 
 }
