@@ -39,6 +39,7 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -54,7 +55,7 @@ import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.util.misc.StreamUtil;
 
 /**
- * (c) 2012 Martin Braun
+ * (c) 2011-2012 Martin Braun
  * TODO: change behaviours via different GameEndListener, Do we need Timed Mode?
  * TODO: save levels (Preferences checkbox if dialog should appear)
  * @author Martin Braun
@@ -645,20 +646,49 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 
 	 //TODO: Implement all this stuff
 	 class TimeAttackGameHandler implements IGameTypeHandler {
+		 
+		private static final int DEFAULT_DURATION_IN_SECONDS = 120;
+		private static final int DEFAULT_NUMBER_OF_ALLOWED_LOSES = 2;
+		
+		int mDurationInSeconds;
+		int mNumberOfAllowedLoses;
+		int mGamesLost;
+		int mGamesWon;
+		
+		public TimeAttackGameHandler() {
+			this(DEFAULT_DURATION_IN_SECONDS, DEFAULT_NUMBER_OF_ALLOWED_LOSES);
+		}
+		
+		public TimeAttackGameHandler(int pDurationInSeconds, int pNumberOfAllowedLoses) {
+			this.mDurationInSeconds = pDurationInSeconds;
+			this.mNumberOfAllowedLoses = pNumberOfAllowedLoses;
+			this.mGamesWon = 0;
+			this.mGamesLost = 0;
+		}
 
 		@Override
 		public void onGameEnd(GameEndEvent pEvt) {
-			
+			switch(pEvt.getType()) {
+				case WIN: {
+					++this.mGamesWon;
+					BlockBreakerActivity.this.randomLevel();
+					break;
+				}
+				case LOSE: {
+					this.requestNextLevel();
+					break;
+				}
+			}
 		}
 		
 		@Override
 		public void onEnterFocus() {
-			
+			//Show start dialog here
 		}
 		
 		@Override
 		public void onLeaveFocus() {
-			
+			//Show stop dialog here
 		}
 		
 		public boolean requestLeaveToMenu() {
@@ -667,17 +697,36 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		@Override
 		public void requestRestart() {
-			
+			this.mGamesWon = 0;
 		}
 
 		@Override
 		public void requestNextLevel() {
-			
+			++this.mGamesLost;
+			if(this.mGamesLost >= this.mNumberOfAllowedLoses) {
+				Log.d("DEBUG", "Loser!");
+			}
 		}
 		
 		@Override
 		public void start() {
-			
+			final TimerHandler mainHandler = new TimerHandler(this.mDurationInSeconds, new ITimerCallback() {
+
+				@Override
+				public void onTimePassed(TimerHandler pTimerHandler) {
+					Log.d("DEBUG", "End of Times :)");
+				}
+				
+			});
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(mainHandler);
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(new TimerHandler(1.0F, true, new ITimerCallback() {
+
+				@Override
+				public void onTimePassed(TimerHandler pTimerHandler) {
+					Log.d("DEBUG", "MainHandler has elapsed: " + mainHandler.getTimerSecondsElapsed() + "sec.");
+				}
+				
+			}));
 		}
 
 		@Override
