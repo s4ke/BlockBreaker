@@ -67,12 +67,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
 	static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
 	
+	static final String HIGHSCORE_NUM_KEY = "high_score_num_key";
+	static final String HIGHSCORE_PLAYER_KEY = "high_score_player_key";
+	
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
 	static final Random sRandomSeedObject = new Random();
 	
 	boolean mUseOrientSensor = false;
+	boolean mTimeAttackMode = false;
 	int mNumberOfTurns = 16;
 	
 	BitmapTextureAtlas mBlockBitmapTextureAtlas;
@@ -100,7 +104,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	boolean mIsAsset = true;
 	//not used end
 
-	private IGameEndListener mGameEndListener;
+	private IGameTypeHandler mGameTypeHandler;
 
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
@@ -110,6 +114,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onStart() {
 		super.onStart();
 		this.getPrefs();
+		if(this.mTimeAttackMode) {
+			this.mGameTypeHandler = new TimeAttackGameHandler();
+		} else {
+			this.mGameTypeHandler = new DefaultGameHandler();
+		}
 	}
 	
 	/**
@@ -326,9 +335,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onBackPressed() {
 		this.showCancelDialog();
 	}
+	
+	@Override
+	public void onOrientationAccuracyChanged(OrientationData pOrientationData) {
+		
+	}
 
 	////////////////////////////////////////////////////////////////////
-	////					Private Methods							////
+	////					Private/Package Methods					////
 	////////////////////////////////////////////////////////////////////
 	
 	void updateLevel(String pLevelPath, boolean pIsAsset) throws Exception {
@@ -338,18 +352,18 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.loadLevelFromAsset();
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
-		this.mLevel.setGameEndListener(this.mGameEndListener);
+		this.mLevel.setGameEndListener(this.mGameTypeHandler);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 	
-	private void loadLevelFromAsset() throws Exception{
+	void loadLevelFromAsset() throws Exception{
 		throw new Exception("not Implemented!");
 	}
 	
 	void restartLevel() {
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
-		this.mLevel.setGameEndListener(this.mGameEndListener);
+		this.mLevel.setGameEndListener(this.mGameTypeHandler);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 	
@@ -363,7 +377,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, this.mNumberOfTurns);
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
-		this.mLevel.setGameEndListener(this.mGameEndListener);
+		this.mLevel.setGameEndListener(this.mGameTypeHandler);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 
@@ -372,19 +386,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mLevelScene = scene;
 		
 		this.mLevel = this.mBackupLevel.copy();
-		this.mLevel.start();  
+		this.mLevel.start();
 		
-		this.mLevel.setGameEndListener(this.mGameEndListener = new IGameEndListener() {
-			@Override
-			public void onGameEnd(final GameEndEvent pEvt) {
-				BlockBreakerActivity.this.runOnUiThread(new Runnable() {
-					public void run() {
-						BlockBreakerActivity.this.showEndDialog(pEvt.getType());
-					}
-				});							
-			}
-
-		});
+		this.mLevel.setGameEndListener(this.mGameTypeHandler);
 		
 		VertexBufferObjectManager vboManager = this.mEngine.getVertexBufferObjectManager();
 		
@@ -548,16 +552,52 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 	
 	 private void getPrefs() {
-         // Get the xml/preferences.xml preferences
+	     // Get the xml/preferences.xml preferences
 		 // Don't save this in a constant, because it will only be used in code here
-         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-         this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
-         this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
+	     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+	     this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
+	     this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
+	     this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
 	 }
+	 
+	 interface IGameTypeHandler extends IGameEndListener{
+		 
+		 public void onRequestLevel();
+		 
+	 }
+	 
+	 class DefaultGameHandler implements IGameTypeHandler {
+		 
+		@Override
+		public void onGameEnd(final GameEndEvent pEvt) {
+			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
+				public void run() {
+					BlockBreakerActivity.this.showEndDialog(pEvt.getType());
+				}
+			});
+		}
 
-	@Override
-	public void onOrientationAccuracyChanged(OrientationData pOrientationData) {
-		// TODO Auto-generated method stub
-		
-	}
+		@Override
+		public void onRequestLevel() {
+			// TODO Auto-generated method stub
+			
+		}
+		 
+	 }
+	 
+	 class TimeAttackGameHandler implements IGameTypeHandler {
+
+		@Override
+		public void onGameEnd(GameEndEvent pEvt) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onRequestLevel() {
+			// TODO Auto-generated method stub
+			
+		}
+		 
+	 }
 }

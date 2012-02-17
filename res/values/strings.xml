@@ -5,6 +5,7 @@
     <string name="use_orient_sens_sum">check this to use the orientation sensor to control the gravity of the blocks</string>
     <string name="gameplay_options">Gameplay Options</string>
     <string name="number_of_turns">Number of Turns</string>
-    <string name="number_of_turns_pref">number_of_turns_pref</string>
     <string name="number_of_turns_sum">Select the number of turns you would like to have in your levels here. Default Value of 16 is recommended.</string>
+    <string name="time_attack">Time Attack Mode</string>
+    <string name="time_attack_sum">Play against the clock and try to solve as many levels as possible</string>
 </resources>

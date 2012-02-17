@@ -7,12 +7,17 @@
                         android:defaultValue="false"
                         android:summary="@string/use_orient_sens_sum"
                         android:key="orient_sens_pref"/>
+                <CheckBoxPreference
+                    	android:title="@string/time_attack"
+                    	android:defaultValue="false"
+                    	android:summary="@string/time_attack_sum"
+                    	android:key="time_attack_pref"/>
                 <ListPreference 
                     	android:title="@string/number_of_turns"
        			 		android:entries="@array/turn_choices"
        			 		android:defaultValue="16"
        					android:summary="@string/number_of_turns_sum"
        					android:entryValues="@array/turn_choices"
-       			 		android:key="@string/number_of_turns_pref" />
+       			 		android:key="number_of_turns_pref"/>
         </PreferenceCategory>
 </PreferenceScreen>

@@ -20,8 +20,9 @@ public final class R {
         public static final int app_name=0x7f050000;
         public static final int gameplay_options=0x7f050003;
         public static final int number_of_turns=0x7f050004;
-        public static final int number_of_turns_pref=0x7f050005;
-        public static final int number_of_turns_sum=0x7f050006;
+        public static final int number_of_turns_sum=0x7f050005;
+        public static final int time_attack=0x7f050006;
+        public static final int time_attack_sum=0x7f050007;
         public static final int use_orient_sens=0x7f050001;
         public static final int use_orient_sens_sum=0x7f050002;
     }
