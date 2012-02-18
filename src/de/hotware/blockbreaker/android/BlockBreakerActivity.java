@@ -581,19 +581,41 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	 
 	public interface IGameTypeHandler extends IGameEndListener {
-		 		 
+		 
+		 /**
+		  * called if Activity loses Focus
+		  */
 		 public void onLeaveFocus();
 
+		 /**
+		  * called if Activity gains Focus
+		  */
 		 public void onEnterFocus();
 		 
+		 /**
+		  * called if the user requests the next Level, which is the same as losing in TimeAttack
+		  */
 		 public void requestNextLevel();
 		 
+		 /**
+		  * called if the user requests to leave to the menu Activity
+		  * @return true if menu will be shown, false otherwise
+		  */
 		 public boolean requestLeaveToMenu();
 		 
+		 /**
+		  * called if the user requests a restart of the game
+		  */
 		 public void requestRestart();
 		 
+		 /**
+		  * called upon first start of the game
+		  */
 		 public void start();
 		 
+		 /**
+		  * called when before the GameHandler is changed
+		  */
 		 public void cleanUp();
 		 
 	 }
