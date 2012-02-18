@@ -56,12 +56,19 @@ public class LevelSceneHandler {
 	SynchronizedList<BlockSprite> mBlockSpriteVector;
 	
 	VertexBufferObjectManager mVertexBufferObjectManager;
+	
+	boolean mIgnoreInput;
 
 	public LevelSceneHandler(Scene pScene, VertexBufferObjectManager pVertexBufferObjectManager) {
 		this.mScene = pScene;
 		this.mWinCondText = new Text[5];
 		this.mBlockSpriteVector = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>());
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
+		this.mIgnoreInput = false;
+	}
+	
+	public void setIgnoreInput(boolean pIgnoreInput) {
+		this.mIgnoreInput = pIgnoreInput;
 	}
 
 	public void initLevelScene(final Level pLevel, final Font pUIFont,
@@ -246,42 +253,43 @@ public class LevelSceneHandler {
 	private class BasicBlockSpriteTouchListener implements IBlockSpriteTouchListener{
 
 		@Override
-		public void onBlockSpriteTouch(BlockSpriteTouchEvent pEvt) {
-
-			Block oldBlock = pEvt.getBlock();
-			int x = oldBlock.getX();
-			int y = oldBlock.getY();
-
-			final Block block = LevelSceneHandler.this.mLevel.killBlock(x, y);
-
-			if(block.getColor() != BlockColor.NONE) {
-				pEvt.getSource().registerEntityModifier(new FadeOutModifier(UIConstants.SPRITE_FADE_OUT_TIME, new IEntityModifierListener() {
-
-					@Override
-					public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-						BlockSprite bs = (BlockSprite) pItem;
-						bs.setCurrentTileIndex(0);
-						LevelSceneHandler.this.mScene.unregisterTouchArea(bs);
-					}
-
-					@Override
-					public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-						LevelSceneHandler.this.mBlockSpriteVector.remove((BlockSprite)pItem);
-						LevelSceneHandler.this.mBlockSpritePool.recyclePoolItem((BlockSprite) pItem);
-					}
-
-				}));
-
-				final BlockSprite bs = addBlockSprite(block);
-				bs.setVisible(false);
-				bs.registerUpdateHandler(new TimerHandler(UIConstants.SPRITE_FADE_IN_TIME, new ITimerCallback() {
+		public void onBlockSpriteTouch(BlockSpriteTouchEvent pEvt) {			
+			if(!LevelSceneHandler.this.mIgnoreInput) {
+				Block oldBlock = pEvt.getBlock();
+				int x = oldBlock.getX();
+				int y = oldBlock.getY();
+	
+				final Block block = LevelSceneHandler.this.mLevel.killBlock(x, y);
+	
+				if(block.getColor() != BlockColor.NONE) {
+					pEvt.getSource().registerEntityModifier(new FadeOutModifier(UIConstants.SPRITE_FADE_OUT_TIME, new IEntityModifierListener() {
+	
 						@Override
-						public void onTimePassed(TimerHandler pTimerHandler) {
-							bs.setVisible(true);
-							bs.registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
-						} 
-				}));
-			}	            	
+						public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+							BlockSprite bs = (BlockSprite) pItem;
+							bs.setCurrentTileIndex(0);
+							LevelSceneHandler.this.mScene.unregisterTouchArea(bs);
+						}
+	
+						@Override
+						public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+							LevelSceneHandler.this.mBlockSpriteVector.remove((BlockSprite)pItem);
+							LevelSceneHandler.this.mBlockSpritePool.recyclePoolItem((BlockSprite) pItem);
+						}
+	
+					}));
+	
+					final BlockSprite bs = addBlockSprite(block);
+					bs.setVisible(false);
+					bs.registerUpdateHandler(new TimerHandler(UIConstants.SPRITE_FADE_IN_TIME, new ITimerCallback() {
+							@Override
+							public void onTimePassed(TimerHandler pTimerHandler) {
+								bs.setVisible(true);
+								bs.registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
+							} 
+					}));
+				}	     
+			}
 		}		
 	}
 }
