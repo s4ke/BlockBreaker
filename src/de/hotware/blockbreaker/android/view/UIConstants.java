@@ -13,6 +13,7 @@ public class UIConstants {
 	public static final String DEFAULT_PROPERTIES_PATH = "strings/string.eng.properties";
 	
 	public static final String TURNS_PROPERTY_KEY = "turns";
+	public static final String TIME_PROPERTY_KEY = "time";
 	public static final String NEXT_PROPERTY_KEY = "next";
 	public static final String MENU_PROPERTY_KEY = "menu";
 	public static final String FROM_SEED_PROPERTY_KEY = "from_seed";

@@ -671,7 +671,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 //TODO: Implement all this stuff
 	 private class TimeAttackGameHandler implements IGameTypeHandler {
 		 
-		private static final int DEFAULT_DURATION_IN_SECONDS = 10;
+		private static final int DEFAULT_DURATION_IN_SECONDS = 120;
 		private static final int DEFAULT_NUMBER_OF_ALLOWED_LOSES = 2;
 		
 		int mDurationInSeconds;
@@ -731,11 +731,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		@Override
 		public void onEnterFocus() {
 			//Show start dialog here
+			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(this.mMainHandler);
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(this.mTimeUpdateHandler);
 		}
 		
 		@Override
 		public void onLeaveFocus() {
 			//Show stop dialog here
+			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mMainHandler);
+			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeUpdateHandler);
 		}
 		
 		public boolean requestLeaveToMenu() {
@@ -745,6 +750,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		@Override
 		public void requestRestart() {
 			this.mGamesWon = 0;
+			this.mMainHandler.reset();
+			this.mTimeUpdateHandler.reset();
+			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
 		}
 
 		@Override
@@ -752,16 +760,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			++this.mGamesLost;
 			if(this.mGamesLost >= this.mNumberOfAllowedLoses) {
 				Log.d("DEBUG", "Loser!");
+				//Dialog for restarting here
 			}
 		}
 		
 		@Override
 		public void start() {
-			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
-			this.mMainHandler.reset();
-			this.mTimeUpdateHandler.reset();
-			BlockBreakerActivity.this.mEngine.registerUpdateHandler(this.mMainHandler);
-			BlockBreakerActivity.this.mEngine.registerUpdateHandler(this.mTimeUpdateHandler);
+			
 		}
 
 		@Override
@@ -769,6 +774,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mMainHandler);
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeUpdateHandler);
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
+			BlockBreakerActivity.this.randomLevel();
 		}
 		 
 	 }

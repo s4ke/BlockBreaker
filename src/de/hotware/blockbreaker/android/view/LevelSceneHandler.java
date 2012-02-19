@@ -48,6 +48,9 @@ public class LevelSceneHandler {
     TiledSprite mGravityArrowSprite;
 	Text mTurnsLeftText;
 	Text[] mWinCondText;
+	
+	Text mTimeText;
+	Text mTimeLeftText;
 
 	IBlockSpriteTouchListener mBlockSpriteTouchListener;
 	INextBlockListener mNextBlockListener;
@@ -174,7 +177,7 @@ public class LevelSceneHandler {
 
 		});
 
-		mGravityArrowSprite = new TiledSprite(
+		this.mGravityArrowSprite = new TiledSprite(
 				UIConstants.LEVEL_WIDTH - SPRITE_TEXTURE_WIDTH - 24,
 				turnsLeftText.getY() + turnsLeftText.getHeight() + 10,
 				SPRITE_TEXTURE_WIDTH,
@@ -193,16 +196,26 @@ public class LevelSceneHandler {
 			}
 			
 		};
-		mGravityArrowSprite.setCurrentTileIndex(pLevel.getGravity().toNumber());
+		this.mGravityArrowSprite.setCurrentTileIndex(pLevel.getGravity().toNumber());
 		this.mScene.registerTouchArea(mGravityArrowSprite);
 		this.mScene.attachChild(mGravityArrowSprite);
 
 		pLevel.setGravityListener(this.mGravityListener = new IGravityListener() {
 			@Override
 			public void onGravityChanged(GravityEvent pEvt) {
-				mGravityArrowSprite.setCurrentTileIndex(pEvt.getGravity().toNumber());
+				LevelSceneHandler.this.mGravityArrowSprite.setCurrentTileIndex(pEvt.getGravity().toNumber());
 			}	    	
 		});
+		
+		this.mTimeText = new Text(0, 
+				0, 
+				pUIFont, 
+				pStringProperties.getProperty(UIConstants.TIME_PROPERTY_KEY), 
+				this.mVertexBufferObjectManager);
+		this.mTimeText.setPosition(
+				UIConstants.LEVEL_WIDTH - this.mTimeText.getWidth() - 12,
+				this.mGravityArrowSprite.getY() + this.mGravityArrowSprite.getHeight() + 10);
+		this.mScene.attachChild(this.mTimeText);
 		//init UI end  
 	}
 
