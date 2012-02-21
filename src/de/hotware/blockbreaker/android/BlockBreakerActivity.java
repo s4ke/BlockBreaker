@@ -107,7 +107,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	boolean mIsAsset = true;
 	//not used end
 
-	private IGameTypeHandler mGameTypeHandler;
+	private BaseGameTypeHandler mGameTypeHandler;
 
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
@@ -117,6 +117,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onStart() {
 		super.onStart();
 		boolean oldTimeAttackMode = this.mTimeAttackMode;
+		int oldNumberOfTurns = this.mNumberOfTurns;
 		this.getPrefs();
 		if(oldTimeAttackMode ^ this.mTimeAttackMode || this.mGameTypeHandler == null) {
 			if(this.mGameTypeHandler != null) {
@@ -127,6 +128,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mLevel.setGameEndListener(this.mGameTypeHandler);
 				this.mGameTypeHandler.start();
 			}
+		} else if(oldNumberOfTurns != this.mNumberOfTurns) {
+			this.mGameTypeHandler.onNumberOfTurnsPropertyChanged();
 		}
 	}
 	
@@ -580,47 +583,53 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////					Inner Classes & Interfaces				////
 	////////////////////////////////////////////////////////////////////
 	 
-	public interface IGameTypeHandler extends IGameEndListener {
+	public abstract class BaseGameTypeHandler implements IGameEndListener {
 		 
 		 /**
 		  * called if Activity loses Focus
 		  */
-		 public void onLeaveFocus();
+		 public void onLeaveFocus(){}
 
 		 /**
 		  * called if Activity gains Focus
 		  */
-		 public void onEnterFocus();
+		 public void onEnterFocus(){}
 		 
 		 /**
 		  * called if the user requests the next Level, which is the same as losing in TimeAttack
 		  */
-		 public void requestNextLevel();
+		 public void requestNextLevel(){}
 		 
 		 /**
 		  * called if the user requests to leave to the menu Activity
 		  * @return true if menu will be shown, false otherwise
+		  * @return default version returns true
 		  */
-		 public boolean requestLeaveToMenu();
+		 public boolean requestLeaveToMenu(){return true;}
 		 
 		 /**
 		  * called if the user requests a restart of the game
 		  */
-		 public void requestRestart();
+		 public void requestRestart(){}
 		 
 		 /**
 		  * called upon first start of the game
 		  */
-		 public void start();
+		 public void start(){}
 		 
 		 /**
 		  * called when before the GameHandler is changed
 		  */
-		 public void cleanUp();
+		 public void cleanUp(){}
+		 
+		 /**
+		  * called if the number of turns property has changed, only used for notifying, no information
+		  */
+		 public void onNumberOfTurnsPropertyChanged(){}
 		 
 	 }
 	 
-	 private class DefaultGameHandler implements IGameTypeHandler {
+	 private class DefaultGameHandler extends BaseGameTypeHandler {
 		 
 		@Override
 		public void onGameEnd(final GameEndEvent pEvt) {
@@ -629,21 +638,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					BlockBreakerActivity.this.showEndDialog(pEvt.getType());
 				}
 			});
-		}
-		
-		@Override
-		public void onLeaveFocus() {
-			//nothing to do here
-		}
-		
-		@Override
-		public void onEnterFocus() {
-			//nothing to do here
-		}
-		
-		@Override
-		public boolean requestLeaveToMenu() {
-			return true;
 		}
 
 		@Override
@@ -655,11 +649,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void requestNextLevel() {
 			BlockBreakerActivity.this.randomLevel();
 		}
-		
-		@Override
-		public void start() {
-			//nothing to do here
-		}
 
 		@Override
 		public void cleanUp() {
@@ -669,7 +658,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 }
 	 
 	 //TODO: Implement all this stuff
-	 private class TimeAttackGameHandler implements IGameTypeHandler {
+	 private class TimeAttackGameHandler extends BaseGameTypeHandler {
 		 
 		private static final int DEFAULT_DURATION_IN_SECONDS = 120;
 		private static final int DEFAULT_NUMBER_OF_ALLOWED_LOSES = 2;
@@ -775,6 +764,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		@Override
 		public void requestRestart() {
+			this.reset();
+		}
+		
+		private void reset() {
+
 			this.mGamesWon = 0;
 			this.mTimeMainHandler.reset();
 			this.mTimeUpdateHandler.reset();
@@ -809,6 +803,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mTimeLeftText.setVisible(false);
 			this.mTimeLeftText.setText("");
 			this.mTimeText.setVisible(false);
+		}
+
+		@Override
+		public void onNumberOfTurnsPropertyChanged() {
+			this.reset();
 		}
 		 
 	 }
