@@ -79,6 +79,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	boolean mUseOrientSensor = false;
 	boolean mTimeAttackMode = false;
 	int mNumberOfTurns = 16;
+	int mWinCount = 10;
 	
 	BitmapTextureAtlas mBlockBitmapTextureAtlas;
 	TiledTextureRegion mBlockTiledTextureRegion;
@@ -393,7 +394,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	
 	void randomLevelFromSeed(long pSeed) {
 		this.mSeedText.setText("Seed: " + Long.toString(pSeed));
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, this.mNumberOfTurns);
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, this.mNumberOfTurns, this.mWinCount);
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameTypeHandler);
@@ -560,7 +561,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	private void loadFirstLevel() {
 		long seed = sRandomSeedObject.nextLong();
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, this.mNumberOfTurns);
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, this.mNumberOfTurns, this.mWinCount);
 		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 1;
 		this.mSeedText = new Text(1,
 				UIConstants.LEVEL_HEIGHT - 15,
