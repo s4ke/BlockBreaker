@@ -13,10 +13,12 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.shape.Shape;
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.entity.text.Text;
+import org.andengine.entity.text.Text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.HorizontalAlign;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.adt.list.CircularList;
 import org.andengine.util.adt.list.concurrent.SynchronizedList;
@@ -216,6 +218,18 @@ public class LevelSceneHandler {
 				UIConstants.LEVEL_WIDTH - this.mTimeText.getWidth() - 12,
 				this.mGravityArrowSprite.getY() + this.mGravityArrowSprite.getHeight() + 10);
 		this.mScene.attachChild(this.mTimeText);
+		this.mTimeText.setVisible(false);
+		this.mTimeText.setIgnoreUpdate(true);
+		
+		this.mTimeLeftText = new Text(0,
+				0,
+				pUIFont,
+				"xxxx",
+				this.mVertexBufferObjectManager);
+		this.mTimeLeftText.setPosition(UIConstants.LEVEL_WIDTH - this.mTimeLeftText.getWidth() - 12,
+				this.mTimeText.getY() + this.mTimeLeftText.getHeight() + 10);
+		this.mScene.attachChild(this.mTimeLeftText);
+		this.mTimeLeftText.setVisible(false);
 		//init UI end  
 	}
 
@@ -240,6 +254,14 @@ public class LevelSceneHandler {
 		}
 		this.mTurnsLeftText.setText(pLevel.getBlocksDisplayText());
 		this.mNextBlockSprite.setCurrentTileIndex(pLevel.getNextBlock().getColor().toNumber());
+	}
+	
+	public Text getTimeText() {
+		return this.mTimeText;
+	}
+	
+	public Text getTimeLeftText() {
+		return this.mTimeLeftText;
 	}
 	
 	private void resetScene() {
