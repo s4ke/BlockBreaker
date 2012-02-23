@@ -817,10 +817,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
 					builder.setMessage(
 							BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.GAME_OVER_TEXT_PROPERTY_KEY)
-							+ ":\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.COMPLETED_LEVELS_PROPERTY_KEY)
-							+ "\n" + TimeAttackGameHandler.this.mGamesWon
-							+ ":\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.LOST_LEVELS_TEXT_PROPERTY_KEY)
-							+ "\n" + TimeAttackGameHandler.this.mGamesLost)
+							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.COMPLETED_LEVELS_PROPERTY_KEY)
+							+ ":\n" + TimeAttackGameHandler.this.mGamesWon
+							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.LOST_LEVELS_TEXT_PROPERTY_KEY)
+							+ ":\n" + TimeAttackGameHandler.this.mGamesLost)
 					.setCancelable(false)
 					.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY), 
 							new DialogInterface.OnClickListener() {
