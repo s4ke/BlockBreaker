@@ -39,7 +39,6 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -672,6 +671,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		TimerHandler mTimeUpdateHandler;
 		Text mTimeText;
 		Text mTimeLeftText;
+		boolean mHasFocus;
 		
 		public TimeAttackGameHandler() {
 			this(DEFAULT_DURATION_IN_SECONDS, DEFAULT_NUMBER_OF_ALLOWED_LOSES);
@@ -686,7 +686,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 				@Override
 				public void onTimePassed(TimerHandler pTimerHandler) {
-					BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
+					TimeAttackGameHandler.this.onTimeAttackEnd();
 				}
 				
 			});
@@ -695,14 +695,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				@Override
 				public void onTimePassed(TimerHandler pTimerHandler) {
 					if(!TimeAttackGameHandler.this.mTimeMainHandler.isTimerCallbackTriggered()) {
-						Log.d("DEBUG", "MainHandler has elapsed: " 
-								+ TimeAttackGameHandler.this.mTimeMainHandler.getTimerSecondsElapsed() + "sec.");
 						TimeAttackGameHandler.this.mTimeLeftText.setText(
-								Integer.toString((int)Math.round(TimeAttackGameHandler.this.mTimeMainHandler.getTimerSecondsElapsed())));
+								Integer.toString((int)Math.round(
+										TimeAttackGameHandler.this.mDurationInSeconds - TimeAttackGameHandler.this.mTimeMainHandler.getTimerSecondsElapsed())));
 					} else {
-
-						TimeAttackGameHandler.this.mTimeLeftText.setText(
-								Integer.toString(TimeAttackGameHandler.this.mDurationInSeconds));
+						TimeAttackGameHandler.this.mTimeLeftText.setText(Integer.toString(0));
 						pTimerHandler.setAutoReset(false);
 					}
 				}
@@ -727,38 +724,41 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		
 		@Override
 		public void onEnterFocus() {
-			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
-				
-				@Override
-				public void run() {
-					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
-					builder.setMessage("Press OK to start!")
-					.setCancelable(false)
-					.setPositiveButton("OK", 
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface pDialog, int pId) {
-									BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
-									BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
-									BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
+			if(!this.mHasFocus) {
+				this.mHasFocus = true;
+				BlockBreakerActivity.this.runOnUiThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
+						builder.setMessage(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.TIME_ATTACK_START_TEXT_PROPERTY_KEY))
+						.setCancelable(false)
+						.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.START_PROPERTY_KEY), 
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface pDialog, int pId) {
+										BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
+										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
+										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
+									}
 								}
-							}
-					);
-					builder.create().show();
-				}
-				
-			});
-			
+						);
+						builder.create().show();
+					}
+					
+				});
+			}
 		}
 		
 		@Override
 		public void onLeaveFocus() {
-			//Show stop dialog here
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeMainHandler);
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeUpdateHandler);
+			this.mHasFocus = false;
 		}
 		
+		@Override
 		public boolean requestLeaveToMenu() {
 			return true;
 		}
@@ -766,23 +766,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		@Override
 		public void requestRestart() {
 			this.reset();
-		}
-		
-		private void reset() {
-
-			this.mGamesWon = 0;
-			this.mTimeMainHandler.reset();
-			this.mTimeUpdateHandler.reset();
-			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
+			BlockBreakerActivity.this.randomLevel();
 		}
 
 		@Override
 		public void requestNextLevel() {
 			++this.mGamesLost;
-			if(this.mGamesLost >= this.mNumberOfAllowedLoses) {
-				Log.d("DEBUG", "Loser!");
-				this.requestRestart();
-				//Dialog for restarting here
+			if(this.mGamesLost <= this.mNumberOfAllowedLoses) {
+				BlockBreakerActivity.this.randomLevel();
+			} else {
+				this.showTimeAttackEndDialog();
 			}
 		}
 		
@@ -790,7 +783,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void start() {
 			this.mTimeLeftText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeLeftText();
 			this.mTimeLeftText.setVisible(true);
-			this.mTimeLeftText.setText("");
+			this.mTimeLeftText.setText(Integer.toString(this.mDurationInSeconds));
 			this.mTimeText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeText();
 			this.mTimeText.setVisible(true);
 		}
@@ -809,6 +802,45 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		@Override
 		public void onNumberOfTurnsPropertyChanged() {
 			this.reset();
+		}
+		
+		public void onTimeAttackEnd() {
+			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
+			this.showTimeAttackEndDialog();
+		}
+			
+		private void showTimeAttackEndDialog() {
+			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
+					builder.setMessage(
+							BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.GAME_OVER_TEXT_PROPERTY_KEY)
+							+ ":\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.COMPLETED_LEVELS_PROPERTY_KEY)
+							+ "\n" + TimeAttackGameHandler.this.mGamesWon
+							+ ":\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.LOST_LEVELS_TEXT_PROPERTY_KEY)
+							+ "\n" + TimeAttackGameHandler.this.mGamesLost)
+					.setCancelable(false)
+					.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY), 
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface pDialog, int pId) {
+									TimeAttackGameHandler.this.requestRestart();
+								}
+							}
+					);
+					builder.create().show();
+				}
+			});
+		}
+		
+		private void reset() {
+			this.mGamesWon = 0;
+			this.mGamesLost = 0;
+			this.mTimeMainHandler.reset();
+			this.mTimeUpdateHandler.reset();
+			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
 		}
 		 
 	 }
