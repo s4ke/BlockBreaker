@@ -724,7 +724,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		
 		@Override
 		public void onEnterFocus() {
-			if(!this.mHasFocus) {
+			if(!this.mHasFocus 
+					&& this.mTimeMainHandler.getTimerSecondsElapsed() < this.mDurationInSeconds
+					&& this.mGamesLost < this.mNumberOfAllowedLoses) {
 				this.mHasFocus = true;
 				BlockBreakerActivity.this.runOnUiThread(new Runnable() {
 					
@@ -765,8 +767,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		@Override
 		public void requestRestart() {
+			//make sure everything is set back to normal
+			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
+			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
 			this.reset();
 			BlockBreakerActivity.this.randomLevel();
+			//ready, set go!
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
 		}
 
 		@Override
@@ -826,6 +834,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface pDialog, int pId) {
+									//an restart has been requested
 									TimeAttackGameHandler.this.requestRestart();
 								}
 							}
