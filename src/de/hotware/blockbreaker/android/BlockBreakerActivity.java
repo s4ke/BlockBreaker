@@ -821,7 +821,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 							+ ":\n" + TimeAttackGameHandler.this.mGamesWon
 							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.LOST_LEVELS_TEXT_PROPERTY_KEY)
 							+ ":\n" + TimeAttackGameHandler.this.mGamesLost)
-					.setCancelable(false)
+					.setCancelable(true)
 					.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY), 
 							new DialogInterface.OnClickListener() {
 								@Override
