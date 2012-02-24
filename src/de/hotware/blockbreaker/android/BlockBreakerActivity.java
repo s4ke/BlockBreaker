@@ -508,6 +508,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		.setCancelable(false)
 		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface pDialog, int pId) {
+				pDialog.dismiss();
 				BlockBreakerActivity.this.finish();
 			}
 		});
@@ -533,10 +534,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface pDialog, int pId) {
-						try {
-							long seed = Long.parseLong(input.getText().toString());
-							BlockBreakerActivity.this.randomLevelFromSeed(seed);
+						try { 
 							pDialog.dismiss();
+							long seed = Long.parseLong(input.getText().toString());
+							BlockBreakerActivity.this.randomLevelFromSeed(seed);	
 						} catch (NumberFormatException e) {
 							BlockBreakerActivity.this.showInputSeedDialog(
 									BlockBreakerActivity.this.mStringProperties.getProperty(
@@ -737,6 +738,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 								new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface pDialog, int pId) {
+										pDialog.dismiss();
 										BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
 										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
 										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
@@ -821,11 +823,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 							+ ":\n" + TimeAttackGameHandler.this.mGamesWon
 							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.LOST_LEVELS_TEXT_PROPERTY_KEY)
 							+ ":\n" + TimeAttackGameHandler.this.mGamesLost)
-					.setCancelable(false)
+					.setCancelable(true)
 					.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY), 
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface pDialog, int pId) {
+									pDialog.dismiss();
 									TimeAttackGameHandler.this.requestRestart();
 								}
 							}
