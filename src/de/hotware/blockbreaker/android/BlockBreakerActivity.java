@@ -412,6 +412,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		VertexBufferObjectManager vboManager = this.mEngine.getVertexBufferObjectManager();
 		
 		this.mLevelSceneHandler = new LevelSceneHandler(scene, vboManager);
+		
+		//ignore input, gamehandlers will have to handle starting on their own
+		this.mLevelSceneHandler.setIgnoreInput(true);
 	
 		this.mLevelSceneHandler.initLevelScene(BlockBreakerActivity.this.mLevel, 
 		this.mSceneUIFont,
@@ -588,12 +591,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		 /**
 		  * called if Activity loses Focus
 		  */
-		 public void onLeaveFocus(){}
+		 public void onLeaveFocus() {
+			 BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
+		 }
 
 		 /**
 		  * called if Activity gains Focus
 		  */
-		 public void onEnterFocus(){}
+		 public void onEnterFocus() {
+			 BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
+		 }
 		 
 		 /**
 		  * called if the user requests the next Level, which is the same as losing in TimeAttack
@@ -669,6 +676,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		int mGamesWon;
 		TimerHandler mTimeMainHandler;
 		TimerHandler mTimeUpdateHandler;
+		Text mStatusText;
 		Text mTimeText;
 		Text mTimeLeftText;
 		boolean mHasFocus;
@@ -794,6 +802,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mTimeLeftText.setText(Integer.toString(this.mDurationInSeconds));
 			this.mTimeText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeText();
 			this.mTimeText.setVisible(true);
+			VertexBufferObjectManager vbo = BlockBreakerActivity.this.mEngine.getVertexBufferObjectManager();
+			this.mStatusText = new Text(UIConstants.LEVEL_HEIGHT - 15,
+					UIConstants.LEVEL_WIDTH - 100,
+					BlockBreakerActivity.this.mMiscFont,
+					"",
+					15,
+					vbo);
+			BlockBreakerActivity.this.mCamera.getHUD().attachChild(this.mStatusText);
 		}
 
 		@Override
@@ -834,13 +850,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface pDialog, int pId) {
-									//an restart has been requested
+									//a restart has been requested
 									TimeAttackGameHandler.this.requestRestart();
 								}
 							}
 					);
 					builder.create().show();
 				}
+				
 			});
 		}
 		
