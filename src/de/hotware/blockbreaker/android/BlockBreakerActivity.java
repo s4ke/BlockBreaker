@@ -728,6 +728,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					break;
 				}
 			}
+			this.mStatusText.setText("Won: " + this.mGamesWon + " Lost: " + this.mGamesLost);
 		}
 		
 		@Override
@@ -821,6 +822,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mTimeLeftText.setVisible(false);
 			this.mTimeLeftText.setText("");
 			this.mTimeText.setVisible(false);
+			this.mStatusText.detachSelf();
 		}
 
 		@Override

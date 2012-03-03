@@ -235,7 +235,7 @@ public class LevelSceneHandler {
 		Block[][] matrix = this.mLevel.getMatrix();
 		for(int i = 0; i < 6; ++i) {
 			for(int j = 0; j < 6; ++j) {
-				addBlockSprite(matrix[i][j]).registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
+				this.addBlockSprite(matrix[i][j]).registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
 			}
 		}
 	}
@@ -269,7 +269,7 @@ public class LevelSceneHandler {
 		this.mBlockSpriteVector.clear();
 	}
 
-	private BlockSprite addBlockSprite(final Block pBlock) {
+	BlockSprite addBlockSprite(final Block pBlock) {
 		int x = pBlock.getX();
 		int y = pBlock.getY();
 		BlockSprite sprite = this.mBlockSpritePool.obtainBlockSprite(2 + HORIZONTAL_GAP + x * (SPRITE_TEXTURE_WIDTH + 1),
@@ -289,16 +289,16 @@ public class LevelSceneHandler {
 		public void onBlockSpriteTouch(BlockSpriteTouchEvent pEvt) {
 			if(!LevelSceneHandler.this.mIgnoreInput) {
 				BlockSprite src = pEvt.getSource();
-				LevelSceneHandler.this.mBlockSpriteVector.remove(src);
 				
 				Block oldBlock = pEvt.getBlock();
 				int x = oldBlock.getX();
 				int y = oldBlock.getY();
 	
-				final Block block = LevelSceneHandler.this.mLevel.killBlock(x, y);
 				final Level levelHelp = LevelSceneHandler.this.mLevel;
+				final Block block = LevelSceneHandler.this.mLevel.killBlock(x, y);
 	
-				if(block.getColor() != BlockColor.NONE) {
+				if(block.getColor() != BlockColor.NONE && levelHelp == LevelSceneHandler.this.mLevel) {
+					LevelSceneHandler.this.mBlockSpriteVector.remove(src);
 					src.registerEntityModifier(new FadeOutModifier(UIConstants.SPRITE_FADE_OUT_TIME, new IEntityModifierListener() {
 	
 						@Override
@@ -315,20 +315,15 @@ public class LevelSceneHandler {
 	
 					}));
 					
-					//if Level hasn't changed yet, even paint the last Block
-					if(levelHelp == LevelSceneHandler.this.mLevel) {
-						final BlockSprite bs = addBlockSprite(block);
-						bs.setVisible(false);
-						bs.registerUpdateHandler(new TimerHandler(UIConstants.SPRITE_FADE_IN_TIME, new ITimerCallback() {
-								@Override
-								public void onTimePassed(TimerHandler pTimerHandler) {
-									bs.setVisible(true);
-									bs.registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
-								} 
-						}));
-					}					
-				} else {
-					LevelSceneHandler.this.mBlockSpritePool.recyclePoolItem(src);
+					final BlockSprite bs = LevelSceneHandler.this.addBlockSprite(block);
+					bs.setVisible(false);
+					bs.registerUpdateHandler(new TimerHandler(UIConstants.SPRITE_FADE_IN_TIME, new ITimerCallback() {
+							@Override
+							public void onTimePassed(TimerHandler pTimerHandler) {
+								bs.setVisible(true);
+								bs.registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
+							} 
+					}));				
 				}
 			}
 		}		
