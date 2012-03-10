@@ -797,7 +797,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			switch(pEvt.getType()) {
 				case WIN: {
 					this.mScore = this.mScore + GAME_WIN_BONUS + 
-							(BlockBreakerActivity.this.mLevel.getBlocksLeft() + 1) * BLOCK_LEFT_BONUS;
+							BlockBreakerActivity.this.mLevel.getBlocksLeft() * BLOCK_LEFT_BONUS;
 					++this.mGamesWon;
 					BlockBreakerActivity.this.randomLevel();
 					this.updateStatusText();
