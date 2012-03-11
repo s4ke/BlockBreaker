@@ -19,5 +19,12 @@
        					android:summary="@string/number_of_turns_sum"
        					android:entryValues="@array/turn_choices"
        			 		android:key="number_of_turns_pref"/>
+                <ListPreference
+                    	android:title="@string/difficulty"
+                    	android:entries="@array/difficulty_choices"
+                    	android:defaultValue="0"
+                    	android:summary="@string/difficulty_sum"
+                    	android:entryValues="@array/difficulty_choices_rep"
+                    	android:key="difficulty_pref"/>
         </PreferenceCategory>
 </PreferenceScreen>

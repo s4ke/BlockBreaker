@@ -9,6 +9,8 @@ package org.andengine;
 
 public final class R {
     public static final class array {
+        public static final int difficulty_choices=0x7f040001;
+        public static final int difficulty_choices_rep=0x7f040002;
         public static final int turn_choices=0x7f040000;
     }
     public static final class attr {
@@ -18,6 +20,8 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f050000;
+        public static final int difficulty=0x7f050008;
+        public static final int difficulty_sum=0x7f050009;
         public static final int gameplay_options=0x7f050003;
         public static final int number_of_turns=0x7f050004;
         public static final int number_of_turns_sum=0x7f050005;

@@ -73,7 +73,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	static final String HIGHSCORE_NUM_KEY = "high_score_num_key";
 	static final String HIGHSCORE_PLAYER_KEY = "high_score_player_key";
-
+	
+	static final int DEFAULT_NUMBER_OF_TURNS = 16;
+	
+	static final int DEFAULT_WIN_COUNT = 10;
+	static final int EASY_WIN_COUNT = 10;
+	static final int MEDIUM_WIN_COUNT = 13;
+	static final int HARD_WIN_COUNT = 16;
+	
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
@@ -81,8 +88,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	boolean mUseOrientSensor = false;
 	boolean mTimeAttackMode = false;
-	int mNumberOfTurns = 16;
-	int mWinCount = 10;
+	int mNumberOfTurns = DEFAULT_NUMBER_OF_TURNS;
 
 	BitmapTextureAtlas mBlockBitmapTextureAtlas;
 	TiledTextureRegion mBlockTiledTextureRegion;
@@ -105,6 +111,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	Level mLevel;
 
 	boolean mIgnoreInput = false;
+	Difficulty mDifficulty = Difficulty.EASY;;
 
 	//currently not used
 	String mLevelPath = DEFAULT_LEVEL_PATH;
@@ -421,7 +428,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mSeedText.setText("Seed: " + Long.toString(pSeed));
 		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, 
 				this.mNumberOfTurns, 
-				this.mWinCount);
+				this.mDifficulty.getWinCount());
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameTypeHandler);
@@ -576,7 +583,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	private void loadFirstLevel() {
 		long seed = sRandomSeedObject.nextLong();
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, this.mNumberOfTurns, this.mWinCount);
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, 
+				this.mNumberOfTurns, 
+				this.mDifficulty.getWinCount());
 		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 1;
 		this.mSeedText = new Text(1,
 				UIConstants.LEVEL_HEIGHT - 15,
@@ -596,12 +605,19 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
 		this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
 		this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
+		this.mDifficulty = Difficulty.numberToDifficulty(
+				Integer.parseInt(prefs.getString("difficulty_pref", "0")));
 	}
 
 	////////////////////////////////////////////////////////////////////
 	////					Inner Classes & Interfaces				////
 	////////////////////////////////////////////////////////////////////
-
+	
+	/**
+	 * The BaseGameTypeHandler class created for more easy implementation
+	 * of new game modes. All important Events should be handled here or 
+	 * at least have a requestMethod which returns a boolean.
+	 */
 	public abstract class BaseGameTypeHandler implements IGameEndListener {
 
 		/**
@@ -623,37 +639,41 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		/**
 		 * called if the user requests the next Level, which is the same as losing in TimeAttack
 		 */
-		public void requestNextLevel(){}
+		public void requestNextLevel() {}
 
 		/**
 		 * called if the user requests to leave to the menu Activity
 		 * @return true if menu will be shown, false otherwise
 		 * @return default version returns true
 		 */
-		public boolean requestLeaveToMenu(){return true;}
+		public boolean requestLeaveToMenu() {return true;}
 
 		/**
 		 * called if the user requests a restart of the game
 		 */
-		public void requestRestart(){}
+		public void requestRestart() {}
 
 		/**
 		 * called upon first start of the game
 		 */
-		public void init(){}
+		public void init() {}
 
 		/**
 		 * called when before the GameHandler is changed
 		 */
-		public void cleanUp(){}
+		public void cleanUp() {}
 
 		/**
 		 * called if the number of turns property has changed, only used for notifying, no information
 		 */
-		public void onNumberOfTurnsPropertyChanged(){}
+		public void onNumberOfTurnsPropertyChanged() {}
 
 	}
 
+	/**
+	 * The DefaultGameHandler
+	 * @author Martin Braun
+	 */
 	private class DefaultGameHandler extends BaseGameTypeHandler {
 
 		@Override
@@ -736,13 +756,21 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	}
 
+	/**
+	 * The TimeAttackGameHandler
+	 * @author Martin Braun
+	 */
 	private class TimeAttackGameHandler extends BaseGameTypeHandler {
 
+		//Time Constants
 		private static final int DEFAULT_DURATION_IN_SECONDS = 120;
+		private static final int GAME_WIN_TIME_BONUS_IN_SECONDS = 15;
+		
+		//Game specific Constants
 		private static final int DEFAULT_NUMBER_OF_ALLOWED_LOSES = 2;
-		private static final int GAME_WIN_BONUS = 100;
-		private static final int BLOCK_LEFT_BONUS = 10;
-		private static final int GAME_LOSE_BONUS = -50;
+		private static final int GAME_WIN_POINT_BONUS = 100;
+		private static final int BLOCK_LEFT_POINT_BONUS = 10;
+		private static final int GAME_LOSE_POINT_BONUS = -50;
 
 		int mDurationInSeconds;
 		int mNumberOfAllowedLoses;
@@ -796,8 +824,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void onGameEnd(GameEndEvent pEvt) {
 			switch(pEvt.getType()) {
 				case WIN: {
-					this.mScore = this.mScore + GAME_WIN_BONUS + 
-							BlockBreakerActivity.this.mLevel.getBlocksLeft() * BLOCK_LEFT_BONUS;
+					this.mScore = this.mScore + GAME_WIN_POINT_BONUS + 
+							BlockBreakerActivity.this.mLevel.getBlocksLeft() * BLOCK_LEFT_POINT_BONUS;
+					this.mTimeMainHandler.setTimerSeconds(
+							this.mTimeMainHandler.getTimerSeconds() + GAME_WIN_TIME_BONUS_IN_SECONDS);
 					++this.mGamesWon;
 					BlockBreakerActivity.this.randomLevel();
 					this.updateStatusText();
@@ -812,6 +842,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		@Override
 		public void onEnterFocus() {
+			//assure that some settings are at default just for this gamemode
+			BlockBreakerActivity.this.mDifficulty = Difficulty.EASY;
+			//and the rest
 			if(this.mTimeMainHandler.getTimerSecondsElapsed() < this.mDurationInSeconds
 					&& this.mGamesLost < this.mNumberOfAllowedLoses) {
 				BlockBreakerActivity.this.runOnUiThread(new Runnable() {
@@ -867,7 +900,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		@Override
 		public void requestNextLevel() {
-			this.mScore = this.mScore + GAME_LOSE_BONUS;
+			this.mScore = this.mScore + GAME_LOSE_POINT_BONUS;
 			this.updateStatusText();
 			++this.mGamesLost;
 			if(this.mGamesLost <= this.mNumberOfAllowedLoses) {
@@ -963,6 +996,45 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mStatusText.setText("Score: " + this.mScore);
 		}
 
+	}
+	
+	/**
+	 * enum for Difficulty Settings to make preferences stuff more easy
+	 * @author Martin Braun
+	 */
+	public enum Difficulty {
+		EASY(BlockBreakerActivity.EASY_WIN_COUNT),
+		MEDIUM(BlockBreakerActivity.MEDIUM_WIN_COUNT),
+		HARD(BlockBreakerActivity.HARD_WIN_COUNT),
+		DEFAULT(BlockBreakerActivity.DEFAULT_WIN_COUNT);
+		
+		private int mWinCount;
+		
+		private Difficulty(int pWinCount) {
+			this.mWinCount = pWinCount;
+		}
+		
+		public int getWinCount() {
+			return this.mWinCount;
+		}
+		
+		public static Difficulty numberToDifficulty(int pNumber) {
+			switch(pNumber) {
+				case 0: {
+					return EASY;
+				}
+				case 1: {
+					return MEDIUM;
+				}
+				case 2: {
+					return HARD;
+				}
+				default: {
+					return DEFAULT;
+				}
+			}
+		}
+		
 	}
 
 }

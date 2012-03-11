@@ -8,4 +8,6 @@
     <string name="number_of_turns_sum">Select the number of turns you would like to have in your levels here. Default Value of 16 is recommended.</string>
     <string name="time_attack">Time Attack Mode</string>
     <string name="time_attack_sum">Play against the clock and try to solve as many levels as possible</string>
+    <string name="difficulty">Difficulty</string>
+    <string name="difficulty_sum">Choose your preferred difficulty setting here</string>
 </resources>
