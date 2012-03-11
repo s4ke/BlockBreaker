@@ -28,6 +28,7 @@ public class UIConstants {
 	public static final String TIME_ATTACK_START_TEXT_PROPERTY_KEY = "time_attack_start_text";
 	public static final String COMPLETED_LEVELS_PROPERTY_KEY = "completed_levels_text";
 	public static final String LOST_LEVELS_TEXT_PROPERTY_KEY = "lost_levels_text";
+	public static final String SCORE_TEXT_PROPERTY_KEY = "score_text";
 	public static final String INPUT_SEED_QUESTION_PROPERTY_KEY = "input_seed_question";
 	public static final String WRONG_SEED_INPUT_PROPERTY_KEY = "wrong_seed_input";
 	public static final String EXIT_GAME_QUESTION_PROPERTY_KEY = "exit_game_question";

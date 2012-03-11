@@ -16,6 +16,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
+import org.andengine.entity.text.Text.TextOptions;
 import org.andengine.entity.util.FPSCounter;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.opengl.font.Font;
@@ -31,6 +32,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.input.sensor.orientation.IOrientationListener;
 import org.andengine.input.sensor.orientation.OrientationData;
 import org.andengine.ui.activity.BaseGameActivity;
+import org.andengine.util.HorizontalAlign;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -57,6 +59,8 @@ import de.hotware.blockbreaker.util.misc.StreamUtil;
  * (c) 2011-2012 Martin Braun
  * TODO: change behaviours via different GameEndListener, Do we need Timed Mode?
  * TODO: save levels (Preferences checkbox if dialog should appear)
+ * TODO: maybe use factory methods instead of new instances for GameTypeHandlers in extra
+ * 		 class with methods. Cache instances!
  * @author Martin Braun
  * @since Dec 2011
  */
@@ -66,42 +70,42 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
 	static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
-	
+
 	static final String HIGHSCORE_NUM_KEY = "high_score_num_key";
 	static final String HIGHSCORE_PLAYER_KEY = "high_score_player_key";
-	
+
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
 	static final Random sRandomSeedObject = new Random();
-	
+
 	boolean mUseOrientSensor = false;
 	boolean mTimeAttackMode = false;
 	int mNumberOfTurns = 16;
 	int mWinCount = 10;
-	
+
 	BitmapTextureAtlas mBlockBitmapTextureAtlas;
 	TiledTextureRegion mBlockTiledTextureRegion;
 	BitmapTextureAtlas mArrowBitmapTextureAtlas;
 	TiledTextureRegion mArrowTiledTextureRegion;
 	BitmapTextureAtlas mSceneBackgroundBitmapTextureAtlas;
 	TextureRegion mSceneBackgroundTextureRegion;
-	
+
 	Properties mStringProperties;
-	
+
 	Camera mCamera;	
 	Scene mLevelScene;
 	Font mMiscFont;
 	Font mSceneUIFont;
-	
+
 	Text mSeedText;
-	
+
 	LevelSceneHandler mLevelSceneHandler;
 	Level mBackupLevel;
 	Level mLevel;
-	
+
 	boolean mIgnoreInput = false;
-	
+
 	//currently not used
 	String mLevelPath = DEFAULT_LEVEL_PATH;
 	boolean mIsAsset = true;
@@ -112,10 +116,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
 	////////////////////////////////////////////////////////////////////
-	
+
 	@Override
-	public void onStart() {
-		super.onStart();
+	public void onResume() {
+		super.onResume();
 		boolean oldTimeAttackMode = this.mTimeAttackMode;
 		int oldNumberOfTurns = this.mNumberOfTurns;
 		this.getPrefs();
@@ -124,15 +128,27 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mGameTypeHandler.cleanUp();
 			}
 			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameHandler() : new DefaultGameHandler();
+			//no level has yet been created nor a LevelSceneHandler which is needed in some GameTypeHandlers
 			if(this.mLevel != null) {
 				this.mLevel.setGameEndListener(this.mGameTypeHandler);
-				this.mGameTypeHandler.start();
+				this.mGameTypeHandler.init();
 			}
 		} else if(oldNumberOfTurns != this.mNumberOfTurns) {
 			this.mGameTypeHandler.onNumberOfTurnsPropertyChanged();
 		}
+		if(this.mLevel != null) {
+			//call on enter focus, if the game has already started once (outside of the andengine lifecycle!!!)
+			this.mGameTypeHandler.onEnterFocus();
+		}
 	}
-	
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		//this has to be done here outside of the andengine lifecycle
+		this.mGameTypeHandler.onLeaveFocus();
+	}
+
 	/**
 	 * sets the EngineOptions to the needs of the game
 	 */
@@ -150,7 +166,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onCreateResources(OnCreateResourcesCallback pCallback) {
 
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		
+
 		//TODO: Language choosing
 		this.mStringProperties = new Properties();
 		AssetManager assetManager = this.getResources().getAssets();
@@ -165,13 +181,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		} finally {
 			StreamUtil.closeQuietly(is);
 		}
-		
+
 		if(fail) {
 			this.finish();
 		}
 
 		TextureManager textureManager = this.mEngine.getTextureManager();
-		
+
 		//loading block textures
 		this.mBlockBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 276, 46, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBlockBitmapTextureAtlas, this, "blocks_tiled.png", 0,0, 6,1);
@@ -188,7 +204,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mEngine.getTextureManager().loadTexture(this.mSceneBackgroundBitmapTextureAtlas);
 
 		FontManager fontManager = this.mEngine.getFontManager();
-		
+
 		//loading fps font
 		BitmapTextureAtlas fpsFontTexture = new BitmapTextureAtlas(textureManager, 256, 256, TextureOptions.BILINEAR);
 		this.mEngine.getTextureManager().loadTexture(fpsFontTexture);
@@ -222,7 +238,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		//TODO: setting scene only for testing purposes!!!
 		this.mEngine.setScene(this.mLevelScene);
 		pCallback.onPopulateSceneFinished();
-		this.mGameTypeHandler.start();
+		this.mGameTypeHandler.init();
+		this.mGameTypeHandler.onEnterFocus();
 	}
 
 	@Override
@@ -233,14 +250,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		} else {
 			this.disableOrientationSensor();
 		}
-		this.mGameTypeHandler.onEnterFocus();
 	}
 
 	@Override
 	public void onPauseGame() {
 		super.onPauseGame();
 		this.disableOrientationSensor();
-		this.mGameTypeHandler.onLeaveFocus();
 	}
 
 	/**
@@ -308,16 +323,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		switch(item.getItemId()) {
 			case UIConstants.MENU_MENU_ID: {
 				if(this.mGameTypeHandler.requestLeaveToMenu()) {
-	                Intent settingsActivity = new Intent(getBaseContext(),
-	                        BlockBreakerPreferencesActivity.class);
-	                this.startActivity(settingsActivity);
+					Intent settingsActivity = new Intent(getBaseContext(),
+							BlockBreakerPreferencesActivity.class);
+					this.startActivity(settingsActivity);
 				}
 				return true;
 			}
 			case UIConstants.FROM_SEED_MENU_ID: {
-				if(!this.mTimeAttackMode) {
-					this.showInputSeedDialog();
-				}
+				this.mGameTypeHandler.requestSeedInput();
 				return true;
 			}
 			case UIConstants.RESTART_MENU_ID: {
@@ -354,16 +367,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onBackPressed() {
 		this.showCancelDialog();
 	}
-	
+
 	@Override
 	public void onOrientationAccuracyChanged(OrientationData pOrientationData) {
-		
+
 	}
 
 	////////////////////////////////////////////////////////////////////
 	////					Private/Package Methods					////
 	////////////////////////////////////////////////////////////////////
-	
+
 	void updateLevel(String pLevelPath, boolean pIsAsset) throws Exception {
 		this.mSeedText.setText("");
 		this.mLevelPath = pLevelPath;
@@ -374,51 +387,72 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mLevel.setGameEndListener(this.mGameTypeHandler);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
-	
-	void loadLevelFromAsset() throws Exception{
+
+	void loadLevelFromAsset() throws Exception {
 		throw new Exception("not Implemented!");
 	}
-	
+
+	/**
+	 * restarts the Level by creating a deep copy of the backup level
+	 * and making it the current level. it also sets the GameEndListener
+	 * correctly and updates the LevelSceneHandlers Level
+	 */
 	void restartLevel() {
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameTypeHandler);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
-	
+
+	/**
+	 * changes the current Level to a completely
+	 * randomly generated Level
+	 */
 	void randomLevel() {
 		long seed = sRandomSeedObject.nextLong();
 		this.randomLevelFromSeed(seed);
 	}
-	
+
+	/**
+	 * changes the current Level to a Level from seed
+	 * @param pSeed
+	 */
 	void randomLevelFromSeed(long pSeed) {
 		this.mSeedText.setText("Seed: " + Long.toString(pSeed));
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, this.mNumberOfTurns, this.mWinCount);
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(pSeed, 
+				this.mNumberOfTurns, 
+				this.mWinCount);
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 		this.mLevel.setGameEndListener(this.mGameTypeHandler);
 		this.mLevelSceneHandler.updateLevel(this.mLevel);
 	}
 
+	/**
+	 * initializes the first Level, only to be called on first startup!
+	 */
 	private void initLevel() {
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
-		
+
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
-		
+
 		this.mLevel.setGameEndListener(this.mGameTypeHandler);
-		
+
 		VertexBufferObjectManager vboManager = this.mEngine.getVertexBufferObjectManager();
-		
+
 		this.mLevelSceneHandler = new LevelSceneHandler(scene, vboManager);
-	
+
+		//ignore input, gamehandlers will have to handle starting on their own
+		this.mLevelSceneHandler.setIgnoreInput(true);
+
 		this.mLevelSceneHandler.initLevelScene(BlockBreakerActivity.this.mLevel, 
-		this.mSceneUIFont,
-		this.mBlockTiledTextureRegion,
-		this.mArrowTiledTextureRegion,
-		this.mStringProperties);
-		
+				this.mSceneUIFont,
+				this.mBlockTiledTextureRegion,
+				this.mArrowTiledTextureRegion,
+				this.mStringProperties);
+
 		final HUD hud = new HUD();
 		final FPSCounter counter = new FPSCounter();
 		this.mEngine.registerUpdateHandler(counter);
@@ -430,108 +464,88 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				maxLength, 
 				vboManager);
 		hud.attachChild(fps);
-		
+
 		this.mCamera.setHUD(hud);
 
 		scene.registerUpdateHandler(new TimerHandler(1/20F, true, 
-			new ITimerCallback() {
-				@Override
-				public void onTimePassed(TimerHandler arg0) {
-					String fpsString = Float.toString(counter.getFPS());
-					int length = fpsString.length();
-					fps.setText("FPS: " + fpsString.substring(0, length >= 5 ? 5 : length));
-				}            	
-			}
-		));
-		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT, BlockBreakerActivity.this.mSceneBackgroundTextureRegion, vboManager)));
+				new ITimerCallback() {
+			
+					@Override
+					public void onTimePassed(TimerHandler arg0) {
+						String fpsString = Float.toString(counter.getFPS());
+						int length = fpsString.length();
+						fps.setText("FPS: " + fpsString.substring(0, length >= 5 ? 5 : length));
+					}  
+					
+		}));
+		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, 
+				UIConstants.LEVEL_HEIGHT, 
+				BlockBreakerActivity.this.mSceneBackgroundTextureRegion,
+				vboManager)));
 	}
 
-	void showEndDialog(final GameEndType pResult) {
-		String resString;
-		
-		switch(pResult) {
-			case WIN: {
-				resString = this.mStringProperties.getProperty(UIConstants.WIN_GAME_PROPERTY_KEY);
-				break;
-			}
-			case LOSE: {
-				resString = this.mStringProperties.getProperty(UIConstants.LOSE_GAME_PROPERTY_KEY);
-				break;
-			}
-			default: {
-				resString = "WTF?";
-				break;
-			}
-		}
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(resString + " " + this.mStringProperties.getProperty(UIConstants.RESTART_QUESTION_PROPERTY_KEY))
-		.setCancelable(true)
-		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.YES_PROPERTY_KEY), new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface pDialog, int pId) {
-				pDialog.dismiss();
-				BlockBreakerActivity.this.restartLevel();
-			}
-		})
-		.setNegativeButton(this.mStringProperties.getProperty(UIConstants.NO_PROPERTY_KEY), new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface pDialog, int pId) {
-				pDialog.dismiss();
-				//TODO: Testing purposes!
-				BlockBreakerActivity.this.randomLevel();
-			}
-		});
-		builder.create().show();
-	}
-	
 	void showCancelDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(this.mStringProperties.getProperty(UIConstants.EXIT_GAME_QUESTION_PROPERTY_KEY))
 		.setCancelable(true)
-		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.YES_PROPERTY_KEY), new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface pDialog, int pId) {
-				pDialog.dismiss();
-				BlockBreakerActivity.this.finish();
-			}
+		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.YES_PROPERTY_KEY),
+				new DialogInterface.OnClickListener() {
+			
+					@Override
+					public void onClick(DialogInterface pDialog, int pId) {
+						pDialog.dismiss();
+						BlockBreakerActivity.this.finish();
+					}
+			
 		})
-		.setNegativeButton(this.mStringProperties.getProperty(UIConstants.NO_PROPERTY_KEY), new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface pDialog, int pId) {
-				pDialog.dismiss();
-			}
+		.setNegativeButton(this.mStringProperties.getProperty(UIConstants.NO_PROPERTY_KEY), 
+				new DialogInterface.OnClickListener() {
+			
+					@Override
+					public void onClick(DialogInterface pDialog, int pId) {
+						pDialog.dismiss();
+					}
+					
 		});
 		builder.create().show();
 	}
-	
+
 	void showFailDialog(String pMessage) {
 		//Don't use Properties here because this is used for failures in property loading as well
 		AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
 		builder.setMessage(pMessage + "\nQuitting!")
 		.setCancelable(false)
 		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			
+			@Override
 			public void onClick(DialogInterface pDialog, int pId) {
 				pDialog.dismiss();
 				BlockBreakerActivity.this.finish();
 			}
+			
 		});
 		builder.create().show();
 	}
-	
+
 	void showInputSeedDialog() {
 		this.showInputSeedDialog(
 				this.mStringProperties.getProperty(UIConstants.INPUT_SEED_QUESTION_PROPERTY_KEY));
 	}
-	
+
 	void showInputSeedDialog(String pText) {	
 		FrameLayout fl = new FrameLayout(this);
 		final EditText input = new EditText(this);
 		input.setGravity(Gravity.CENTER);
-		fl.addView(input, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-		
+		fl.addView(input, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, 
+				FrameLayout.LayoutParams.WRAP_CONTENT));
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(pText)
 		.setView(fl)
 		.setCancelable(true)
 		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.OK_PROPERTY_KEY), 
 				new DialogInterface.OnClickListener() {
+			
 					@Override
 					public void onClick(DialogInterface pDialog, int pId) {
 						try { 
@@ -544,18 +558,20 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 											UIConstants.WRONG_SEED_INPUT_PROPERTY_KEY));					
 						}
 					}
-			})
-			.setNegativeButton(this.mStringProperties.getProperty(UIConstants.CANCEL_PROPERTY_KEY),
-					new DialogInterface.OnClickListener() {						
-						@Override
-						public void onClick(DialogInterface pDialog, int pId) {
-							pDialog.dismiss();
-						}
-			}
-		);
+					
+		})
+		.setNegativeButton(this.mStringProperties.getProperty(UIConstants.CANCEL_PROPERTY_KEY),
+				new DialogInterface.OnClickListener() {	
+			
+					@Override
+					public void onClick(DialogInterface pDialog, int pId) {
+						pDialog.dismiss();
+					}
+					
+		});
 		builder.create().show();
 	}
-	
+
 	/**
 	 * loads the first randomly generated Level and initializes the SeedText
 	 */
@@ -570,73 +586,82 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				maxLength,
 				this.mEngine.getVertexBufferObjectManager());
 	}
-	
-	 private void getPrefs() {
-	     // Get the xml/preferences.xml preferences
-		 // Don't save this in a constant, because it will only be used in code here
-	     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-	     this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
-	     this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
-	     this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
-	 }
-	 
+
+	/**
+	 * gets the shared preferences and changes some boolean variables according to that
+	 */
+	private void getPrefs() {
+		// Get the xml/preferences.xml preferences
+		// Don't save this in a constant, because it will only be used in code here
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
+		this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
+		this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
+	}
+
 	////////////////////////////////////////////////////////////////////
 	////					Inner Classes & Interfaces				////
 	////////////////////////////////////////////////////////////////////
-	 
-	public abstract class BaseGameTypeHandler implements IGameEndListener {
-		 
-		 /**
-		  * called if Activity loses Focus
-		  */
-		 public void onLeaveFocus(){}
 
-		 /**
-		  * called if Activity gains Focus
-		  */
-		 public void onEnterFocus(){}
-		 
-		 /**
-		  * called if the user requests the next Level, which is the same as losing in TimeAttack
-		  */
-		 public void requestNextLevel(){}
-		 
-		 /**
-		  * called if the user requests to leave to the menu Activity
-		  * @return true if menu will be shown, false otherwise
-		  * @return default version returns true
-		  */
-		 public boolean requestLeaveToMenu(){return true;}
-		 
-		 /**
-		  * called if the user requests a restart of the game
-		  */
-		 public void requestRestart(){}
-		 
-		 /**
-		  * called upon first start of the game
-		  */
-		 public void start(){}
-		 
-		 /**
-		  * called when before the GameHandler is changed
-		  */
-		 public void cleanUp(){}
-		 
-		 /**
-		  * called if the number of turns property has changed, only used for notifying, no information
-		  */
-		 public void onNumberOfTurnsPropertyChanged(){}
-		 
-	 }
-	 
-	 private class DefaultGameHandler extends BaseGameTypeHandler {
-		 
+	public abstract class BaseGameTypeHandler implements IGameEndListener {
+
+		/**
+		 * called if Activity loses Focus
+		 */
+		public void onLeaveFocus() {
+			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
+		}
+
+		public void requestSeedInput() { }
+
+		/**
+		 * called if Activity gains Focus
+		 */
+		public void onEnterFocus() {
+			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
+		}
+
+		/**
+		 * called if the user requests the next Level, which is the same as losing in TimeAttack
+		 */
+		public void requestNextLevel(){}
+
+		/**
+		 * called if the user requests to leave to the menu Activity
+		 * @return true if menu will be shown, false otherwise
+		 * @return default version returns true
+		 */
+		public boolean requestLeaveToMenu(){return true;}
+
+		/**
+		 * called if the user requests a restart of the game
+		 */
+		public void requestRestart(){}
+
+		/**
+		 * called upon first start of the game
+		 */
+		public void init(){}
+
+		/**
+		 * called when before the GameHandler is changed
+		 */
+		public void cleanUp(){}
+
+		/**
+		 * called if the number of turns property has changed, only used for notifying, no information
+		 */
+		public void onNumberOfTurnsPropertyChanged(){}
+
+	}
+
+	private class DefaultGameHandler extends BaseGameTypeHandler {
+
 		@Override
 		public void onGameEnd(final GameEndEvent pEvt) {
 			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
 				public void run() {
-					BlockBreakerActivity.this.showEndDialog(pEvt.getType());
+					DefaultGameHandler.this.showEndDialog(pEvt.getType());
 				}
 			});
 		}
@@ -655,41 +680,100 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void cleanUp() {
 			BlockBreakerActivity.this.randomLevel();
 		}
-		 
-	 }
-	 
-	 //TODO: Implement all this stuff
-	 private class TimeAttackGameHandler extends BaseGameTypeHandler {
-		 
+
+		private void showEndDialog(final GameEndType pResult) {
+			String resString;
+
+			switch(pResult) {
+				case WIN: {
+					resString = BlockBreakerActivity.this.mStringProperties.
+							getProperty(UIConstants.WIN_GAME_PROPERTY_KEY);
+					break;
+				}
+				case LOSE: {
+					resString = BlockBreakerActivity.this.mStringProperties.
+							getProperty(UIConstants.LOSE_GAME_PROPERTY_KEY);
+					break;
+				}
+				default: {
+					resString = "WTF?";
+					break;
+				}
+			}
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
+			builder.setMessage(resString + " " + BlockBreakerActivity.this.mStringProperties.
+					getProperty(UIConstants.RESTART_QUESTION_PROPERTY_KEY))
+					.setCancelable(true)
+					.setPositiveButton(BlockBreakerActivity.
+							this.mStringProperties.getProperty(UIConstants.YES_PROPERTY_KEY),
+							new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface pDialog, int pId) {
+									pDialog.dismiss();
+									BlockBreakerActivity.this.restartLevel();
+								}
+								
+					})
+					.setNegativeButton(BlockBreakerActivity.this.mStringProperties.
+							getProperty(UIConstants.NO_PROPERTY_KEY), new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface pDialog, int pId) {
+									pDialog.dismiss();
+									//TODO: Testing purposes!
+									BlockBreakerActivity.this.randomLevel();
+								}
+								
+					});
+			builder.create().show();
+		}
+
+		@Override
+		public void requestSeedInput() {
+			BlockBreakerActivity.this.showInputSeedDialog();
+		}
+
+	}
+
+	private class TimeAttackGameHandler extends BaseGameTypeHandler {
+
 		private static final int DEFAULT_DURATION_IN_SECONDS = 120;
 		private static final int DEFAULT_NUMBER_OF_ALLOWED_LOSES = 2;
-		
+		private static final int GAME_WIN_BONUS = 100;
+		private static final int BLOCK_LEFT_BONUS = 10;
+		private static final int GAME_LOSE_BONUS = -50;
+
 		int mDurationInSeconds;
 		int mNumberOfAllowedLoses;
 		int mGamesLost;
 		int mGamesWon;
 		TimerHandler mTimeMainHandler;
 		TimerHandler mTimeUpdateHandler;
+		Text mStatusText;
 		Text mTimeText;
 		Text mTimeLeftText;
-		boolean mHasFocus;
-		
+		int mScore;
+
 		public TimeAttackGameHandler() {
 			this(DEFAULT_DURATION_IN_SECONDS, DEFAULT_NUMBER_OF_ALLOWED_LOSES);
 		}
-		
+
 		public TimeAttackGameHandler(int pDurationInSeconds, int pNumberOfAllowedLoses) {
 			this.mDurationInSeconds = pDurationInSeconds;
 			this.mNumberOfAllowedLoses = pNumberOfAllowedLoses;
 			this.mGamesWon = 0;
 			this.mGamesLost = 0;
-			this.mTimeMainHandler = new TimerHandler(this.mDurationInSeconds, new ITimerCallback() {
+			this.mScore = 0;
+			this.mTimeMainHandler = new TimerHandler(this.mDurationInSeconds, 
+					new ITimerCallback() {
 
-				@Override
-				public void onTimePassed(TimerHandler pTimerHandler) {
-					TimeAttackGameHandler.this.onTimeAttackEnd();
-				}
-				
+						@Override
+						public void onTimePassed(TimerHandler pTimerHandler) {
+							TimeAttackGameHandler.this.onTimeAttackEnd();
+						}
+
 			});
 			this.mTimeUpdateHandler = new TimerHandler(1.0F, true, new ITimerCallback() {
 
@@ -698,13 +782,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					if(!TimeAttackGameHandler.this.mTimeMainHandler.isTimerCallbackTriggered()) {
 						TimeAttackGameHandler.this.mTimeLeftText.setText(
 								Integer.toString((int)Math.round(
-										TimeAttackGameHandler.this.mDurationInSeconds - TimeAttackGameHandler.this.mTimeMainHandler.getTimerSecondsElapsed())));
+										TimeAttackGameHandler.this.mDurationInSeconds - 
+										TimeAttackGameHandler.this.mTimeMainHandler.getTimerSecondsElapsed())));
 					} else {
 						TimeAttackGameHandler.this.mTimeLeftText.setText(Integer.toString(0));
 						pTimerHandler.setAutoReset(false);
 					}
 				}
-				
+
 			});
 		}
 
@@ -712,8 +797,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void onGameEnd(GameEndEvent pEvt) {
 			switch(pEvt.getType()) {
 				case WIN: {
+					this.mScore = this.mScore + GAME_WIN_BONUS + 
+							BlockBreakerActivity.this.mLevel.getBlocksLeft() * BLOCK_LEFT_BONUS;
 					++this.mGamesWon;
 					BlockBreakerActivity.this.randomLevel();
+					this.updateStatusText();
 					break;
 				}
 				case LOSE: {
@@ -722,13 +810,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				}
 			}
 		}
-		
+
 		@Override
 		public void onEnterFocus() {
-			if(!this.mHasFocus) {
-				this.mHasFocus = true;
+			if(this.mTimeMainHandler.getTimerSecondsElapsed() < this.mDurationInSeconds
+					&& this.mGamesLost < this.mNumberOfAllowedLoses) {
 				BlockBreakerActivity.this.runOnUiThread(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
@@ -742,24 +830,26 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 										BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
 										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
 										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
+										pDialog.dismiss();
 									}
-								}
-						);
+						}
+								);
 						builder.create().show();
 					}
-					
+
 				});
+			} else {
+				this.showTimeAttackEndDialog();
 			}
 		}
-		
+
 		@Override
 		public void onLeaveFocus() {
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeMainHandler);
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeUpdateHandler);
-			this.mHasFocus = false;
 		}
-		
+
 		@Override
 		public boolean requestLeaveToMenu() {
 			return true;
@@ -767,12 +857,20 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		@Override
 		public void requestRestart() {
+			//make sure everything is set back to normal
+			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
+			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
 			this.reset();
 			BlockBreakerActivity.this.randomLevel();
+			//ready, set go!
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
 		}
 
 		@Override
 		public void requestNextLevel() {
+			this.mScore = this.mScore + GAME_LOSE_BONUS;
+			this.updateStatusText();
 			++this.mGamesLost;
 			if(this.mGamesLost <= this.mNumberOfAllowedLoses) {
 				BlockBreakerActivity.this.randomLevel();
@@ -780,14 +878,24 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.showTimeAttackEndDialog();
 			}
 		}
-		
+
 		@Override
-		public void start() {
+		public void init() {
 			this.mTimeLeftText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeLeftText();
 			this.mTimeLeftText.setVisible(true);
 			this.mTimeLeftText.setText(Integer.toString(this.mDurationInSeconds));
 			this.mTimeText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeText();
 			this.mTimeText.setVisible(true);
+			VertexBufferObjectManager vbo = BlockBreakerActivity.this.mEngine.getVertexBufferObjectManager();
+			this.mStatusText = new Text(UIConstants.LEVEL_WIDTH - 100,
+					5,
+					BlockBreakerActivity.this.mMiscFont,
+					"",
+					15,
+					new TextOptions(HorizontalAlign.RIGHT),
+					vbo);
+			this.updateStatusText();
+			BlockBreakerActivity.this.mCamera.getHUD().attachChild(this.mStatusText);
 		}
 
 		@Override
@@ -799,30 +907,34 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mTimeLeftText.setVisible(false);
 			this.mTimeLeftText.setText("");
 			this.mTimeText.setVisible(false);
+			this.mStatusText.detachSelf();
 		}
 
 		@Override
 		public void onNumberOfTurnsPropertyChanged() {
 			this.reset();
 		}
-		
+
 		public void onTimeAttackEnd() {
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
 			this.showTimeAttackEndDialog();
 		}
-			
+
 		private void showTimeAttackEndDialog() {
 			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
 					builder.setMessage(
 							BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.GAME_OVER_TEXT_PROPERTY_KEY)
+							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.SCORE_TEXT_PROPERTY_KEY)
+							+ ":\n" + TimeAttackGameHandler.this.mScore
 							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.COMPLETED_LEVELS_PROPERTY_KEY)
 							+ ":\n" + TimeAttackGameHandler.this.mGamesWon
 							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.LOST_LEVELS_TEXT_PROPERTY_KEY)
 							+ ":\n" + TimeAttackGameHandler.this.mGamesLost)
+<<<<<<< HEAD
 					.setCancelable(true)
 					.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY), 
 							new DialogInterface.OnClickListener() {
@@ -831,21 +943,39 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 									pDialog.dismiss();
 									TimeAttackGameHandler.this.requestRestart();
 								}
+=======
+							.setCancelable(true)
+							.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY), 
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface pDialog, int pId) {
+											//a restart has been requested
+											TimeAttackGameHandler.this.requestRestart();
+											pDialog.dismiss();
+										}
+>>>>>>> unstable
 							}
-					);
+									);
 					builder.create().show();
 				}
+
 			});
 		}
-		
+
 		private void reset() {
+			this.mScore = 0;
 			this.mGamesWon = 0;
 			this.mGamesLost = 0;
 			this.mTimeMainHandler.reset();
 			this.mTimeUpdateHandler.reset();
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
+			this.updateStatusText();
 		}
-		 
-	 }
-	 
+
+		private void updateStatusText() {
+			this.mStatusText.setText("Score: " + this.mScore);
+		}
+
+	}
+
 }
