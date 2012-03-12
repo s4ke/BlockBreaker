@@ -65,9 +65,11 @@ import de.hotware.blockbreaker.util.misc.StreamUtil;
  * @since Dec 2011
  */
 public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener {
+	
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
 	////////////////////////////////////////////////////////////////////
+	
 	static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
 	static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
 
@@ -84,6 +86,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
+	
 	static final Random sRandomSeedObject = new Random();
 
 	boolean mUseOrientSensor = false;
@@ -111,7 +114,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	Level mLevel;
 
 	boolean mIgnoreInput = false;
-	Difficulty mDifficulty = Difficulty.EASY;;
+	Difficulty mDifficulty = Difficulty.EASY;
 
 	//currently not used
 	String mLevelPath = DEFAULT_LEVEL_PATH;
@@ -134,7 +137,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			if(this.mGameTypeHandler != null) {
 				this.mGameTypeHandler.cleanUp();
 			}
-			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameHandler() : new DefaultGameHandler();
+			//hier vll die vorinstanziierten GameHandler statt neuer Instanzen
+			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler() : new DefaultGameTypeHandler();
 			//no level has yet been created nor a LevelSceneHandler which is needed in some GameTypeHandlers
 			if(this.mLevel != null) {
 				this.mLevel.setGameEndListener(this.mGameTypeHandler);
@@ -674,13 +678,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 * The DefaultGameHandler
 	 * @author Martin Braun
 	 */
-	private class DefaultGameHandler extends BaseGameTypeHandler {
+	private class DefaultGameTypeHandler extends BaseGameTypeHandler {
 
 		@Override
 		public void onGameEnd(final GameEndEvent pEvt) {
 			BlockBreakerActivity.this.runOnUiThread(new Runnable() {
 				public void run() {
-					DefaultGameHandler.this.showEndDialog(pEvt.getType());
+					DefaultGameTypeHandler.this.showEndDialog(pEvt.getType());
 				}
 			});
 		}
@@ -760,7 +764,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 * The TimeAttackGameHandler
 	 * @author Martin Braun
 	 */
-	private class TimeAttackGameHandler extends BaseGameTypeHandler {
+	private class TimeAttackGameTypeHandler extends BaseGameTypeHandler {
 
 		//Time Constants
 		private static final int DEFAULT_DURATION_IN_SECONDS = 120;
@@ -783,11 +787,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		Text mTimeLeftText;
 		int mScore;
 
-		public TimeAttackGameHandler() {
+		public TimeAttackGameTypeHandler() {
 			this(DEFAULT_DURATION_IN_SECONDS, DEFAULT_NUMBER_OF_ALLOWED_LOSES);
 		}
 
-		public TimeAttackGameHandler(int pDurationInSeconds, int pNumberOfAllowedLoses) {
+		public TimeAttackGameTypeHandler(int pDurationInSeconds, int pNumberOfAllowedLoses) {
 			this.mDurationInSeconds = pDurationInSeconds;
 			this.mNumberOfAllowedLoses = pNumberOfAllowedLoses;
 			this.mGamesWon = 0;
@@ -798,7 +802,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 						@Override
 						public void onTimePassed(TimerHandler pTimerHandler) {
-							TimeAttackGameHandler.this.onTimeAttackEnd();
+							TimeAttackGameTypeHandler.this.onTimeAttackEnd();
 						}
 
 			});
@@ -806,13 +810,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 				@Override
 				public void onTimePassed(TimerHandler pTimerHandler) {
-					if(!TimeAttackGameHandler.this.mTimeMainHandler.isTimerCallbackTriggered()) {
-						TimeAttackGameHandler.this.mTimeLeftText.setText(
+					if(!TimeAttackGameTypeHandler.this.mTimeMainHandler.isTimerCallbackTriggered()) {
+						TimeAttackGameTypeHandler.this.mTimeLeftText.setText(
 								Integer.toString((int)Math.round(
-										TimeAttackGameHandler.this.mDurationInSeconds - 
-										TimeAttackGameHandler.this.mTimeMainHandler.getTimerSecondsElapsed())));
+										TimeAttackGameTypeHandler.this.mDurationInSeconds - 
+										TimeAttackGameTypeHandler.this.mTimeMainHandler.getTimerSecondsElapsed())));
 					} else {
-						TimeAttackGameHandler.this.mTimeLeftText.setText(Integer.toString(0));
+						TimeAttackGameTypeHandler.this.mTimeLeftText.setText(Integer.toString(0));
 						pTimerHandler.setAutoReset(false);
 					}
 				}
@@ -859,8 +863,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 									@Override
 									public void onClick(DialogInterface pDialog, int pId) {
 										BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
-										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
-										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
+										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeMainHandler);
+										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeUpdateHandler);
 										pDialog.dismiss();
 									}
 						}
@@ -889,13 +893,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		@Override
 		public void requestRestart() {
 			//make sure everything is set back to normal
-			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
-			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
+			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameTypeHandler.this.mTimeMainHandler);
+			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameTypeHandler.this.mTimeUpdateHandler);
 			this.reset();
 			BlockBreakerActivity.this.randomLevel();
 			//ready, set go!
-			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeMainHandler);
-			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameHandler.this.mTimeUpdateHandler);
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeMainHandler);
+			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeUpdateHandler);
 		}
 
 		@Override
@@ -914,6 +918,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		public void init() {
 			this.mTimeLeftText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeLeftText();
 			this.mTimeLeftText.setVisible(true);
+			this.mTimeLeftText.setIgnoreUpdate(false);
 			this.mTimeLeftText.setText(Integer.toString(this.mDurationInSeconds));
 			this.mTimeText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeText();
 			this.mTimeText.setVisible(true);
@@ -936,6 +941,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
 			BlockBreakerActivity.this.randomLevel();
 			this.mTimeLeftText.setVisible(false);
+			this.mTimeLeftText.setIgnoreUpdate(true);
 			this.mTimeLeftText.setText("");
 			this.mTimeText.setVisible(false);
 			this.mStatusText.detachSelf();
@@ -960,18 +966,18 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					builder.setMessage(
 							BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.GAME_OVER_TEXT_PROPERTY_KEY)
 							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.SCORE_TEXT_PROPERTY_KEY)
-							+ ":\n" + TimeAttackGameHandler.this.mScore
+							+ ":\n" + TimeAttackGameTypeHandler.this.mScore
 							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.COMPLETED_LEVELS_PROPERTY_KEY)
-							+ ":\n" + TimeAttackGameHandler.this.mGamesWon
+							+ ":\n" + TimeAttackGameTypeHandler.this.mGamesWon
 							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.LOST_LEVELS_TEXT_PROPERTY_KEY)
-							+ ":\n" + TimeAttackGameHandler.this.mGamesLost)
+							+ ":\n" + TimeAttackGameTypeHandler.this.mGamesLost)
 							.setCancelable(true)
 							.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY), 
 									new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface pDialog, int pId) {
 											//a restart has been requested
-											TimeAttackGameHandler.this.requestRestart();
+											TimeAttackGameTypeHandler.this.requestRestart();
 											pDialog.dismiss();
 										}
 							}
