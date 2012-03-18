@@ -994,6 +994,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mGamesLost = 0;
 			this.mTimeMainHandler.reset();
 			this.mTimeUpdateHandler.reset();
+			this.mTimeUpdateHandler.setAutoReset(true);
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
 			this.updateStatusText();
 		}
