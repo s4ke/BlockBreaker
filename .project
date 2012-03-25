@@ -3,6 +3,8 @@
 	<name>BlockBreaker</name>
 	<comment></comment>
 	<projects>
+		<project>AndEngine</project>
+		<project>BlockBreakerModel</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

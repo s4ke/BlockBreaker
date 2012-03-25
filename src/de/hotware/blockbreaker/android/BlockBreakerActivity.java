@@ -57,7 +57,7 @@ import de.hotware.blockbreaker.util.misc.StreamUtil;
 
 /**
  * (c) 2011-2012 Martin Braun
- * TODO: change behaviours via different GameEndListener, Do we need Timed Mode?
+ * TODO: change behaviors via different GameEndListener, Do we need Timed Mode?
  * TODO: save levels (Preferences checkbox if dialog should appear)
  * TODO: maybe use factory methods instead of new instances for GameTypeHandlers in extra
  * 		 class with methods. Cache instances!
