@@ -42,7 +42,6 @@ import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -356,19 +355,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				return super.onOptionsItemSelected(item);
 			}
 		}
-	}
-
-	/**
-	 * Fix for older SDK versions which don't have onBackPressed()	
-	 */
-	@Override
-	public boolean onKeyDown(int pKeyCode, KeyEvent pEvent) {
-		if(USE_MENU_WORKAROUND && 
-				pKeyCode == KeyEvent.KEYCODE_BACK && 
-				pEvent.getRepeatCount() == 0) {
-			this.onBackPressed();
-		}
-		return super.onKeyDown(pKeyCode, pEvent);
 	}
 
 	/**
@@ -781,6 +767,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		int mGamesLost;
 		int mGamesWon;
 		TimerHandler mTimeMainHandler;
+		TimeMainCallback mTimeMainCallback;
 		TimerHandler mTimeUpdateHandler;
 		Text mStatusText;
 		Text mTimeText;
@@ -798,14 +785,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mGamesLost = 0;
 			this.mScore = 0;
 			this.mTimeMainHandler = new TimerHandler(this.mDurationInSeconds, 
-					new ITimerCallback() {
-
-						@Override
-						public void onTimePassed(TimerHandler pTimerHandler) {
-							TimeAttackGameTypeHandler.this.onTimeAttackEnd();
-						}
-
-			});
+					this.mTimeMainCallback = new TimeMainCallback());
 			this.mTimeUpdateHandler = new TimerHandler(1.0F, true, new ITimerCallback() {
 
 				@Override
@@ -992,7 +972,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mScore = 0;
 			this.mGamesWon = 0;
 			this.mGamesLost = 0;
-			this.mTimeMainHandler.reset();
+			this.mTimeMainHandler = new TimerHandler(this.mDurationInSeconds, this.mTimeMainCallback);
 			this.mTimeUpdateHandler.reset();
 			this.mTimeUpdateHandler.setAutoReset(true);
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
@@ -1001,6 +981,15 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		private void updateStatusText() {
 			this.mStatusText.setText("Score: " + this.mScore);
+		}
+		
+		private class TimeMainCallback implements ITimerCallback {
+
+				@Override
+				public void onTimePassed(TimerHandler pTimerHandler) {
+					TimeAttackGameTypeHandler.this.onTimeAttackEnd();
+				}
+
 		}
 
 	}
