@@ -7,13 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class HighscoreSQLManager extends SQLiteOpenHelper {
-	
-	public static final String TABLE_HIGHSCORES = "highscores";
-	public static final String COLUMN_ID = "_id";
-	public static final String COLUMN_SEED = "seed";
-	public static final String COLUMN_TURNS = "turns";
-	public static final String COLUMN_NAME = "name";
-	public static final String COLUMN_SCORE = "score";
 
 	private static final String DATABASE_NAME = "highscores.db";
 	private static final int DATABASE_VERSION = 1;
@@ -48,19 +41,17 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase pDb, int pOldVersion, int pNewVersion) {
-		pDb.execSQL("DROP TABLE IF EXISTS time_attack_scores");
-		pDb.execSQL("DROP TABLE IF EXISTS names");
+		pDb.execSQL("drop table if exists time_attack_scores");
+		pDb.execSQL("drop table if exists names");
 		this.onCreate(pDb);
 	}
 	
-	public void createTimeAttackEntry(long pSeed, int pTurns, String pName, int pScore) {
+	public void createTimeAttackEntry(String pName,
+			int pNumberOfWins,
+			int pNumberOfLosses,
+			int pScore) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues cv = new ContentValues();
-		cv.put(COLUMN_SEED, pSeed);
-		cv.put(COLUMN_TURNS, pTurns);
-		cv.put(COLUMN_NAME, pName);
-		cv.put(COLUMN_SCORE, pScore);
-		db.insert(TABLE_HIGHSCORES, COLUMN_ID, cv);
 	}
 	
 	public Cursor getTimeAttackOrdered() {
