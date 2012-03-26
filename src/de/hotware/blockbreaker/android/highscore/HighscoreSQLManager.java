@@ -18,15 +18,23 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "highscores.db";
 	private static final int DATABASE_VERSION = 1;
 	
-	// Database creation sql statement
-	private static final String DATABASE_CREATE = "create table "
-			+ TABLE_HIGHSCORES + "( " 
-			+ COLUMN_ID + " integer primary key autoincrement, " 
-			+ COLUMN_SEED + " integer, "
-			+ COLUMN_TURNS + " integer "
-			+ COLUMN_NAME	+ " text not null, " 
-			+ COLUMN_SCORE + " integer "
-			+ ");";
+	
+	private static final String CREATE_NAMES_TABLE = "create table names ( " +
+			"id integer primary key autoincrement, " +
+			"name text not null);";
+	
+	private static final String CREATE_TIME_ATTACK_SCORES_TABLE = "create table time_attack_scores( " +
+			 "id integer primary key autoincrement, " +
+			 "name_fk integer, " +
+			 "number_of_wins integer not null, " +
+			 "number_of_losses integer not null, " +
+			 "score integer not null, " +
+			 "foreign key(name_fk) references names(id));";
+	
+	private static final String TIME_ATTACK_SQL = "select tas.number_of_wins, tas.number_of, tas.score, n.name " +
+			"from time_attack_scores tas " +
+			"left outer join names n on tas.name_fk = n.id " +
+			"order by tas.score desc;";
 
 	public HighscoreSQLManager(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,22 +42,18 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase pDb) {
-		pDb.execSQL(DATABASE_CREATE);
+		pDb.execSQL(CREATE_NAMES_TABLE);
+		pDb.execSQL(CREATE_TIME_ATTACK_SCORES_TABLE);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase pDb, int pOldVersion, int pNewVersion) {
-		pDb.execSQL("DROP TABLE IF EXISTS" + TABLE_HIGHSCORES);
+		pDb.execSQL("DROP TABLE IF EXISTS time_attack_scores");
+		pDb.execSQL("DROP TABLE IF EXISTS names");
 		this.onCreate(pDb);
 	}
-
-	public void removeEntry(long pId) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_HIGHSCORES, COLUMN_ID+"=?", new String [] {String.valueOf(pId)});
-		db.close();
-	}
 	
-	public void createEntry(long pSeed, int pTurns, String pName, int pScore) {
+	public void createTimeAttackEntry(long pSeed, int pTurns, String pName, int pScore) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues cv = new ContentValues();
 		cv.put(COLUMN_SEED, pSeed);
@@ -59,26 +63,9 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 		db.insert(TABLE_HIGHSCORES, COLUMN_ID, cv);
 	}
 	
-	public int updateEntry(long pSeed, int pTurns, String pName, int pScore) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		ContentValues cv = new ContentValues();
-		cv.put(COLUMN_NAME, pName);
-		cv.put(COLUMN_SCORE, pScore);
-		return db.update(TABLE_HIGHSCORES, cv, COLUMN_SEED + "=?" + "AND" + COLUMN_TURNS + "=?", new String []{String.valueOf(pSeed), String.valueOf(pTurns)}); 
-	}
-	
-	public boolean highScoreExists(long pSeed, int pTurns) {
+	public Cursor getTimeAttackOrdered() {
 		SQLiteDatabase db = this.getReadableDatabase();
-	    Cursor cur = db.rawQuery("SELECT "+ COLUMN_ID + " FROM "
-	    		+ TABLE_HIGHSCORES + " WHERE "
-	    		+ COLUMN_SEED + "=" +  String.valueOf(pSeed)
-	    		+ COLUMN_TURNS + "=" + String.valueOf(pTurns), null);
-		return cur.getCount() == 1;
-	}
-	
-	public Cursor allEntries() {
-		SQLiteDatabase db = this.getReadableDatabase();
-		return db.rawQuery("SELECT * FROM " + TABLE_HIGHSCORES, null);
+		return db.rawQuery(TIME_ATTACK_SQL, null);
 	}
 	
 }
