@@ -10,4 +10,9 @@
     <string name="time_attack_sum">Play against the clock and try to solve as many levels as possible</string>
     <string name="difficulty">Difficulty</string>
     <string name="difficulty_sum">Choose your preferred difficulty setting here</string>
+    <string name="input_name_title">Input your name here!</string>
+    <string name="submit">Submit</string>
+    <string name="input_name_sum">Change the name that is being used for Highscores</string>
+    <string name="input_name">Name</string>
+    <string name="input_name_def">Player</string>
 </resources>

@@ -1,25 +1,25 @@
 package de.hotware.blockbreaker.android.highscore;
 
-import android.content.ContentValues;
+import org.andengine.util.debug.Debug;
+import org.andengine.util.debug.Debug.DebugLevel;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class HighscoreSQLManager extends SQLiteOpenHelper {
+public class HighscoreManager extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "highscores.db";
-	private static final int DATABASE_VERSION = 1;
-	
-	private static final String COLUMN_ID = "id";
+	private static final int DATABASE_VERSION = 2;
 	
 	private static final String CREATE_NAMES_TABLE_SQL = "create table names ( " +
-			COLUMN_ID + " integer primary key autoincrement, " +
+			"id integer primary key autoincrement, " +
 			"name text unique not null);";
 	
 	private static final String CREATE_TIME_ATTACK_SCORES_TABLE_SQL = 
 			 "create table time_attack_scores( " +
-			 COLUMN_ID + " integer primary key autoincrement, " +
+			 "id integer primary key autoincrement, " +
 			 "name_fk integer, " +
 			 "number_of_wins integer not null, " +
 			 "number_of_losses integer not null, " +
@@ -34,9 +34,9 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 	
 	private static final String INSERT_TIME_ATTACK_SQL = "insert into time_attack_scores " +
 			"(name_fk, number_of_wins, number_of_losses, score) values ((select id from names " +
-			"where name = '%s'), %d, %d %d);"; 
+			"where name = '%s'), %d, %d, %d);"; 
 
-	public HighscoreSQLManager(Context context) {
+	public HighscoreManager(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
@@ -59,14 +59,23 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 			int pNumberOfLosses,
 			int pScore) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		db.execSQL("insert or ignore into names(name) values(" + pName + ");");
 		String sql = String.format(INSERT_TIME_ATTACK_SQL, pName, pNumberOfWins, pNumberOfLosses, pScore);
 		db.execSQL(sql);
+		db.close();
+	}
+	
+	public void ensureNameExistsInDB(String pName) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.execSQL("insert or ignore into names (name) values ('" + pName + "');");
+		db.close();
+		db = this.getReadableDatabase();
 	}
 	
 	public Cursor getTimeAttackOrdered() {
 		SQLiteDatabase db = this.getReadableDatabase();
-		return db.rawQuery(QUERY_TIME_ATTACK_ORDERED_SQL, null);
+		Cursor ret =  db.rawQuery(QUERY_TIME_ATTACK_ORDERED_SQL, null);
+		db.close();
+		return ret;
 	}
 	
 }

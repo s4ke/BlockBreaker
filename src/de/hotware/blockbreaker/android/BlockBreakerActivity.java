@@ -46,7 +46,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import de.hotware.blockbreaker.android.highscore.HighscoreSQLManager;
+import de.hotware.blockbreaker.android.highscore.HighscoreManager;
 import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
 import de.hotware.blockbreaker.model.generator.LevelGenerator;
@@ -114,6 +114,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	boolean mIgnoreInput = false;
 	Difficulty mDifficulty = Difficulty.EASY;
+	
+	String mPlayerName;
+	HighscoreManager mHighscoreManager = new HighscoreManager(this);
 
 	//currently not used
 	String mLevelPath = DEFAULT_LEVEL_PATH;
@@ -298,7 +301,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 
 	/**
-	 * creates the menu defined in the corresponding xml file
+	 * creates the menu for on hardware menu click
+	 * not being done in a xml file because I don't know if
+	 * I will change this to a more fancy style of menu!
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -373,21 +378,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////					Private/Package Methods					////
 	////////////////////////////////////////////////////////////////////
-
-	void updateLevel(String pLevelPath, boolean pIsAsset) throws Exception {
-		this.mSeedText.setText("");
-		this.mLevelPath = pLevelPath;
-		this.mIsAsset = pIsAsset;
-		this.loadLevelFromAsset();
-		this.mLevel = this.mBackupLevel.copy();
-		this.mLevel.start();
-		this.mLevel.setGameEndListener(this.mGameTypeHandler);
-		this.mLevelSceneHandler.updateLevel(this.mLevel);
-	}
-
-	void loadLevelFromAsset() throws Exception {
-		throw new Exception("not Implemented!");
-	}
 
 	/**
 	 * restarts the Level by creating a deep copy of the backup level
@@ -468,7 +458,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				new ITimerCallback() {
 			
 					@Override
-					public void onTimePassed(TimerHandler arg0) {
+					public void onTimePassed(TimerHandler pTimerHandler) {
 						String fpsString = Float.toString(counter.getFPS());
 						int length = fpsString.length();
 						fps.setText("FPS: " + fpsString.substring(0, length >= 5 ? 5 : length));
@@ -591,12 +581,20 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private void getPrefs() {
 		// Get the xml/preferences.xml preferences
 		// Don't save this in a constant, because it will only be used in code here
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
 		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
 		this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
 		this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
 		this.mDifficulty = Difficulty.numberToDifficulty(
 				Integer.parseInt(prefs.getString("difficulty_pref", "0")));
+		this.mPlayerName = prefs.getString("input_name_pref", "Player");
+		if(this.mPlayerName.length() == 0) {
+			this.mPlayerName = "Player";
+		}
+		if(this.mPlayerName.length() > 10) {
+			this.mPlayerName = this.mPlayerName.substring(0, 10);
+		}
+		this.mHighscoreManager.ensureNameExistsInDB(this.mPlayerName);
 	}
 
 	////////////////////////////////////////////////////////////////////
@@ -769,7 +767,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		TimerHandler mTimeMainHandler;
 		TimeMainCallback mTimeMainCallback;
 		TimerHandler mTimeUpdateHandler;
-		HighscoreSQLManager mHighscoreSQLManager;
 		Text mStatusText;
 		Text mTimeText;
 		Text mTimeLeftText;
@@ -785,7 +782,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mGamesWon = 0;
 			this.mGamesLost = 0;
 			this.mScore = 0;
-			this.mHighscoreSQLManager = new HighscoreSQLManager(BlockBreakerActivity.this);
 			this.mTimeMainHandler = new TimerHandler(this.mDurationInSeconds, 
 					this.mTimeMainCallback = new TimeMainCallback());
 			this.mTimeUpdateHandler = new TimerHandler(1.0F, true, new ITimerCallback() {
@@ -892,7 +888,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			if(this.mGamesLost <= this.mNumberOfAllowedLoses) {
 				BlockBreakerActivity.this.randomLevel();
 			} else {
-				this.showTimeAttackEndDialog();
+				this.onTimeAttackEnd();
 			}
 		}
 
@@ -936,6 +932,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		public void onTimeAttackEnd() {
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
+			BlockBreakerActivity.this.mHighscoreManager.
+				createTimeAttackEntry(BlockBreakerActivity.this.mPlayerName,
+					this.mGamesWon, this.mGamesLost, this.mScore);
 			this.showTimeAttackEndDialog();
 		}
 
