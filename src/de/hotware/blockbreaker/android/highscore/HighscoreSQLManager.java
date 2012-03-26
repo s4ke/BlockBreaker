@@ -13,11 +13,11 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 	
 	private static final String COLUMN_ID = "id";
 	
-	private static final String CREATE_NAMES_TABLE = "create table names ( " +
+	private static final String CREATE_NAMES_TABLE_SQL = "create table names ( " +
 			COLUMN_ID + " integer primary key autoincrement, " +
 			"name text unique not null);";
 	
-	private static final String CREATE_TIME_ATTACK_SCORES_TABLE = 
+	private static final String CREATE_TIME_ATTACK_SCORES_TABLE_SQL = 
 			 "create table time_attack_scores( " +
 			 COLUMN_ID + " integer primary key autoincrement, " +
 			 "name_fk integer, " +
@@ -26,11 +26,15 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 			 "score integer not null, " +
 			 "foreign key(name_fk) references names(id));";
 	
-	private static final String TIME_ATTACK_SQL = "select tas.number_of_wins, tas.number_of, " +
+	private static final String QUERY_TIME_ATTACK_ORDERED_SQL = "select tas.number_of_wins, tas.number_of, " +
 			"tas.score, n.name " +
 			"from time_attack_scores tas " +
 			"left outer join names n on tas.name_fk = n.id " +
 			"order by tas.score desc;";
+	
+	private static final String INSERT_TIME_ATTACK_SQL = "insert into time_attack_scores " +
+			"(name_fk, number_of_wins, number_of_losses, score) values ((select id from names " +
+			"where name = '%s'), %d, %d %d);"; 
 
 	public HighscoreSQLManager(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -38,8 +42,8 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase pDb) {
-		pDb.execSQL(CREATE_NAMES_TABLE);
-		pDb.execSQL(CREATE_TIME_ATTACK_SCORES_TABLE);
+		pDb.execSQL(CREATE_NAMES_TABLE_SQL);
+		pDb.execSQL(CREATE_TIME_ATTACK_SCORES_TABLE_SQL);
 	}
 
 	@Override
@@ -48,6 +52,7 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 		pDb.execSQL("drop table if exists names");
 		this.onCreate(pDb);
 	}
+
 	
 	public void createTimeAttackEntry(String pName,
 			int pNumberOfWins,
@@ -55,18 +60,13 @@ public class HighscoreSQLManager extends SQLiteOpenHelper {
 			int pScore) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.execSQL("insert or ignore into names(name) values(" + pName + ");");
-		ContentValues cv = new ContentValues();
-//		ContentValues cv = new ContentValues();
-//		cv.put("", pSeed);
-//		cv.put(COLUMN_TURNS, pTurns);
-//		cv.put(COLUMN_NAME, pName);
-//		cv.put(COLUMN_SCORE, pScore);
-//		db.insert(TABLE_HIGHSCORES, COLUMN_ID, cv);
+		String sql = String.format(INSERT_TIME_ATTACK_SQL, pName, pNumberOfWins, pNumberOfLosses, pScore);
+		db.execSQL(sql);
 	}
 	
 	public Cursor getTimeAttackOrdered() {
 		SQLiteDatabase db = this.getReadableDatabase();
-		return db.rawQuery(TIME_ATTACK_SQL, null);
+		return db.rawQuery(QUERY_TIME_ATTACK_ORDERED_SQL, null);
 	}
 	
 }
