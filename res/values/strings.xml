@@ -15,5 +15,5 @@
     <string name="input_name_sum">Change the name that is being used for Highscores</string>
     <string name="input_name">Name</string>
     <string name="input_name_def">Player</string>
-    <string name="input_name_desc">Input a name containing 1-10 characters</string>
+    <string name="input_name_desc">Input a name containing 1 to 10 characters</string>
 </resources>

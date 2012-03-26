@@ -1,8 +1,5 @@
 package de.hotware.blockbreaker.android.highscore;
 
-import org.andengine.util.debug.Debug;
-import org.andengine.util.debug.Debug.DebugLevel;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -53,7 +50,13 @@ public class HighscoreManager extends SQLiteOpenHelper {
 		this.onCreate(pDb);
 	}
 
-	
+	/**
+	 * inserts a new score for the TimeAtttackGameHandler into the database
+	 * @param pName
+	 * @param pNumberOfWins
+	 * @param pNumberOfLosses
+	 * @param pScore
+	 */
 	public void createTimeAttackEntry(String pName,
 			int pNumberOfWins,
 			int pNumberOfLosses,
@@ -64,6 +67,11 @@ public class HighscoreManager extends SQLiteOpenHelper {
 		db.close();
 	}
 	
+	/**
+	 * ensures that the given name is existent in the database
+	 * and if not creates an DB entry for the name in the names
+	 * table
+	 */
 	public void ensureNameExistsInDB(String pName) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.execSQL("insert or ignore into names (name) values ('" + pName + "');");
@@ -71,6 +79,11 @@ public class HighscoreManager extends SQLiteOpenHelper {
 		db = this.getReadableDatabase();
 	}
 	
+	/**
+	 * gets all the score entries ordered by the score in an descending
+	 * order
+	 * @return
+	 */
 	public Cursor getTimeAttackOrdered() {
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor ret =  db.rawQuery(QUERY_TIME_ATTACK_ORDERED_SQL, null);

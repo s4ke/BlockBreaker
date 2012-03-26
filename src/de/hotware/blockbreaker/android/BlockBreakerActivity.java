@@ -304,6 +304,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 * creates the menu for on hardware menu click
 	 * not being done in a xml file because I don't know if
 	 * I will change this to a more fancy style of menu!
+	 * TODO: REALLY CHANGE THIS!!! Android 3.0 deprecated the 
+	 * menu button!
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -334,7 +336,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		//TODO use AndEngines Menu System!
 		switch(item.getItemId()) {
 			case UIConstants.MENU_MENU_ID: {
 				if(this.mGameTypeHandler.requestLeaveToMenu()) {
@@ -729,7 +730,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 								@Override
 								public void onClick(DialogInterface pDialog, int pId) {
 									pDialog.dismiss();
-									//TODO: Testing purposes!
 									BlockBreakerActivity.this.randomLevel();
 								}
 								
