@@ -46,6 +46,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import de.hotware.blockbreaker.android.highscore.HighscoreSQLManager;
 import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
 import de.hotware.blockbreaker.model.generator.LevelGenerator;
@@ -56,7 +57,6 @@ import de.hotware.blockbreaker.util.misc.StreamUtil;
 
 /**
  * (c) 2011-2012 Martin Braun
- * TODO: change behaviors via different GameEndListener, Do we need Timed Mode?
  * TODO: save levels (Preferences checkbox if dialog should appear)
  * TODO: maybe use factory methods instead of new instances for GameTypeHandlers in extra
  * 		 class with methods. Cache instances!
@@ -769,6 +769,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		TimerHandler mTimeMainHandler;
 		TimeMainCallback mTimeMainCallback;
 		TimerHandler mTimeUpdateHandler;
+		HighscoreSQLManager mHighscoreSQLManager;
 		Text mStatusText;
 		Text mTimeText;
 		Text mTimeLeftText;
@@ -784,6 +785,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mGamesWon = 0;
 			this.mGamesLost = 0;
 			this.mScore = 0;
+			this.mHighscoreSQLManager = new HighscoreSQLManager(BlockBreakerActivity.this);
 			this.mTimeMainHandler = new TimerHandler(this.mDurationInSeconds, 
 					this.mTimeMainCallback = new TimeMainCallback());
 			this.mTimeUpdateHandler = new TimerHandler(1.0F, true, new ITimerCallback() {
@@ -960,8 +962,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 											TimeAttackGameTypeHandler.this.requestRestart();
 											pDialog.dismiss();
 										}
-							}
-									);
+							});
 					builder.create().show();
 				}
 

@@ -1,6 +1,6 @@
 package de.hotware.blockbreaker.android;
 
-import de.hotware.blockbreaker.R;
+import de.hotware.blockbreaker.android.R;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
