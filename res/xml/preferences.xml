@@ -29,6 +29,6 @@
                 <EditTextPreference android:positiveButtonText="@string/submit" 
                     android:dialogTitle="@string/input_name_title" 
                     android:summary="@string/input_name_sum" 
-                    android:key="input_name_pref" android:defaultValue="@string/input_name_def" android:title="@string/input_name"/>
+                    android:key="input_name_pref" android:defaultValue="@string/input_name_def" android:title="@string/input_name" android:dialogMessage="@string/input_name_desc"/>
         </PreferenceCategory>
 </PreferenceScreen>
