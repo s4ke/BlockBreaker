@@ -904,6 +904,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		public void onTimeAttackEnd() {
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
+			this.mTimeUpdateHandler.setAutoReset(false);
 			BlockBreakerActivity.this.mHighscoreManager.
 				createTimeAttackEntry(BlockBreakerActivity.this.mPlayerName,
 					this.mGamesWon, this.mGamesLost, this.mScore);

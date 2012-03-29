@@ -304,6 +304,7 @@ public class LevelSceneHandler {
 						@Override
 						public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 							BlockSprite bs = (BlockSprite) pItem;
+							//TODO: Hier nur ausblenden
 							bs.setCurrentTileIndex(0);
 							LevelSceneHandler.this.mScene.unregisterTouchArea(bs);
 						}
