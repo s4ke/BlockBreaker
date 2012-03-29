@@ -16,8 +16,6 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
-import org.andengine.entity.text.Text.TextOptions;
-import org.andengine.entity.util.FPSCounter;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -32,7 +30,6 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.input.sensor.orientation.IOrientationListener;
 import org.andengine.input.sensor.orientation.OrientationData;
 import org.andengine.ui.activity.BaseGameActivity;
-import org.andengine.util.HorizontalAlign;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -203,26 +200,30 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		//loading block textures
 		this.mBlockBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 276, 46, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBlockBitmapTextureAtlas, this, "blocks_tiled.png", 0,0, 6,1);
+		this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.
+				createTiledFromAsset(this.mBlockBitmapTextureAtlas, this, "blocks_tiled.png", 0,0, 6,1);
 		this.mEngine.getTextureManager().loadTexture(this.mBlockBitmapTextureAtlas);
 
 		//loading arrow sprites
 		this.mArrowBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 512, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mArrowTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mArrowBitmapTextureAtlas, this, "arrow_tiled.png", 0,0, 4,1);
+		this.mArrowTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.
+				createTiledFromAsset(this.mArrowBitmapTextureAtlas, this, "arrow_tiled.png", 0,0, 4,1);
 		this.mEngine.getTextureManager().loadTexture(this.mArrowBitmapTextureAtlas);
 
 		//Loading Background
 		this.mSceneBackgroundBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 960, 640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mSceneBackgroundTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mSceneBackgroundBitmapTextureAtlas, this, "background.png", 0, 0);   
+		this.mSceneBackgroundTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.
+				createFromAsset(this.mSceneBackgroundBitmapTextureAtlas, this, 
+				"background.png", 0, 0);   
 		this.mEngine.getTextureManager().loadTexture(this.mSceneBackgroundBitmapTextureAtlas);
 
 		FontManager fontManager = this.mEngine.getFontManager();
 
-		//loading fps font
-		BitmapTextureAtlas fpsFontTexture = new BitmapTextureAtlas(textureManager, 256, 256, TextureOptions.BILINEAR);
-		this.mEngine.getTextureManager().loadTexture(fpsFontTexture);
+		//loading misc font
+		BitmapTextureAtlas miscFontTexture = new BitmapTextureAtlas(textureManager, 256, 256, TextureOptions.BILINEAR);
+		this.mEngine.getTextureManager().loadTexture(miscFontTexture);
 		FontFactory.setAssetBasePath("font/");
-		this.mMiscFont = FontFactory.createFromAsset(fontManager, fpsFontTexture, assetManager, "Droid.ttf", 12, true, Color.BLACK);   	
+		this.mMiscFont = FontFactory.createFromAsset(fontManager, miscFontTexture, assetManager, "Droid.ttf", 12, true, Color.BLACK);   	
 		this.mEngine.getFontManager().loadFont(this.mMiscFont);
 
 		//loading scene font
@@ -248,7 +249,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.loadFirstLevel();
 		this.initLevel();
 		this.mCamera.getHUD().attachChild(this.mSeedText);
-		//TODO: setting scene only for testing purposes!!!
 		this.mEngine.setScene(this.mLevelScene);
 		pCallback.onPopulateSceneFinished();
 		this.mGameTypeHandler.init();
@@ -441,31 +441,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mArrowTiledTextureRegion,
 				this.mStringProperties);
 
-		final HUD hud = new HUD();
-		final FPSCounter counter = new FPSCounter();
-		this.mEngine.registerUpdateHandler(counter);
-		final int maxLength = "FPS: XXXXXXX".length();
-		final Text fps = new Text(1, 
-				1, 
-				this.mMiscFont, 
-				"FPS:", 
-				maxLength, 
-				vboManager);
-		hud.attachChild(fps);
-
+		HUD hud = new HUD();
 		this.mCamera.setHUD(hud);
-
-		scene.registerUpdateHandler(new TimerHandler(1/20F, true, 
-				new ITimerCallback() {
-			
-					@Override
-					public void onTimePassed(TimerHandler pTimerHandler) {
-						String fpsString = Float.toString(counter.getFPS());
-						int length = fpsString.length();
-						fps.setText("FPS: " + fpsString.substring(0, length >= 5 ? 5 : length));
-					}  
-					
-		}));
 		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, 
 				UIConstants.LEVEL_HEIGHT, 
 				BlockBreakerActivity.this.mSceneBackgroundTextureRegion,
@@ -761,11 +738,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		private static final int GAME_LOSE_POINT_BONUS = -50;
 
 		int mDurationInSeconds;
+		int mTimePassedInSeconds;
 		int mNumberOfAllowedLoses;
 		int mGamesLost;
 		int mGamesWon;
-		TimerHandler mTimeMainHandler;
-		TimeMainCallback mTimeMainCallback;
 		TimerHandler mTimeUpdateHandler;
 		Text mStatusText;
 		Text mTimeText;
@@ -782,20 +758,21 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mGamesWon = 0;
 			this.mGamesLost = 0;
 			this.mScore = 0;
-			this.mTimeMainHandler = new TimerHandler(this.mDurationInSeconds, 
-					this.mTimeMainCallback = new TimeMainCallback());
+			this.mTimePassedInSeconds = 0;
 			this.mTimeUpdateHandler = new TimerHandler(1.0F, true, new ITimerCallback() {
 
 				@Override
 				public void onTimePassed(TimerHandler pTimerHandler) {
-					if(!TimeAttackGameTypeHandler.this.mTimeMainHandler.isTimerCallbackTriggered()) {
-						TimeAttackGameTypeHandler.this.mTimeLeftText.setText(
-								Integer.toString((int)Math.round(
-										TimeAttackGameTypeHandler.this.mDurationInSeconds - 
-										TimeAttackGameTypeHandler.this.mTimeMainHandler.getTimerSecondsElapsed())));
-					} else {
-						TimeAttackGameTypeHandler.this.mTimeLeftText.setText(Integer.toString(0));
-						pTimerHandler.setAutoReset(false);
+					synchronized(TimeAttackGameTypeHandler.this) {
+						int timeLeft = (int)Math.round(
+								TimeAttackGameTypeHandler.this.mDurationInSeconds - 
+								(++TimeAttackGameTypeHandler.this.mTimePassedInSeconds));
+						TimeAttackGameTypeHandler.this.mTimeLeftText.setText(Integer.toString(timeLeft));
+						if(timeLeft <= 0) {
+							pTimerHandler.setAutoReset(false);
+							pTimerHandler.setTimerCallbackTriggered(true);
+							TimeAttackGameTypeHandler.this.onTimeAttackEnd();
+						}
 					}
 				}
 
@@ -808,8 +785,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				case WIN: {
 					this.mScore = this.mScore + GAME_WIN_POINT_BONUS + 
 							BlockBreakerActivity.this.mLevel.getBlocksLeft() * BLOCK_LEFT_POINT_BONUS;
-					this.mTimeMainHandler.setTimerSeconds(
-							this.mTimeMainHandler.getTimerSeconds() + GAME_WIN_TIME_BONUS_IN_SECONDS);
+					synchronized(this) {
+						this.mTimePassedInSeconds -= GAME_WIN_TIME_BONUS_IN_SECONDS;
+					}
 					++this.mGamesWon;
 					BlockBreakerActivity.this.randomLevel();
 					this.updateStatusText();
@@ -827,7 +805,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			//assure that some settings are at default just for this gamemode
 			BlockBreakerActivity.this.mDifficulty = Difficulty.EASY;
 			//and the rest
-			if(this.mTimeMainHandler.getTimerSecondsElapsed() < this.mDurationInSeconds
+			if(this.mTimePassedInSeconds < this.mDurationInSeconds
 					&& this.mGamesLost < this.mNumberOfAllowedLoses) {
 				BlockBreakerActivity.this.runOnUiThread(new Runnable() {
 
@@ -841,7 +819,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 									@Override
 									public void onClick(DialogInterface pDialog, int pId) {
 										BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
-										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeMainHandler);
 										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeUpdateHandler);
 										pDialog.dismiss();
 									}
@@ -859,7 +836,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		@Override
 		public void onLeaveFocus() {
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
-			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeMainHandler);
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeUpdateHandler);
 		}
 
@@ -871,12 +847,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		@Override
 		public void requestRestart() {
 			//make sure everything is set back to normal
-			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameTypeHandler.this.mTimeMainHandler);
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(TimeAttackGameTypeHandler.this.mTimeUpdateHandler);
 			this.reset();
 			BlockBreakerActivity.this.randomLevel();
 			//ready, set go!
-			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeMainHandler);
 			BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeUpdateHandler);
 		}
 
@@ -901,12 +875,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mTimeText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeText();
 			this.mTimeText.setVisible(true);
 			VertexBufferObjectManager vbo = BlockBreakerActivity.this.mEngine.getVertexBufferObjectManager();
-			this.mStatusText = new Text(UIConstants.LEVEL_WIDTH - 100,
-					5,
+			this.mStatusText = new Text(5,
+					3,
 					BlockBreakerActivity.this.mMiscFont,
 					"",
 					15,
-					new TextOptions(HorizontalAlign.RIGHT),
 					vbo);
 			this.updateStatusText();
 			BlockBreakerActivity.this.mCamera.getHUD().attachChild(this.mStatusText);
@@ -914,7 +887,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		@Override
 		public void cleanUp() {
-			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeMainHandler);
 			BlockBreakerActivity.this.mEngine.unregisterUpdateHandler(this.mTimeUpdateHandler);
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
 			BlockBreakerActivity.this.randomLevel();
@@ -972,7 +944,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mScore = 0;
 			this.mGamesWon = 0;
 			this.mGamesLost = 0;
-			this.mTimeMainHandler = new TimerHandler(this.mDurationInSeconds, this.mTimeMainCallback);
+			this.mTimePassedInSeconds = 0;
 			this.mTimeUpdateHandler.reset();
 			this.mTimeUpdateHandler.setAutoReset(true);
 			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
@@ -981,15 +953,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		private void updateStatusText() {
 			this.mStatusText.setText("Score: " + this.mScore);
-		}
-		
-		private class TimeMainCallback implements ITimerCallback {
-
-				@Override
-				public void onTimePassed(TimerHandler pTimerHandler) {
-					TimeAttackGameTypeHandler.this.onTimeAttackEnd();
-				}
-
 		}
 
 	}
