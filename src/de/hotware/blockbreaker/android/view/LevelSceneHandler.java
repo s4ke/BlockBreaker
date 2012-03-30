@@ -56,7 +56,7 @@ public class LevelSceneHandler {
 	INextBlockListener mNextBlockListener;
 	IGravityListener mGravityListener;
 
-	SynchronizedList<BlockSprite> mBlockSpriteVector;
+	SynchronizedList<BlockSprite> mBlockSpriteList;
 	
 	VertexBufferObjectManager mVertexBufferObjectManager;
 	
@@ -64,8 +64,8 @@ public class LevelSceneHandler {
 
 	public LevelSceneHandler(Scene pScene, VertexBufferObjectManager pVertexBufferObjectManager) {
 		this.mScene = pScene;
-		this.mWinCondText = new Text[5];
-		this.mBlockSpriteVector = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>());
+		this.mWinCondText = new Text[BlockColor.getBiggestColorNumber()];
+		this.mBlockSpriteList = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>());
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mIgnoreInput = false;
 	}
@@ -263,10 +263,10 @@ public class LevelSceneHandler {
 	}
 	
 	private void resetScene() {
-		for(int i = 0; i < this.mBlockSpriteVector.size(); ++i) {
-			this.mBlockSpritePool.recyclePoolItem(this.mBlockSpriteVector.get(i));
+		for(int i = 0; i < this.mBlockSpriteList.size(); ++i) {
+			this.mBlockSpritePool.recyclePoolItem(this.mBlockSpriteList.get(i));
 		}
-		this.mBlockSpriteVector.clear();
+		this.mBlockSpriteList.clear();
 	}
 
 	BlockSprite addBlockSprite(final Block pBlock) {
@@ -276,7 +276,7 @@ public class LevelSceneHandler {
 				2 + VERTICAL_GAP + y * (SPRITE_TEXTURE_HEIGHT + 1),
 				pBlock, 
 				this.mBlockSpriteTouchListener);
-		this.mBlockSpriteVector.add(sprite);
+		this.mBlockSpriteList.add(sprite);
 		sprite.setCurrentTileIndex(pBlock.getColor().toNumber());
 		pBlock.setBlockPositionListener(new BasicBlockPositionListener(sprite));
 		this.mScene.registerTouchArea(sprite);
@@ -298,7 +298,7 @@ public class LevelSceneHandler {
 				final Block block = LevelSceneHandler.this.mLevel.killBlock(x, y);
 	
 				if(block.getColor() != BlockColor.NONE && levelHelp == LevelSceneHandler.this.mLevel) {
-					LevelSceneHandler.this.mBlockSpriteVector.remove(src);
+					LevelSceneHandler.this.mBlockSpriteList.remove(src);
 					src.registerEntityModifier(new FadeOutModifier(UIConstants.SPRITE_FADE_OUT_TIME, new IEntityModifierListener() {
 	
 						@Override
