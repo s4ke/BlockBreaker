@@ -2,7 +2,7 @@ package de.hotware.blockbreaker.android.view;
 
 import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.texture.region.TiledTextureRegion;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
@@ -16,7 +16,7 @@ public class BlockSprite extends TiledSprite {
 	private IBlockSpriteTouchListener mBlockSpriteTouchListener;
 	private Block mBlock;
 
-	public BlockSprite(float pTileWidth, float pTileHeight, TiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
+	public BlockSprite(float pTileWidth, float pTileHeight, ITiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(UNDEFINED_LOCATION, UNDEFINED_LOCATION, pTileWidth, pTileHeight, pTiledTextureRegion, pVertexBufferObjectManager);
 	}
 

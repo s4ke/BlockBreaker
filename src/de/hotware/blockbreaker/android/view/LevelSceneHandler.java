@@ -15,7 +15,7 @@ import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
-import org.andengine.opengl.texture.region.TiledTextureRegion;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.adt.list.CircularList;
@@ -75,8 +75,8 @@ public class LevelSceneHandler {
 	}
 
 	public void initLevelScene(final Level pLevel, final Font pUIFont,
-			final TiledTextureRegion pBlockTiledTextureRegion,
-			final TiledTextureRegion pArrowTiledTextureRegion,
+			final ITiledTextureRegion pBlockTiledTextureRegion,
+			final ITiledTextureRegion pArrowTiledTextureRegion,
 			final Properties pStringProperties) {
 		this.mLevel = pLevel;
 

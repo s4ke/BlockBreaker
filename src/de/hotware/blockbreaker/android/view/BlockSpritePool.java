@@ -1,7 +1,7 @@
 package de.hotware.blockbreaker.android.view;
 
 import org.andengine.entity.scene.Scene;
-import org.andengine.opengl.texture.region.TiledTextureRegion;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.pool.GenericPool;
 
@@ -11,10 +11,10 @@ import de.hotware.blockbreaker.model.Block;
 public class BlockSpritePool extends GenericPool<BlockSprite> {
 
 	private Scene mScene;
-	private TiledTextureRegion mTiledTextureRegion;
+	private ITiledTextureRegion mTiledTextureRegion;
 	private VertexBufferObjectManager mVertexBufferObjectManager;
 
-	public BlockSpritePool(Scene pScene, TiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
+	public BlockSpritePool(Scene pScene, ITiledTextureRegion pTiledTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
 		this.mScene = pScene;
 		this.mTiledTextureRegion = pTiledTextureRegion;
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;

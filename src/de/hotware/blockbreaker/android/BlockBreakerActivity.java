@@ -17,6 +17,7 @@ import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.font.FontManager;
@@ -24,6 +25,8 @@ import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -89,8 +92,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	boolean mTimeAttackMode = false;
 	int mNumberOfTurns = DEFAULT_NUMBER_OF_TURNS;
 
-	BitmapTextureAtlas mBlockBitmapTextureAtlas;
-	TiledTextureRegion mBlockTiledTextureRegion;
+	ITiledTextureRegion mBlockTiledTextureRegion;
 	BitmapTextureAtlas mArrowBitmapTextureAtlas;
 	TiledTextureRegion mArrowTiledTextureRegion;
 	BitmapTextureAtlas mSceneBackgroundBitmapTextureAtlas;
@@ -176,6 +178,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onCreateResources(OnCreateResourcesCallback pCallback) {
 
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+		SVGBitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
 		//TODO: Language choosing
 		this.mStringProperties = new Properties();
@@ -199,10 +202,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		TextureManager textureManager = this.mEngine.getTextureManager();
 
 		//loading block textures
-		this.mBlockBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 276, 46, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.
-				createTiledFromAsset(this.mBlockBitmapTextureAtlas, this, "blocks_tiled.png", 0,0, 6,1);
-		this.mEngine.getTextureManager().loadTexture(this.mBlockBitmapTextureAtlas);
+		BitmapTextureAtlas blockTextureAtlas = new BitmapTextureAtlas(textureManager, 276, 46, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mBlockTiledTextureRegion = SVGBitmapTextureAtlasTextureRegionFactory.
+				createTiledFromAsset(blockTextureAtlas, this.getBaseContext(), "blocks_tiled.svg", 276, 46, 0,0, 6,1);
+		this.mEngine.getTextureManager().loadTexture(blockTextureAtlas);
 
 		//loading arrow sprites
 		this.mArrowBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 512, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -339,7 +342,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		switch(item.getItemId()) {
 			case UIConstants.MENU_MENU_ID: {
 				if(this.mGameTypeHandler.requestLeaveToMenu()) {
-					Intent settingsActivity = new Intent(getBaseContext(),
+					Intent settingsActivity = new Intent(this.getBaseContext(),
 							BlockBreakerPreferencesActivity.class);
 					this.startActivity(settingsActivity);
 				}
