@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.hotware.blockbreaker.android"
-    android:versionCode="03"
-    android:versionName="0.1b" >
+    android:versionCode="04"
+    android:versionName="0.1c" >
 
-    <uses-sdk android:minSdkVersion="8" />
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application

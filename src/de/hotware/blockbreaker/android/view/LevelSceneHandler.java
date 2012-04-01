@@ -8,6 +8,7 @@ import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.FadeInModifier;
 import org.andengine.entity.modifier.FadeOutModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
+import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.shape.Shape;
@@ -304,8 +305,7 @@ public class LevelSceneHandler {
 						@Override
 						public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 							BlockSprite bs = (BlockSprite) pItem;
-							//TODO: Hier nur ausblenden
-							bs.setCurrentTileIndex(0);
+							bs.registerEntityModifier(new ScaleModifier(UIConstants.SPRITE_FADE_OUT_TIME, 1.0F, 0.5F));
 							LevelSceneHandler.this.mScene.unregisterTouchArea(bs);
 						}
 	
