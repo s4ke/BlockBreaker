@@ -35,11 +35,11 @@ public class LevelSceneHandler {
 	static final int SPRITE_TEXTURE_HEIGHT = UIConstants.BASE_SPRITE_HEIGHT;
 	static final int SPRITE_TEXTURE_WIDTH = UIConstants.BASE_SPRITE_WIDTH;
 
-	static final int HORIZONTAL_SPARE = (UIConstants.LEVEL_WIDTH - (6 * SPRITE_TEXTURE_WIDTH)) - 7;
+	static final int HORIZONTAL_SPARE = UIConstants.LEVEL_WIDTH - 6 * SPRITE_TEXTURE_WIDTH - 7;
 	static final int HORIZONTAL_GAP =  HORIZONTAL_SPARE/2;
 	static final int HORIZONTAL_SIZE = UIConstants.LEVEL_WIDTH - HORIZONTAL_SPARE;
 	static final int VERTICAL_SPARE = UIConstants.LEVEL_HEIGHT - 6 * SPRITE_TEXTURE_HEIGHT - 7;
-	static final int VERTICAL_GAP =  VERTICAL_SPARE/2;
+	static final int VERTICAL_GAP =  VERTICAL_SPARE / 2;
 	static final int VERTICAL_SIZE = UIConstants.LEVEL_HEIGHT - VERTICAL_SPARE;
 
 	Scene mScene;
@@ -84,10 +84,10 @@ public class LevelSceneHandler {
 		this.mBlockSpritePool = new BlockSpritePool(this.mScene, pBlockTiledTextureRegion, this.mVertexBufferObjectManager);
 
 		//create surroundings
-		final Shape ground = new Rectangle(HORIZONTAL_GAP - 1, UIConstants.LEVEL_HEIGHT-VERTICAL_GAP + 1, HORIZONTAL_SIZE + 3, 1, this.mVertexBufferObjectManager);
+		final Shape ground = new Rectangle(HORIZONTAL_GAP - 1, UIConstants.LEVEL_HEIGHT - VERTICAL_GAP + 1, HORIZONTAL_SIZE + 3, 1, this.mVertexBufferObjectManager);
 		final Shape roof = new Rectangle(HORIZONTAL_GAP - 1, VERTICAL_GAP - 1, HORIZONTAL_SIZE + 3, 1, this.mVertexBufferObjectManager);
-		final Shape left = new Rectangle(HORIZONTAL_GAP-1, VERTICAL_GAP - 1, 1, VERTICAL_SIZE + 4, this.mVertexBufferObjectManager);
-		final Shape right = new Rectangle(UIConstants.LEVEL_WIDTH - HORIZONTAL_GAP + 1, VERTICAL_GAP -1, 1, VERTICAL_SIZE + 4, this.mVertexBufferObjectManager);
+		final Shape left = new Rectangle(HORIZONTAL_GAP - 1, VERTICAL_GAP - 1, 1, VERTICAL_SIZE + 4, this.mVertexBufferObjectManager);
+		final Shape right = new Rectangle(UIConstants.LEVEL_WIDTH - HORIZONTAL_GAP + 1, VERTICAL_GAP - 1, 1, VERTICAL_SIZE + 4, this.mVertexBufferObjectManager);
 		
 		this.mScene.attachChild(ground);
 		this.mScene.attachChild(roof);
