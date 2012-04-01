@@ -76,7 +76,6 @@ public class HighscoreManager extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.execSQL("insert or ignore into names (name) values ('" + pName + "');");
 		db.close();
-		db = this.getReadableDatabase();
 	}
 	
 	/**

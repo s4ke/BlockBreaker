@@ -25,7 +25,6 @@ import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
@@ -200,7 +199,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		}
 
 		TextureManager textureManager = this.mEngine.getTextureManager();
-
+		
 		//loading block textures
 		BitmapTextureAtlas blockTextureAtlas = new BitmapTextureAtlas(textureManager, 276, 46, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mBlockTiledTextureRegion = SVGBitmapTextureAtlasTextureRegionFactory.
