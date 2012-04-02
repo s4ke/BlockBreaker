@@ -3,7 +3,6 @@ package de.hotware.blockbreaker.android.andengine.extension;
 import java.util.Comparator;
 
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.util.GLState;
