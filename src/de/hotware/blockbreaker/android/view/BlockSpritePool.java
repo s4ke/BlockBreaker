@@ -1,22 +1,21 @@
 package de.hotware.blockbreaker.android.view;
 
+
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.pool.GenericPool;
 
+import de.hotware.blockbreaker.android.highscore.SortScene;
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
 
 public class BlockSpritePool extends GenericPool<BlockSprite> {
 
-	public static final int MIN_Z_INDEX = 0;
-	
 	private Scene mScene;
 	private ITiledTextureRegion mTiledTextureRegion;
 	private VertexBufferObjectManager mVertexBufferObjectManager;
-	private int mCurrentIndex;
-	private Scene mBlockScene;
+	private SortScene mBlockScene;
 	
 	public BlockSpritePool(Scene pScene,
 			ITiledTextureRegion pTiledTextureRegion,
@@ -24,8 +23,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 		this.mScene = pScene;
 		this.mTiledTextureRegion = pTiledTextureRegion;
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
-		this.mCurrentIndex = Integer.MAX_VALUE;
-		this.mBlockScene = new Scene();
+		this.mBlockScene = new SortScene();
 		this.mBlockScene.setBackgroundEnabled(false);
 		this.mScene.attachChild(this.mBlockScene);
 	}
@@ -57,16 +55,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 		pBlockSprite.reset();
 		this.mScene.registerTouchArea(pBlockSprite);
 		synchronized(this.mBlockScene) {
-			int newIndex = this.mCurrentIndex--;
-			if(this.mCurrentIndex == MIN_Z_INDEX) {
-				this.mCurrentIndex = Integer.MAX_VALUE;
-				int count = this.mBlockScene.getChildCount();
-				for(int i = 0; i < count; ++i) {
-					this.mBlockScene.getChild(i).setZIndex(this.mCurrentIndex--);
-				}
-			}
-			pBlockSprite.setZIndex(newIndex);
-			this.mBlockScene.sortChildren(true);
+			this.mBlockScene.reInsertAtBottom(pBlockSprite);
 		}
 	}
 

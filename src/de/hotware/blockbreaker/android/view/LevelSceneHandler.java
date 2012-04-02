@@ -23,6 +23,7 @@ import org.andengine.util.adt.list.CircularList;
 import org.andengine.util.adt.list.concurrent.SynchronizedList;
 
 import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy;
+import de.hotware.blockbreaker.android.highscore.SortScene;
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.model.Block.BlockColor;
@@ -65,19 +66,19 @@ public class LevelSceneHandler {
 	SynchronizedList<BlockSprite> mBlockSpriteList;
 	
 	VertexBufferObjectManager mVertexBufferObjectManager;
-	StretchedResolutionPolicy mCroppedResolutionPolicy;
+	StretchedResolutionPolicy mStretchedResolutionPolicy;
 	
 	boolean mIgnoreInput;
 
 	public LevelSceneHandler(Scene pScene,
 			VertexBufferObjectManager pVertexBufferObjectManager,
-			StretchedResolutionPolicy pCroppedResolutionPolicy) {
+			StretchedResolutionPolicy pStretchedResolutionPolicy) {
 		this.mScene = pScene;
 		this.mWinCondText = new Text[BlockColor.getBiggestColorNumber()];
 		this.mBlockSpriteList = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>());
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mIgnoreInput = false;
-		this.mCroppedResolutionPolicy = pCroppedResolutionPolicy;
+		this.mStretchedResolutionPolicy = pStretchedResolutionPolicy;
 	}
 	
 	public void setIgnoreInput(boolean pIgnoreInput) {
@@ -91,8 +92,8 @@ public class LevelSceneHandler {
 			Properties pStringProperties) {
 		
 		this.mLevel = pLevel;
-		float marginHorizontal = this.mCroppedResolutionPolicy.getMarginHorizontal();
-		float marginVertical = this.mCroppedResolutionPolicy.getMarginVertical();
+		float marginHorizontal = this.mStretchedResolutionPolicy.getMarginHorizontal();
+		float marginVertical = this.mStretchedResolutionPolicy.getMarginVertical();
 
 		this.mBlockSpritePool = new BlockSpritePool(this.mScene,
 				pBlockTiledTextureRegion,
@@ -307,8 +308,8 @@ public class LevelSceneHandler {
 		int x = pBlock.getX();
 		int y = pBlock.getY();
 		BlockSprite sprite = this.mBlockSpritePool.obtainBlockSprite(
-				this.mCroppedResolutionPolicy.getMarginHorizontal() + 2 + HORIZONTAL_GAP + x * (SPRITE_TEXTURE_WIDTH + 1),
-				this.mCroppedResolutionPolicy.getMarginVertical() + 2 + VERTICAL_GAP + y * (SPRITE_TEXTURE_HEIGHT + 1),
+				this.mStretchedResolutionPolicy.getMarginHorizontal() + 2 + HORIZONTAL_GAP + x * (SPRITE_TEXTURE_WIDTH + 1),
+				this.mStretchedResolutionPolicy.getMarginVertical() + 2 + VERTICAL_GAP + y * (SPRITE_TEXTURE_HEIGHT + 1),
 				pBlock, 
 				this.mBlockSpriteTouchListener);
 		this.mBlockSpriteList.add(sprite);
@@ -317,7 +318,7 @@ public class LevelSceneHandler {
 		return sprite;
 	}
 
-	private class BasicBlockSpriteTouchListener implements IBlockSpriteTouchListener{
+	private class BasicBlockSpriteTouchListener implements IBlockSpriteTouchListener {
 
 		@Override
 		public void onBlockSpriteTouch(BlockSpriteTouchEvent pEvt) {
@@ -344,11 +345,9 @@ public class LevelSceneHandler {
 								public void onModifierStarted(
 										IModifier<IEntity> pModifier, IEntity pItem) {
 									BlockSprite bs = (BlockSprite) pItem;
-									IEntity parent = bs.getParent();
+									SortScene parent = (SortScene) bs.getParent();
 									synchronized(parent) {
-										//TODO: make sure, that this sprite is always in the back
-										bs.setZIndex(-999);
-										parent.sortChildren(true);
+										parent.reInsertAtBottom(parent);
 									}
 									LevelSceneHandler.this.mScene.unregisterTouchArea(bs);
 								}
