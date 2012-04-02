@@ -48,7 +48,6 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 	/**
 	 * makes sure that the BlockSprite that is being returned is always on the lowest
 	 * zIndex of all BlockSprites
-	 * TODO: maybe the same for removing
 	 */
 	@Override
 	protected void onHandleObtainItem(final BlockSprite pBlockSprite) {

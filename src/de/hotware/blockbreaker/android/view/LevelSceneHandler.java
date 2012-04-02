@@ -75,7 +75,8 @@ public class LevelSceneHandler {
 			StretchedResolutionPolicy pStretchedResolutionPolicy) {
 		this.mScene = pScene;
 		this.mWinCondText = new Text[BlockColor.getBiggestColorNumber()];
-		this.mBlockSpriteList = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>());
+		//size for 45 Sprites is a good beginning
+		this.mBlockSpriteList = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>(45));
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mIgnoreInput = false;
 		this.mStretchedResolutionPolicy = pStretchedResolutionPolicy;
