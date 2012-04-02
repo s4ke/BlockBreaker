@@ -1,4 +1,4 @@
-package de.hotware.blockbreaker.android.highscore;
+package de.hotware.blockbreaker.android.andengine.extension;
 
 import java.util.Comparator;
 

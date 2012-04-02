@@ -6,7 +6,7 @@ import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.pool.GenericPool;
 
-import de.hotware.blockbreaker.android.highscore.SortScene;
+import de.hotware.blockbreaker.android.andengine.extension.SortScene;
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
 

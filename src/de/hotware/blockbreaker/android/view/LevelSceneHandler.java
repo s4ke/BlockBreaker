@@ -22,8 +22,8 @@ import org.andengine.util.modifier.IModifier;
 import org.andengine.util.adt.list.CircularList;
 import org.andengine.util.adt.list.concurrent.SynchronizedList;
 
+import de.hotware.blockbreaker.android.andengine.extension.SortScene;
 import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy;
-import de.hotware.blockbreaker.android.highscore.SortScene;
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.model.Block.BlockColor;
