@@ -11,6 +11,11 @@ import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
 
 public class BlockSpritePool extends GenericPool<BlockSprite> {
+	
+	/**
+	 * Number of Blocks in the Pool that is most likely to be hit at some point 
+	 */
+	public static final int BLOCKS_ON_SCENE_ESTIMATE = 45;
 
 	private Scene mScene;
 	private ITiledTextureRegion mTiledTextureRegion;
@@ -23,7 +28,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 		this.mScene = pScene;
 		this.mTiledTextureRegion = pTiledTextureRegion;
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
-		this.mBlockScene = new ZIndexScene();
+		this.mBlockScene = new ZIndexScene(BLOCKS_ON_SCENE_ESTIMATE);
 		this.mBlockScene.setBackgroundEnabled(false);
 		this.mScene.setChildScene(this.mBlockScene);
 	}

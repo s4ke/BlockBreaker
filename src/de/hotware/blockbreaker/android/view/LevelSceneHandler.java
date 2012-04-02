@@ -76,7 +76,8 @@ public class LevelSceneHandler {
 		this.mScene = pScene;
 		this.mWinCondText = new Text[BlockColor.getBiggestColorNumber()];
 		//size for 45 Sprites is a good beginning
-		this.mBlockSpriteList = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>(45));
+		this.mBlockSpriteList = new SynchronizedList<BlockSprite>(new CircularList<BlockSprite>(
+				BlockSpritePool.BLOCKS_ON_SCENE_ESTIMATE));
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mIgnoreInput = false;
 		this.mStretchedResolutionPolicy = pStretchedResolutionPolicy;

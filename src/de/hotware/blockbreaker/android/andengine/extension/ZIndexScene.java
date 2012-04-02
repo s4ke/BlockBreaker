@@ -17,6 +17,15 @@ public class ZIndexScene extends Scene {
 	
 	public ZIndexScene() {}
 	
+	public ZIndexScene(int pMinimumCapacity) {
+		super();
+		this.mChildren.ensureCapacity(pMinimumCapacity);
+	}
+	
+	public synchronized void ensureCapacity(int pMinimumCapacity) {
+		this.mChildren.ensureCapacity(pMinimumCapacity);
+	}
+	
 	public synchronized void reInsertAtTop(IEntity pEntity) {
 		if(this.mChildren.remove(pEntity)) {
 			this.mChildren.add(pEntity);
