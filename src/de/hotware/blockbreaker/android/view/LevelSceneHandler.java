@@ -349,7 +349,7 @@ public class LevelSceneHandler {
 									synchronized(parent) {
 										parent.reInsertAtBottom(parent);
 									}
-									LevelSceneHandler.this.mScene.unregisterTouchArea(bs);
+									parent.unregisterTouchArea(bs);
 								}
 			
 								@Override

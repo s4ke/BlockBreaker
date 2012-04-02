@@ -25,7 +25,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mBlockScene = new SortScene();
 		this.mBlockScene.setBackgroundEnabled(false);
-		this.mScene.attachChild(this.mBlockScene);
+		this.mScene.setChildScene(this.mBlockScene);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 	protected void onHandleRecycleItem(final BlockSprite pBlockSprite) {
 		pBlockSprite.setIgnoreUpdate(true);
 		pBlockSprite.setVisible(false);
-		this.mScene.unregisterTouchArea(pBlockSprite);
+		this.mBlockScene.unregisterTouchArea(pBlockSprite);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 	@Override
 	protected void onHandleObtainItem(final BlockSprite pBlockSprite) {
 		pBlockSprite.reset();
-		this.mScene.registerTouchArea(pBlockSprite);
+		this.mBlockScene.registerTouchArea(pBlockSprite);
 		synchronized(this.mBlockScene) {
 			this.mBlockScene.reInsertAtBottom(pBlockSprite);
 		}
