@@ -22,7 +22,7 @@ import org.andengine.util.modifier.IModifier;
 import org.andengine.util.adt.list.CircularList;
 import org.andengine.util.adt.list.concurrent.SynchronizedList;
 
-import de.hotware.blockbreaker.android.andengine.extension.SortScene;
+import de.hotware.blockbreaker.android.andengine.extension.ZIndexScene;
 import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy;
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
@@ -345,7 +345,7 @@ public class LevelSceneHandler {
 								public void onModifierStarted(
 										IModifier<IEntity> pModifier, IEntity pItem) {
 									BlockSprite bs = (BlockSprite) pItem;
-									SortScene parent = (SortScene) bs.getParent();
+									ZIndexScene parent = (ZIndexScene) bs.getParent();
 									synchronized(parent) {
 										parent.reInsertAtBottom(parent);
 									}

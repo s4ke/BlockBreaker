@@ -13,9 +13,9 @@ import org.andengine.opengl.util.GLState;
  * the sortChildren Methods, those are just dummies
  * @author Martin Braun
  */
-public class SortScene extends Scene {
+public class ZIndexScene extends Scene {
 	
-	public SortScene() {}
+	public ZIndexScene() {}
 	
 	public synchronized void reInsertAtTop(IEntity pEntity) {
 		if(this.mChildren.remove(pEntity)) {
@@ -48,8 +48,8 @@ public class SortScene extends Scene {
 	 */
 	@Override
 	public void sortChildren() {
-		throw new UnsupportedOperationException(SortScene.class.toString() +
-				".sortChildren(): This Scene can't sort it's children");
+		throw new UnsupportedOperationException(ZIndexScene.class.toString() +
+				".sortChildren(): This Scene can't sort its children");
 	} 
 	
 	/**
@@ -57,8 +57,8 @@ public class SortScene extends Scene {
 	 */
 	@Override
 	public void sortChildren(boolean pImmediate) {
-		throw new UnsupportedOperationException(SortScene.class.toString() + 
-				".sortChildren(boolean): This Scene can't sort it's children");
+		throw new UnsupportedOperationException(ZIndexScene.class.toString() + 
+				".sortChildren(boolean): This Scene can't sort its children");
 	}
 	
 	/**
@@ -66,8 +66,8 @@ public class SortScene extends Scene {
 	 */
 	@Override
 	public void sortChildren(Comparator<IEntity> pEntityComparator) { 
-		throw new UnsupportedOperationException(SortScene.class.toString() + 
-				".sortChildren(Comparator<IEntity>): This Scene can't sort it's children");
+		throw new UnsupportedOperationException(ZIndexScene.class.toString() + 
+				".sortChildren(Comparator<IEntity>): This Scene can't sort its children");
 	}
 	
 }

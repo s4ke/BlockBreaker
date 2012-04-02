@@ -6,7 +6,7 @@ import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.pool.GenericPool;
 
-import de.hotware.blockbreaker.android.andengine.extension.SortScene;
+import de.hotware.blockbreaker.android.andengine.extension.ZIndexScene;
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
 
@@ -15,7 +15,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 	private Scene mScene;
 	private ITiledTextureRegion mTiledTextureRegion;
 	private VertexBufferObjectManager mVertexBufferObjectManager;
-	private SortScene mBlockScene;
+	private ZIndexScene mBlockScene;
 	
 	public BlockSpritePool(Scene pScene,
 			ITiledTextureRegion pTiledTextureRegion,
@@ -23,7 +23,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 		this.mScene = pScene;
 		this.mTiledTextureRegion = pTiledTextureRegion;
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
-		this.mBlockScene = new SortScene();
+		this.mBlockScene = new ZIndexScene();
 		this.mBlockScene.setBackgroundEnabled(false);
 		this.mScene.setChildScene(this.mBlockScene);
 	}
