@@ -48,7 +48,8 @@ public class SortScene extends Scene {
 	 */
 	@Override
 	public void sortChildren() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException(SortScene.class.toString() +
+				".sortChildren(): This Scene can't sort it's children");
 	} 
 	
 	/**
@@ -56,7 +57,8 @@ public class SortScene extends Scene {
 	 */
 	@Override
 	public void sortChildren(boolean pImmediate) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException(SortScene.class.toString() + 
+				".sortChildren(boolean): This Scene can't sort it's children");
 	}
 	
 	/**
@@ -64,7 +66,8 @@ public class SortScene extends Scene {
 	 */
 	@Override
 	public void sortChildren(Comparator<IEntity> pEntityComparator) { 
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException(SortScene.class.toString() + 
+				".sortChildren(Comparator<IEntity>): This Scene can't sort it's children");
 	}
 	
 }
