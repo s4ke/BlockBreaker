@@ -43,12 +43,21 @@ public class SortScene extends Scene {
 		super.onManagedUpdate(pSecondsElapsed);
 	}
 	
+	/**
+	 * only a dummy!!!
+	 */
 	@Override
 	public void sortChildren() {} 
 	
+	/**
+	 * only a dummy!!!
+	 */
 	@Override
 	public void sortChildren(boolean pImmediate) {}
 	
+	/**
+	 * only a dummy!!!
+	 */
 	@Override
 	public void sortChildren(Comparator<IEntity> pEntityComparator) {}
 	
