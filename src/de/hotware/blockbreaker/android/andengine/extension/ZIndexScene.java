@@ -3,9 +3,11 @@ package de.hotware.blockbreaker.android.andengine.extension;
 import java.util.Comparator;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.util.GLState;
+import org.andengine.util.adt.list.SmartList;
 
 /**
  * Scene in which sprites can be reinserted, rather than sorted,
@@ -15,11 +17,13 @@ import org.andengine.opengl.util.GLState;
  */
 public class ZIndexScene extends Scene {
 	
-	public ZIndexScene() {}
+	public ZIndexScene() {
+		super();
+	}
 	
 	public ZIndexScene(int pMinimumCapacity) {
 		super();
-		this.mChildren.ensureCapacity(pMinimumCapacity);
+		this.mChildren = new SmartList<IEntity>(pMinimumCapacity);
 	}
 	
 	public synchronized void ensureCapacity(int pMinimumCapacity) {
