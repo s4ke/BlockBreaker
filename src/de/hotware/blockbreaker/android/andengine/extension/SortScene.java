@@ -47,18 +47,24 @@ public class SortScene extends Scene {
 	 * only a dummy!!!
 	 */
 	@Override
-	public void sortChildren() {} 
+	public void sortChildren() {
+		throw new UnsupportedOperationException();
+	} 
 	
 	/**
 	 * only a dummy!!!
 	 */
 	@Override
-	public void sortChildren(boolean pImmediate) {}
+	public void sortChildren(boolean pImmediate) {
+		throw new UnsupportedOperationException();
+	}
 	
 	/**
 	 * only a dummy!!!
 	 */
 	@Override
-	public void sortChildren(Comparator<IEntity> pEntityComparator) {}
+	public void sortChildren(Comparator<IEntity> pEntityComparator) { 
+		throw new UnsupportedOperationException();
+	}
 	
 }
