@@ -11,7 +11,6 @@ import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.EngineOptions.ScreenOrientation;
-import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
@@ -45,6 +44,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy;
 import de.hotware.blockbreaker.android.highscore.HighscoreManager;
 import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
@@ -167,7 +167,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public EngineOptions onCreateEngineOptions() {
 		this.mCamera = new Camera(0, 0, UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT);
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, 
-				new RatioResolutionPolicy(UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT),
+				new StretchedResolutionPolicy(UIConstants.LEVEL_WIDTH,
+						UIConstants.LEVEL_HEIGHT),
 				this.mCamera);
 		return engineOptions;
 	}
@@ -434,7 +435,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		VertexBufferObjectManager vboManager = this.mEngine.getVertexBufferObjectManager();
 
-		this.mLevelSceneHandler = new LevelSceneHandler(scene, vboManager);
+		this.mLevelSceneHandler = new LevelSceneHandler(scene, vboManager, 
+				(StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy());
 
 		//ignore input, gamehandlers will have to handle starting on their own
 		this.mLevelSceneHandler.setIgnoreInput(true);
@@ -820,14 +822,15 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 						.setCancelable(false)
 						.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.START_PROPERTY_KEY), 
 								new DialogInterface.OnClickListener() {
+							
 									@Override
 									public void onClick(DialogInterface pDialog, int pId) {
 										BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
 										BlockBreakerActivity.this.mEngine.registerUpdateHandler(TimeAttackGameTypeHandler.this.mTimeUpdateHandler);
 										pDialog.dismiss();
 									}
-						}
-								);
+
+								});
 						builder.create().show();
 					}
 
@@ -879,8 +882,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mTimeText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeText();
 			this.mTimeText.setVisible(true);
 			VertexBufferObjectManager vbo = BlockBreakerActivity.this.mEngine.getVertexBufferObjectManager();
-			this.mStatusText = new Text(5,
-					3,
+			StretchedResolutionPolicy policy = (StretchedResolutionPolicy) BlockBreakerActivity.this.mEngine.
+					getEngineOptions().getResolutionPolicy();
+			this.mStatusText = new Text(
+					policy.getMarginHorizontal() + 5,
+					policy.getMarginVertical() + 3,
 					BlockBreakerActivity.this.mMiscFont,
 					"",
 					15,
