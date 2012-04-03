@@ -349,7 +349,7 @@ public class LevelSceneHandler {
 									BlockSprite bs = (BlockSprite) pItem;
 									ZIndexScene parent = (ZIndexScene) bs.getParent();
 									synchronized(parent) {
-										parent.reInsertAtBottom(parent);
+										parent.reInsertAtBottom(bs);
 									}
 									parent.unregisterTouchArea(bs);
 								}

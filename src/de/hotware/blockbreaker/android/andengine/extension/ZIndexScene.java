@@ -12,6 +12,7 @@ import org.andengine.util.adt.list.SmartList;
  * Scene in which sprites can be reinserted, rather than sorted,
  * does this in a synchronized way. Sorting can't be done via
  * the sortChildren Methods, those are just dummies
+ * TODO: Check if Entities already have a parent?
  * @author Martin Braun
  */
 public class ZIndexScene extends Scene {
@@ -40,6 +41,8 @@ public class ZIndexScene extends Scene {
 	
 	public synchronized void insertAtTop(IEntity pEntity) {
 		this.mChildren.add(pEntity);
+		pEntity.setParent(this);
+		pEntity.onAttached();
 	}
 	
 	public synchronized void reInsertAtBottom(IEntity pEntity) {
@@ -53,19 +56,47 @@ public class ZIndexScene extends Scene {
 	
 	public synchronized void insertAtBottom(IEntity pEntity) {
 		this.mChildren.add(0, pEntity);
+		pEntity.setParent(this);
+		pEntity.onAttached();
 	}
 	
-	public synchronized void reInsertAt(int pX, IEntity pEntity) {
+	/**
+	 * reInserts the block at the given Position. If the given
+	 * Position is bigger than the the current size or less than zero
+	 * the insertion fails
+	 * @param pX
+	 * @param pEntity
+	 */
+	public synchronized boolean reInsertAt(int pX, IEntity pEntity) {
 		if(this.mChildren.remove(pEntity)) {
-			this.mChildren.add(pX, pEntity);
+			try {
+				this.mChildren.add(pX, pEntity);
+				return true;
+			} catch (IndexOutOfBoundsException e) {
+				return false;
+			}
 		} else {
 			throw new IllegalStateException(ZIndexScene.class.toString() +
 					".reInsertAt(int, IEntity): pEntity isn't attached, yet");
 		}
 	}
 	
-	public synchronized void insertAt(int pX, IEntity pEntity) {
-		this.mChildren.add(pX, pEntity);
+	/**
+	 * inserts the block at the given Position. If the given
+	 * Position is bigger than the the current size or less than zero
+	 * the insertion fails
+	 * @param pX
+	 * @param pEntity
+	 */
+	public synchronized boolean insertAt(int pX, IEntity pEntity) {
+		try {
+			this.mChildren.add(pX, pEntity);
+			pEntity.setParent(this);
+			pEntity.onAttached();
+			return true;
+		} catch (IndexOutOfBoundsException e) {
+			return false;
+		}
 	}
 	
 	@Override

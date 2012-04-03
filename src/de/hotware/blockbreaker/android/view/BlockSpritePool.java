@@ -39,7 +39,7 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 				UIConstants.BASE_SPRITE_HEIGHT, 
 				this.mTiledTextureRegion.deepCopy(),
 				this.mVertexBufferObjectManager);
-		this.mBlockScene.attachChild(bs);
+		this.mBlockScene.insertAtBottom(bs);
 		return bs;
 	}
 
