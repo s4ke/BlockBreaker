@@ -43,11 +43,16 @@ public class ZIndexScene extends Scene {
 	}
 	
 	public synchronized void reInsertAtBottom(IEntity pEntity) {
-		this.reInsertAt(0, pEntity);
+		if(this.mChildren.remove(pEntity)) {
+			this.mChildren.add(0, pEntity);
+		} else {
+			throw new IllegalStateException(ZIndexScene.class.toString() +
+				".reInsertAtBottom(IEntity): pEntity isn't attached, yet");
+		}
 	}
 	
 	public synchronized void insertAtBottom(IEntity pEntity) {
-		this.insertAt(0, pEntity);
+		this.mChildren.add(0, pEntity);
 	}
 	
 	public synchronized void reInsertAt(int pX, IEntity pEntity) {
