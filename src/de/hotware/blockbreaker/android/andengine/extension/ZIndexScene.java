@@ -32,17 +32,35 @@ public class ZIndexScene extends Scene {
 	public synchronized void reInsertAtTop(IEntity pEntity) {
 		if(this.mChildren.remove(pEntity)) {
 			this.mChildren.add(pEntity);
+		} else {
+			throw new IllegalStateException(ZIndexScene.class.toString() +
+				".reInsertAtTop(IEntity): pEntity isn't attached, yet");
 		}
+	}
+	
+	public synchronized void insertAtTop(IEntity pEntity) {
+		this.mChildren.add(pEntity);
 	}
 	
 	public synchronized void reInsertAtBottom(IEntity pEntity) {
 		this.reInsertAt(0, pEntity);
 	}
 	
+	public synchronized void insertAtBottom(IEntity pEntity) {
+		this.insertAt(0, pEntity);
+	}
+	
 	public synchronized void reInsertAt(int pX, IEntity pEntity) {
 		if(this.mChildren.remove(pEntity)) {
 			this.mChildren.add(pX, pEntity);
+		} else {
+			throw new IllegalStateException(ZIndexScene.class.toString() +
+					".reInsertAt(int, IEntity): pEntity isn't attached, yet");
 		}
+	}
+	
+	public synchronized void insertAt(int pX, IEntity pEntity) {
+		this.mChildren.add(pX, pEntity);
 	}
 	
 	@Override
@@ -56,7 +74,7 @@ public class ZIndexScene extends Scene {
 	}
 	
 	/**
-	 * only a dummy!!!
+	 * not supported in this class
 	 */
 	@Override
 	public void sortChildren() {
@@ -65,7 +83,7 @@ public class ZIndexScene extends Scene {
 	} 
 	
 	/**
-	 * only a dummy!!!
+	 * not supported in this class
 	 */
 	@Override
 	public void sortChildren(boolean pImmediate) {
@@ -74,7 +92,7 @@ public class ZIndexScene extends Scene {
 	}
 	
 	/**
-	 * only a dummy!!!
+	 * not supported in this class
 	 */
 	@Override
 	public void sortChildren(Comparator<IEntity> pEntityComparator) { 
