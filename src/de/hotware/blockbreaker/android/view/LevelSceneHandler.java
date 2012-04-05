@@ -71,8 +71,7 @@ public class LevelSceneHandler {
 	boolean mIgnoreInput;
 
 	public LevelSceneHandler(Scene pScene,
-			VertexBufferObjectManager pVertexBufferObjectManager,
-			StretchedResolutionPolicy pStretchedResolutionPolicy) {
+			VertexBufferObjectManager pVertexBufferObjectManager) {
 		this.mScene = pScene;
 		this.mWinCondText = new Text[BlockColor.getBiggestColorNumber()];
 		//size for 45 Sprites is a good beginning
@@ -80,7 +79,6 @@ public class LevelSceneHandler {
 				BlockSpritePool.BLOCKS_ON_SCENE_ESTIMATE));
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mIgnoreInput = false;
-		this.mStretchedResolutionPolicy = pStretchedResolutionPolicy;
 	}
 	
 	public void setIgnoreInput(boolean pIgnoreInput) {
@@ -94,31 +92,29 @@ public class LevelSceneHandler {
 			Properties pStringProperties) {
 		
 		this.mLevel = pLevel;
-		float marginHorizontal = this.mStretchedResolutionPolicy.getMarginHorizontal();
-		float marginVertical = this.mStretchedResolutionPolicy.getMarginVertical();
 
 		this.mBlockSpritePool = new BlockSpritePool(this.mScene,
 				pBlockTiledTextureRegion,
 				this.mVertexBufferObjectManager);
 
 		//create surroundings
-		final Shape ground = new Rectangle(marginHorizontal + HORIZONTAL_GAP - 1,
-				UIConstants.LEVEL_HEIGHT - VERTICAL_GAP - marginVertical + 1,
+		final Shape ground = new Rectangle(HORIZONTAL_GAP - 1,
+				UIConstants.LEVEL_HEIGHT - VERTICAL_GAP + 1,
 				HORIZONTAL_SIZE + 3,
 				1,
 				this.mVertexBufferObjectManager);
-		final Shape roof = new Rectangle(marginHorizontal + HORIZONTAL_GAP - 1,
-				marginVertical + VERTICAL_GAP - 1,
+		final Shape roof = new Rectangle(HORIZONTAL_GAP - 1,
+				VERTICAL_GAP - 1,
 				HORIZONTAL_SIZE + 3,
 				1,
 				this.mVertexBufferObjectManager);
-		final Shape left = new Rectangle(marginHorizontal + HORIZONTAL_GAP - 1,
-				marginVertical + VERTICAL_GAP - 1,
+		final Shape left = new Rectangle(HORIZONTAL_GAP - 1,
+				VERTICAL_GAP - 1,
 				1,
 				VERTICAL_SIZE + 4,
 				this.mVertexBufferObjectManager);
-		final Shape right = new Rectangle(UIConstants.LEVEL_WIDTH - HORIZONTAL_GAP - marginHorizontal + 1,
-				marginVertical + VERTICAL_GAP - 1,
+		final Shape right = new Rectangle(UIConstants.LEVEL_WIDTH - HORIZONTAL_GAP + 1,
+				VERTICAL_GAP - 1,
 				1,
 				VERTICAL_SIZE + 4,
 				this.mVertexBufferObjectManager);
@@ -141,8 +137,8 @@ public class LevelSceneHandler {
 		TiledSprite winSpriteHelp;
 		for(int i = 0; i < 5; ++i) {
 			winSpriteHelp = new TiledSprite(
-					marginHorizontal + 5,
-					marginVertical + 17 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*i,
+					5,
+					17 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*i,
 					SPRITE_TEXTURE_WIDTH,
 					SPRITE_TEXTURE_HEIGHT,
 					pBlockTiledTextureRegion.deepCopy(),
@@ -156,8 +152,8 @@ public class LevelSceneHandler {
 		Text winDisplayText;
 		for(int i = 1; i < 6; ++i) {
 			winDisplayText = new Text(
-					marginHorizontal + 10 + SPRITE_TEXTURE_WIDTH,
-					marginVertical + 30 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*(i-1),
+					10 + SPRITE_TEXTURE_WIDTH,
+					30 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*(i-1),
 					pUIFont,
 					Integer.toString(winCondition.getWinCount(i)), 
 					1,
@@ -170,13 +166,13 @@ public class LevelSceneHandler {
 				pStringProperties.getProperty(UIConstants.NEXT_PROPERTY_KEY),
 				this.mVertexBufferObjectManager);
 		nextText.setPosition(
-				UIConstants.LEVEL_WIDTH - nextText.getWidth() - marginHorizontal - 13,
-				marginVertical + 2 + VERTICAL_GAP);
+				UIConstants.LEVEL_WIDTH - nextText.getWidth() - 13,
+				2 + VERTICAL_GAP);
 		nextText.setIgnoreUpdate(true);
 		this.mScene.attachChild(nextText);
 
 		this.mNextBlockSprite = new TiledSprite(
-				UIConstants.LEVEL_WIDTH - SPRITE_TEXTURE_WIDTH - marginHorizontal - 24,
+				UIConstants.LEVEL_WIDTH - SPRITE_TEXTURE_WIDTH - 24,
 				nextText.getY() + nextText.getHeight() + 10,
 				SPRITE_TEXTURE_WIDTH,
 				SPRITE_TEXTURE_HEIGHT,
@@ -189,14 +185,14 @@ public class LevelSceneHandler {
 				pStringProperties.getProperty(UIConstants.TURNS_PROPERTY_KEY),
 				this.mVertexBufferObjectManager);
 		turnsText.setPosition(
-				UIConstants.LEVEL_WIDTH - turnsText.getWidth() - marginHorizontal - 2,
+				UIConstants.LEVEL_WIDTH - turnsText.getWidth() - 2,
 				this.mNextBlockSprite.getY() + this.mNextBlockSprite.getHeight() + 10);
 		turnsText.setIgnoreUpdate(true);
 		this.mScene.attachChild(turnsText);
 
 		this.mTurnsLeftText = new Text(0, 0, pUIFont, pLevel.getBlocksDisplayText() , 3, this.mVertexBufferObjectManager);
 		this.mTurnsLeftText.setPosition(
-				UIConstants.LEVEL_WIDTH - this.mTurnsLeftText.getWidth() - marginHorizontal- 22,
+				UIConstants.LEVEL_WIDTH - this.mTurnsLeftText.getWidth() - 22,
 				turnsText.getY() + turnsText.getHeight() + 10);
 		this.mScene.attachChild(this.mTurnsLeftText);
 
@@ -213,8 +209,8 @@ public class LevelSceneHandler {
 		});
 
 		this.mGravityArrowSprite = new TiledSprite(
-				UIConstants.LEVEL_WIDTH - SPRITE_TEXTURE_WIDTH - marginHorizontal - 24,
-				marginVertical + turnsLeftText.getY() + turnsLeftText.getHeight() + 10,
+				UIConstants.LEVEL_WIDTH - SPRITE_TEXTURE_WIDTH - 24,
+				turnsLeftText.getY() + turnsLeftText.getHeight() + 10,
 				SPRITE_TEXTURE_WIDTH,
 				SPRITE_TEXTURE_HEIGHT,
 				pArrowTiledTextureRegion.deepCopy(),
@@ -236,10 +232,12 @@ public class LevelSceneHandler {
 		this.mScene.attachChild(mGravityArrowSprite);
 
 		pLevel.setGravityListener(this.mGravityListener = new IGravityListener() {
+			
 			@Override
 			public void onGravityChanged(GravityEvent pEvt) {
 				LevelSceneHandler.this.mGravityArrowSprite.setCurrentTileIndex(pEvt.getGravity().toNumber());
-			}	    	
+			}	   
+			
 		});
 		
 		this.mTimeText = new Text(0, 
@@ -248,7 +246,7 @@ public class LevelSceneHandler {
 				pStringProperties.getProperty(UIConstants.TIME_PROPERTY_KEY), 
 				this.mVertexBufferObjectManager);
 		this.mTimeText.setPosition(
-				UIConstants.LEVEL_WIDTH - this.mTimeText.getWidth() - marginHorizontal - 12,
+				UIConstants.LEVEL_WIDTH - this.mTimeText.getWidth() - 12,
 				this.mGravityArrowSprite.getY() + this.mGravityArrowSprite.getHeight() + 10);
 		this.mScene.attachChild(this.mTimeText);
 		this.mTimeText.setVisible(false);
@@ -259,7 +257,7 @@ public class LevelSceneHandler {
 				pUIFont,
 				"xxxx",
 				this.mVertexBufferObjectManager);
-		this.mTimeLeftText.setPosition(UIConstants.LEVEL_WIDTH - this.mTimeLeftText.getWidth() - marginHorizontal - 12,
+		this.mTimeLeftText.setPosition(UIConstants.LEVEL_WIDTH - this.mTimeLeftText.getWidth() - 12,
 				this.mTimeText.getY() + this.mTimeLeftText.getHeight() + 10);
 		this.mScene.attachChild(this.mTimeLeftText);
 		this.mTimeLeftText.setVisible(false);
@@ -310,8 +308,8 @@ public class LevelSceneHandler {
 		int x = pBlock.getX();
 		int y = pBlock.getY();
 		BlockSprite sprite = this.mBlockSpritePool.obtainBlockSprite(
-				this.mStretchedResolutionPolicy.getMarginHorizontal() + 2 + HORIZONTAL_GAP + x * (SPRITE_TEXTURE_WIDTH + 1),
-				this.mStretchedResolutionPolicy.getMarginVertical() + 2 + VERTICAL_GAP + y * (SPRITE_TEXTURE_HEIGHT + 1),
+				2 + HORIZONTAL_GAP + x * (SPRITE_TEXTURE_WIDTH + 1),
+				2 + VERTICAL_GAP + y * (SPRITE_TEXTURE_HEIGHT + 1),
 				pBlock, 
 				this.mBlockSpriteTouchListener);
 		this.mBlockSpriteList.add(sprite);

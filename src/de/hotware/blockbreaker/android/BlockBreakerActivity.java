@@ -428,7 +428,14 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private void initLevel() {
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
-
+		
+		StretchedResolutionPolicy policy = 
+				(StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy();
+		scene.setScale(policy.getDeviceRatio());
+		scene.setX(policy.getPaddingHorizontal());
+		scene.setY(policy.getPaddingVertical());
+		this.mCamera.set(0, 0, policy.getDeviceCameraWidth(), policy.getDeviceCameraHeight());
+		
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
 
@@ -436,8 +443,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		VertexBufferObjectManager vboManager = this.mEngine.getVertexBufferObjectManager();
 
-		this.mLevelSceneHandler = new LevelSceneHandler(scene, vboManager, 
-				(StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy());
+		this.mLevelSceneHandler = new LevelSceneHandler(scene, vboManager);
 
 		//ignore input, gamehandlers will have to handle starting on their own
 		this.mLevelSceneHandler.setIgnoreInput(true);
@@ -449,9 +455,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mStringProperties);
 
 		HUD hud = new HUD();
+		hud.setY(this.mLevelScene.getY());
+		//scaleX and scaleY are the same!!!
+		hud.setScale(this.mLevelScene.getScaleX());
 		this.mCamera.setHUD(hud);
-		scene.setBackground(new SpriteBackground(new Sprite(0,0,UIConstants.LEVEL_WIDTH, 
-				UIConstants.LEVEL_HEIGHT, 
+		scene.setBackground(new SpriteBackground(new Sprite(0,0,policy.getDeviceCameraWidth(), 
+				policy.getDeviceCameraHeight(), 
 				BlockBreakerActivity.this.mSceneBackgroundTextureRegion,
 				vboManager)));
 	}
@@ -883,11 +892,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mTimeText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeText();
 			this.mTimeText.setVisible(true);
 			VertexBufferObjectManager vbo = BlockBreakerActivity.this.mEngine.getVertexBufferObjectManager();
-			StretchedResolutionPolicy policy = (StretchedResolutionPolicy) BlockBreakerActivity.this.mEngine.
-					getEngineOptions().getResolutionPolicy();
 			this.mStatusText = new Text(
-					policy.getMarginHorizontal() + 5,
-					policy.getMarginVertical() + 3,
+					5,
+					3,
 					BlockBreakerActivity.this.mMiscFont,
 					"",
 					15,

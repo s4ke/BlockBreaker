@@ -30,6 +30,10 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mBlockScene = new ZIndexScene(BLOCKS_ON_SCENE_ESTIMATE);
 		this.mBlockScene.setBackgroundEnabled(false);
+		//scaleX and scaleY are the same
+		this.mBlockScene.setScale(this.mScene.getScaleX());
+		this.mBlockScene.setX(this.mScene.getX());
+		this.mBlockScene.setY(this.mScene.getY());
 		this.mScene.setChildScene(this.mBlockScene);
 	}
 

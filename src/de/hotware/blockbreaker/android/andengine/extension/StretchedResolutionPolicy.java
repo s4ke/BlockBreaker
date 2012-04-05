@@ -1,46 +1,94 @@
 package de.hotware.blockbreaker.android.andengine.extension;
 
-import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.engine.options.resolutionpolicy.BaseResolutionPolicy;
+import org.andengine.opengl.view.RenderSurfaceView;
+
+import android.view.View.MeasureSpec;
 
 
 /**
- * @author initial from andengine forums (jgibbs), changes by Martin Braun
+ * ResolutionPolicy that doesn't scale at all but saves some data
+ * for resizing more easily
+ * @author Martin Braun
  */
-public class StretchedResolutionPolicy extends RatioResolutionPolicy {
+public class StretchedResolutionPolicy extends BaseResolutionPolicy {
  
-//        private final float mCameraWidth;
-//        private final float mCameraHeight;
+        private float mCameraWidth;
+        private float mCameraHeight;
+        private float mRatio;
+        private float mDeviceRatio;
+        private float mDeviceCameraWidth;
+        private float mDeviceCameraHeight;
+        
     	/**
-    	 * Pixels from top of canvas to visible area, and from bottom of canvas to visible area
+    	 * Pixels returns the padding for each top and bottom
     	 */
-        private float mMarginVertical;
+        private float mPaddingVertical;
         /**
-         * Pixels from left of canvas to visible area, and from right of canvas to visible area
+         * padding for each left and right
          */
-        private float mMarginHorizontal;
+        private float mPaddingHorizontal;
  
-        public StretchedResolutionPolicy(float pCameraWidth, float pCameraHeight)
-        {
-        		super(pCameraWidth, pCameraHeight);
-//                this.mCameraWidth = pCameraWidth;
-//                this.mCameraHeight = pCameraHeight;
-               
-                this.mMarginVertical = 0;
-                this.mMarginHorizontal = 0;
+        public StretchedResolutionPolicy(float pCameraWidth, float pCameraHeight) {   
+            this.mCameraWidth = pCameraWidth;
+            this.mCameraHeight = pCameraHeight;
+            this.mRatio = this.mCameraWidth / pCameraHeight;
+           
+            this.mPaddingVertical = 0;
+            this.mPaddingHorizontal = 0;
         }
        
         /**
-    	 * @return Pixels from top of canvas to visible area, and from bottom of canvas to visible area
-    	 */
-        public float getMarginVertical() {
-                return this.mMarginVertical;
+    	 * @return returns the padding for each top and bottom
+		*/
+        public float getPaddingVertical() {
+        	return this.mPaddingVertical;
         }
  
         /**
-         * @return Pixels from left of canvas to visible area, and from right of canvas to visible area
-         */
-        public float getMarginHorizontal() {
-                return this.mMarginHorizontal;
+    	 * @return returns the padding for each left and right
+    	 */
+        public float getPaddingHorizontal() {
+        	return this.mPaddingHorizontal;
+        }
+        
+        public float getDeviceRatio() {
+        	return this.mDeviceRatio;
+        }
+        
+        public float getDeviceCameraWidth() {
+        	return this.mDeviceCameraWidth;
+        }
+        
+        public float getDeviceCameraHeight() {
+        	return this.mDeviceCameraHeight;
+        }
+        
+        @Override
+        public void onMeasure(RenderSurfaceView pRenderSurfaceView,
+        		int pWidthMeasureSpec,
+        		int pHeightMeasureSpec) {
+        	BaseResolutionPolicy.throwOnNotMeasureSpecEXACTLY(pWidthMeasureSpec, pHeightMeasureSpec);
+        	
+        	int specWidth = MeasureSpec.getSize(pWidthMeasureSpec);
+    		int specHeight = MeasureSpec.getSize(pHeightMeasureSpec);
+    		this.mDeviceCameraWidth = specWidth;
+    		this.mDeviceCameraHeight = specHeight;
+    		
+    		float desiredRatio = this.mRatio;
+    		float realRatio = (float)specWidth / specHeight;
+    		
+    		if(realRatio > desiredRatio) {
+    			this.mPaddingHorizontal = 
+    					(specWidth - (this.mDeviceRatio = specHeight / this.mCameraHeight) * this.mCameraWidth) / 2;
+    			this.mPaddingVertical = 0;
+    		} else if (realRatio < desiredRatio) {
+    			this.mPaddingVertical = 
+    					(specHeight - (this.mDeviceRatio = specWidth / this.mCameraWidth) * this.mCameraHeight) / 2;
+    			this.mPaddingHorizontal = 0;
+    		}
+    		
+    		pRenderSurfaceView.setMeasuredDimensionProxy(specWidth, specHeight);
         }
  
  
