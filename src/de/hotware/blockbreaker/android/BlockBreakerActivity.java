@@ -16,7 +16,6 @@ import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.font.FontManager;
@@ -180,7 +179,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onCreateResources(OnCreateResourcesCallback pCallback) {
 
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		SVGBitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+//		SVGBitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
 		//TODO: Language choosing
 		this.mStringProperties = new Properties();
@@ -202,11 +201,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		}
 
 		TextureManager textureManager = this.mEngine.getTextureManager();
-		
+
 		//loading block textures
-		BitmapTextureAtlas blockTextureAtlas = new BitmapTextureAtlas(textureManager, 276, 46, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mBlockTiledTextureRegion = SVGBitmapTextureAtlasTextureRegionFactory.
-				createTiledFromAsset(blockTextureAtlas, this.getBaseContext(), "blocks_tiled.svg", 276, 46, 0,0, 6,1);
+		BitmapTextureAtlas blockTextureAtlas = new BitmapTextureAtlas(textureManager, 1104, 184, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+//		this.mBlockTiledTextureRegion = SVGBitmapTextureAtlasTextureRegionFactory.
+//				createTiledFromAsset(blockTextureAtlas, this.getBaseContext(), "blocks_tiled.svg", 276*4, 46*4, 0,0, 6,1);
+		this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+				blockTextureAtlas, this, "blocks_tiled.png", 0,0, 6,1);
 		this.mEngine.getTextureManager().loadTexture(blockTextureAtlas);
 
 		//loading arrow sprites

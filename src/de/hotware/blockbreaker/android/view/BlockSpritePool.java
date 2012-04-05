@@ -39,7 +39,6 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 				UIConstants.BASE_SPRITE_HEIGHT, 
 				this.mTiledTextureRegion.deepCopy(),
 				this.mVertexBufferObjectManager);
-		this.mBlockScene.insertAtBottom(bs);
 		return bs;
 	}
 
@@ -59,7 +58,11 @@ public class BlockSpritePool extends GenericPool<BlockSprite> {
 		pBlockSprite.reset();
 		this.mBlockScene.registerTouchArea(pBlockSprite);
 		synchronized(this.mBlockScene) {
-			this.mBlockScene.reInsertAtBottom(pBlockSprite);
+			if(!pBlockSprite.hasParent()) {
+				this.mBlockScene.insertAtBottom(pBlockSprite);
+			} else {
+				this.mBlockScene.reInsertAtBottom(pBlockSprite);
+			}
 		}
 	}
 
