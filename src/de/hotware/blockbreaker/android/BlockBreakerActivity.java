@@ -16,6 +16,7 @@ import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.font.FontManager;
@@ -180,8 +181,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onCreateResources(OnCreateResourcesCallback pCallback) {
 
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-//		SVGBitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-
+		
 		//TODO: Language choosing
 		this.mStringProperties = new Properties();
 		AssetManager assetManager = this.getResources().getAssets();
@@ -205,79 +205,72 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mResolutionScale = ((StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy()).getScale();
 		
 		{
-			String blocksTiledFileName;
-			int width = 276;
-			int height = 46;
-			float blockScale = 1.0f;
-			if(this.mResolutionScale <= 1.0f) {
-				blocksTiledFileName = "blocks_tiled_1.0x.png";
-			} else if(this.mResolutionScale <= 1.5f) {
-				blockScale = 1.5f;
-				blocksTiledFileName = "blocks_tiled_1.5x.png";
-			} else if(this.mResolutionScale <= 2.0f) {
-				blockScale = 2.0f;
-				blocksTiledFileName = "blocks_tiled_2.0x.png";
-			} else {
-				blockScale = 2.5f;
-				blocksTiledFileName = "blocks_tiled_2.5x.png";
-			}
-			
+			SVGBitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+			int width = (int) (276 * this.mResolutionScale);
+			int height = (int)(46 * this.mResolutionScale);
 			BitmapTextureAtlas blockTextureAtlas = new BitmapTextureAtlas(textureManager,
-					(int)(width * blockScale),
-					(int)(height * blockScale),
+					width,
+					height,
 					TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-					blockTextureAtlas, this, blocksTiledFileName, 0,0, 6,1);
+			this.mBlockTiledTextureRegion = SVGBitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+					blockTextureAtlas, this, "blocks_tiled.svg", width, height, 0,0, 6,1);
 			this.mEngine.getTextureManager().loadTexture(blockTextureAtlas);
 		}
 
-		//loading arrow sprites
-		this.mArrowBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 512, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mArrowTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.
-				createTiledFromAsset(this.mArrowBitmapTextureAtlas, this, "arrow_tiled.png", 0,0, 4,1);
-		this.mEngine.getTextureManager().loadTexture(this.mArrowBitmapTextureAtlas);
+		{
+			//loading arrow sprites
+			this.mArrowBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 512, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			this.mArrowTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.
+					createTiledFromAsset(this.mArrowBitmapTextureAtlas, this, "arrow_tiled.png", 0,0, 4,1);
+			this.mEngine.getTextureManager().loadTexture(this.mArrowBitmapTextureAtlas);
+		}
 
-		//Loading Background
-		this.mSceneBackgroundBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 960, 640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mSceneBackgroundTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.
-				createFromAsset(this.mSceneBackgroundBitmapTextureAtlas, this, 
-				"background.png", 0, 0);   
-		this.mEngine.getTextureManager().loadTexture(this.mSceneBackgroundBitmapTextureAtlas);
+		{
+			//Loading Background
+			this.mSceneBackgroundBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 960, 640, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			this.mSceneBackgroundTextureRegion = (TextureRegion) BitmapTextureAtlasTextureRegionFactory.
+					createFromAsset(this.mSceneBackgroundBitmapTextureAtlas, this, 
+					"background.png", 0, 0);   
+			this.mEngine.getTextureManager().loadTexture(this.mSceneBackgroundBitmapTextureAtlas);
+		}
 
 		FontManager fontManager = this.mEngine.getFontManager();
+		{
+			//loading misc font
+			//TODO: Fix resizing of Fonts
+			BitmapTextureAtlas miscFontTexture = new BitmapTextureAtlas(textureManager,
+					(int)(256/* * this.mResolutionScale */),
+					(int)(256/* * this.mResolutionScale */),
+					TextureOptions.BILINEAR);
+			this.mEngine.getTextureManager().loadTexture(miscFontTexture);
+			FontFactory.setAssetBasePath("font/");
+			this.mMiscFont = FontFactory.createFromAsset(fontManager,
+					miscFontTexture,
+					assetManager,
+					"Droid.ttf",
+					12 /* * this.mResolutionScale */,
+					true,
+					Color.BLACK);   	
+			this.mEngine.getFontManager().loadFont(this.mMiscFont);
+		}
 
-		//loading misc font
-		//TODO: Fix resizing of Fonts
-		BitmapTextureAtlas miscFontTexture = new BitmapTextureAtlas(textureManager,
-				(int)(256/* * this.mResolutionScale */),
-				(int)(256/* * this.mResolutionScale */),
-				TextureOptions.BILINEAR);
-		this.mEngine.getTextureManager().loadTexture(miscFontTexture);
-		FontFactory.setAssetBasePath("font/");
-		this.mMiscFont = FontFactory.createFromAsset(fontManager,
-				miscFontTexture,
-				assetManager,
-				"Droid.ttf",
-				12 /* * this.mResolutionScale */,
-				true,
-				Color.BLACK);   	
-		this.mEngine.getFontManager().loadFont(this.mMiscFont);
-
-		//loading scene font
-		//TODO: Fix resizing of Fonts
-		BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(textureManager,
-				(int)(256/* * this.mResolutionScale */),
-				(int)(256/* * this.mResolutionScale */),
-				TextureOptions.BILINEAR);
-		this.mEngine.getTextureManager().loadTexture(sceneFontTexture);
-		this.mSceneUIFont = FontFactory.createFromAsset(fontManager,
-				sceneFontTexture,
-				assetManager,
-				"Plok.ttf",
-				18 /* * this.mResolutionScale */,
-				true,
-				Color.BLACK);
-		this.mEngine.getFontManager().loadFont(this.mSceneUIFont);
+		{
+			//loading scene font
+			//TODO: Fix resizing of Fonts
+			BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(textureManager,
+					(int)(256/* * this.mResolutionScale */),
+					(int)(256/* * this.mResolutionScale */),
+					TextureOptions.BILINEAR);
+			this.mEngine.getTextureManager().loadTexture(sceneFontTexture);
+			this.mSceneUIFont = FontFactory.createFromAsset(fontManager,
+					sceneFontTexture,
+					assetManager,
+					"Plok.ttf",
+					18 /* * this.mResolutionScale */,
+					true,
+					Color.BLACK);
+			this.mEngine.getFontManager().loadFont(this.mSceneUIFont);
+		}
 		
 		pCallback.onCreateResourcesFinished();
 	}
