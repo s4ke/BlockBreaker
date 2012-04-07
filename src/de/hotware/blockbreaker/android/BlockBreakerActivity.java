@@ -89,6 +89,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	boolean mUseOrientSensor = false;
 	boolean mTimeAttackMode = false;
 	int mNumberOfTurns = DEFAULT_NUMBER_OF_TURNS;
+	float mResolutionScale;
 
 	ITiledTextureRegion mBlockTiledTextureRegion;
 	BitmapTextureAtlas mArrowBitmapTextureAtlas;
@@ -201,14 +202,34 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		}
 
 		TextureManager textureManager = this.mEngine.getTextureManager();
-
-		//loading block textures
-		BitmapTextureAtlas blockTextureAtlas = new BitmapTextureAtlas(textureManager, 1104, 184, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-//		this.mBlockTiledTextureRegion = SVGBitmapTextureAtlasTextureRegionFactory.
-//				createTiledFromAsset(blockTextureAtlas, this.getBaseContext(), "blocks_tiled.svg", 276*4, 46*4, 0,0, 6,1);
-		this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				blockTextureAtlas, this, "blocks_tiled.png", 0,0, 6,1);
-		this.mEngine.getTextureManager().loadTexture(blockTextureAtlas);
+		this.mResolutionScale = ((StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy()).getScale();
+		
+		{
+			String blocksTiledFileName;
+			int width = 276;
+			int height = 46;
+			float blockScale = 1.0f;
+			if(this.mResolutionScale <= 1.0f) {
+				blocksTiledFileName = "blocks_tiled_1.0x.png";
+			} else if(this.mResolutionScale <= 1.5f) {
+				blockScale = 1.5f;
+				blocksTiledFileName = "blocks_tiled_1.5x.png";
+			} else if(this.mResolutionScale <= 2.0f) {
+				blockScale = 2.0f;
+				blocksTiledFileName = "blocks_tiled_2.0x.png";
+			} else {
+				blockScale = 2.5f;
+				blocksTiledFileName = "blocks_tiled_2.5x.png";
+			}
+			
+			BitmapTextureAtlas blockTextureAtlas = new BitmapTextureAtlas(textureManager,
+					(int)(width * blockScale),
+					(int)(height * blockScale),
+					TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+					blockTextureAtlas, this, blocksTiledFileName, 0,0, 6,1);
+			this.mEngine.getTextureManager().loadTexture(blockTextureAtlas);
+		}
 
 		//loading arrow sprites
 		this.mArrowBitmapTextureAtlas = new BitmapTextureAtlas(textureManager, 512, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -226,18 +247,38 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		FontManager fontManager = this.mEngine.getFontManager();
 
 		//loading misc font
-		BitmapTextureAtlas miscFontTexture = new BitmapTextureAtlas(textureManager, 256, 256, TextureOptions.BILINEAR);
+		//TODO: Fix resizing of Fonts
+		BitmapTextureAtlas miscFontTexture = new BitmapTextureAtlas(textureManager,
+				(int)(256/* * this.mResolutionScale */),
+				(int)(256/* * this.mResolutionScale */),
+				TextureOptions.BILINEAR);
 		this.mEngine.getTextureManager().loadTexture(miscFontTexture);
 		FontFactory.setAssetBasePath("font/");
-		this.mMiscFont = FontFactory.createFromAsset(fontManager, miscFontTexture, assetManager, "Droid.ttf", 12, true, Color.BLACK);   	
+		this.mMiscFont = FontFactory.createFromAsset(fontManager,
+				miscFontTexture,
+				assetManager,
+				"Droid.ttf",
+				12 /* * this.mResolutionScale */,
+				true,
+				Color.BLACK);   	
 		this.mEngine.getFontManager().loadFont(this.mMiscFont);
 
 		//loading scene font
-		BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(textureManager, 256, 256, TextureOptions.BILINEAR);
+		//TODO: Fix resizing of Fonts
+		BitmapTextureAtlas sceneFontTexture = new BitmapTextureAtlas(textureManager,
+				(int)(256/* * this.mResolutionScale */),
+				(int)(256/* * this.mResolutionScale */),
+				TextureOptions.BILINEAR);
 		this.mEngine.getTextureManager().loadTexture(sceneFontTexture);
-		this.mSceneUIFont = FontFactory.createFromAsset(fontManager, sceneFontTexture, assetManager, "Plok.ttf", 18, true, Color.BLACK);
+		this.mSceneUIFont = FontFactory.createFromAsset(fontManager,
+				sceneFontTexture,
+				assetManager,
+				"Plok.ttf",
+				18 /* * this.mResolutionScale */,
+				true,
+				Color.BLACK);
 		this.mEngine.getFontManager().loadFont(this.mSceneUIFont);
-
+		
 		pCallback.onCreateResourcesFinished();
 	}
 
@@ -252,10 +293,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	@Override
 	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback) {
-		this.loadFirstLevel();
 		this.initLevel();
-		this.mCamera.getHUD().attachChild(this.mSeedText);
-		this.mEngine.setScene(this.mLevelScene);
 		pCallback.onPopulateSceneFinished();
 		this.mGameTypeHandler.init();
 		this.mGameTypeHandler.onEnterFocus();
@@ -279,7 +317,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	/**
 	 * Listener method for Changes of the devices Orientation.
-	 * sets the Levels Gravity to the overwhelming Gravity
+	 * sets the Levels Gravity to the overwhelming Orientation
 	 */
 	@Override
 	public void onOrientationChanged(OrientationData pOrientData) {
@@ -426,12 +464,19 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 * initializes the first Level, only to be called on first startup!
 	 */
 	private void initLevel() {
+		
+		//init the first Level
+		long seed = sRandomSeedObject.nextLong();
+		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, 
+				this.mNumberOfTurns, 
+				this.mDifficulty.getWinCount());
+		
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
 		
 		StretchedResolutionPolicy policy = 
 				(StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy();
-		scene.setScale(policy.getDeviceRatio());
+		scene.setScale(this.mResolutionScale);
 		scene.setX(policy.getPaddingHorizontal());
 		scene.setY(policy.getPaddingVertical());
 		this.mCamera.set(0, 0, policy.getDeviceCameraWidth(), policy.getDeviceCameraHeight());
@@ -457,12 +502,23 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		HUD hud = new HUD();
 		hud.setY(this.mLevelScene.getY());
 		//scaleX and scaleY are the same!!!
-		hud.setScale(this.mLevelScene.getScaleX());
+		hud.setScale(this.mResolutionScale);
 		this.mCamera.setHUD(hud);
 		scene.setBackground(new SpriteBackground(new Sprite(0,0,policy.getDeviceCameraWidth(), 
 				policy.getDeviceCameraHeight(), 
 				BlockBreakerActivity.this.mSceneBackgroundTextureRegion,
 				vboManager)));
+		
+		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 1;
+		this.mSeedText = new Text(1,
+				UIConstants.LEVEL_HEIGHT - 15,
+				this.mMiscFont,
+				"Seed: " + seed,
+				maxLength,
+				this.mEngine.getVertexBufferObjectManager());
+		hud.attachChild(this.mSeedText);
+		
+		this.mEngine.setScene(this.mLevelScene);
 	}
 
 	void showCancelDialog() {
@@ -550,23 +606,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					
 		});
 		builder.create().show();
-	}
-
-	/**
-	 * loads the first randomly generated Level and initializes the SeedText
-	 */
-	private void loadFirstLevel() {
-		long seed = sRandomSeedObject.nextLong();
-		this.mBackupLevel = LevelGenerator.createRandomLevelFromSeed(seed, 
-				this.mNumberOfTurns, 
-				this.mDifficulty.getWinCount());
-		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 1;
-		this.mSeedText = new Text(1,
-				UIConstants.LEVEL_HEIGHT - 15,
-				this.mMiscFont,
-				"Seed: " + seed,
-				maxLength,
-				this.mEngine.getVertexBufferObjectManager());
 	}
 
 	/**

@@ -16,7 +16,7 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
         private float mCameraWidth;
         private float mCameraHeight;
         private float mRatio;
-        private float mDeviceRatio;
+        private float mScale;
         private float mDeviceCameraWidth;
         private float mDeviceCameraHeight;
         
@@ -29,7 +29,8 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
          */
         private float mPaddingHorizontal;
  
-        public StretchedResolutionPolicy(float pCameraWidth, float pCameraHeight) {   
+        public StretchedResolutionPolicy(float pCameraWidth,
+        		float pCameraHeight) {
             this.mCameraWidth = pCameraWidth;
             this.mCameraHeight = pCameraHeight;
             this.mRatio = this.mCameraWidth / pCameraHeight;
@@ -52,8 +53,11 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
         	return this.mPaddingHorizontal;
         }
         
-        public float getDeviceRatio() {
-        	return this.mDeviceRatio;
+        /**
+         * @return the scale that can be used for resizing properly
+         */
+        public float getScale() {
+        	return this.mScale;
         }
         
         public float getDeviceCameraWidth() {
@@ -72,6 +76,7 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
         	
         	int specWidth = MeasureSpec.getSize(pWidthMeasureSpec);
     		int specHeight = MeasureSpec.getSize(pHeightMeasureSpec);
+
     		this.mDeviceCameraWidth = specWidth;
     		this.mDeviceCameraHeight = specHeight;
     		
@@ -80,40 +85,17 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
     		
     		if(realRatio > desiredRatio) {
     			this.mPaddingHorizontal = 
-    					(specWidth - (this.mDeviceRatio = specHeight / this.mCameraHeight) * this.mCameraWidth) / 2;
+    					(specWidth - (this.mScale = specHeight / this.mCameraHeight) * this.mCameraWidth) / 2;
     			this.mPaddingVertical = 0;
     		} else if (realRatio < desiredRatio) {
     			this.mPaddingVertical = 
-    					(specHeight - (this.mDeviceRatio = specWidth / this.mCameraWidth) * this.mCameraHeight) / 2;
+    					(specHeight - (this.mScale = specWidth / this.mCameraWidth) * this.mCameraHeight) / 2;
     			this.mPaddingHorizontal = 0;
+    		} else {
+    			this.mScale = 1.0f;
     		}
     		
     		pRenderSurfaceView.setMeasuredDimensionProxy(specWidth, specHeight);
         }
- 
- 
-//        @Override
-//        public void onMeasure(RenderSurfaceView pRenderSurfaceView,
-//        		int pWidthMeasureSpec,
-//        		int pHeightMeasureSpec) {
-//                BaseResolutionPolicy.throwOnNotMeasureSpecEXACTLY(pWidthMeasureSpec, pHeightMeasureSpec);
-// 
-//                float measuredWidth = MeasureSpec.getSize(pWidthMeasureSpec);
-//                float measuredHeight = MeasureSpec.getSize(pHeightMeasureSpec);
-//                
-//                float nCamRatio = this.mCameraWidth / this.mCameraHeight;
-//                float nCanvasRatio = measuredWidth / measuredHeight;
-//                
-//                if(nCanvasRatio < nCamRatio) {
-//                        // Scale to fit height, width will crop
-//                        measuredWidth = measuredHeight * nCamRatio;
-//                        this.mMarginHorizontal = (this.mCameraWidth - this.mCameraHeight * nCanvasRatio) / 2.0f;
-//                } else if(nCanvasRatio > nCamRatio){
-//                        // Scale to fit width, height will crop
-//                        measuredHeight = measuredWidth / nCamRatio;
-//                        this.mMarginVertical = (this.mCameraHeight - this.mCameraWidth / nCanvasRatio) / 2.0f;
-//                }
-//                pRenderSurfaceView.setMeasuredDimensionProxy((int)measuredWidth, (int)measuredHeight);
-//        }
         
 }
