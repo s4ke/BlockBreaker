@@ -20,21 +20,43 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f050000;
+        public static final int cancel=0x7f05001a;
+        public static final int completed_levels_text=0x7f05001c;
         public static final int difficulty=0x7f050008;
         public static final int difficulty_sum=0x7f050009;
+        public static final int exit_game_question=0x7f050020;
+        public static final int from_seed=0x7f050014;
+        public static final int game_over_text=0x7f05001d;
         public static final int gameplay_options=0x7f050003;
         public static final int input_name=0x7f05000d;
         public static final int input_name_def=0x7f05000e;
         public static final int input_name_desc=0x7f05000f;
         public static final int input_name_sum=0x7f05000c;
         public static final int input_name_title=0x7f05000a;
+        public static final int input_seed_question=0x7f050021;
+        public static final int lose_text=0x7f050024;
+        public static final int lost_levels_text=0x7f05001f;
+        public static final int menu=0x7f050013;
+        public static final int next=0x7f050012;
+        public static final int no=0x7f050019;
         public static final int number_of_turns=0x7f050004;
         public static final int number_of_turns_sum=0x7f050005;
+        public static final int ok=0x7f050025;
+        public static final int restart=0x7f050015;
+        public static final int restart_question=0x7f050017;
+        public static final int score_text=0x7f05001e;
+        public static final int start=0x7f050016;
         public static final int submit=0x7f05000b;
+        public static final int time=0x7f050011;
         public static final int time_attack=0x7f050006;
+        public static final int time_attack_start_text=0x7f05001b;
         public static final int time_attack_sum=0x7f050007;
+        public static final int turns=0x7f050010;
         public static final int use_orient_sens=0x7f050001;
         public static final int use_orient_sens_sum=0x7f050002;
+        public static final int win_text=0x7f050023;
+        public static final int wrong_seed_input_text=0x7f050022;
+        public static final int yes=0x7f050018;
     }
     public static final class xml {
         public static final int preferences=0x7f030000;

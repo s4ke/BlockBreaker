@@ -16,4 +16,26 @@
     <string name="input_name">Name</string>
     <string name="input_name_def">Player</string>
     <string name="input_name_desc">Input a name containing 1 to 10 characters</string>
+    <string name="turns">Turns</string>
+    <string name="time">Time</string>
+    <string name="next">Next</string>
+    <string name="menu">Menu</string>
+    <string name="from_seed">Level from seed</string>
+    <string name="restart">Restart</string>
+    <string name="start">Start</string>
+    <string name="restart_question">Restart?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
+    <string name="time_attack_start_text">Press Button to start playing!</string>
+    <string name="completed_levels_text">Completed Levels</string>
+    <string name="game_over_text">Game Over!</string>
+    <string name="score_text">Score</string>
+    <string name="lost_levels_text">Lost Levels</string>
+    <string name="exit_game_question">Exit game?</string>
+    <string name="input_seed_question">Which seed do you want to load?</string>
+    <string name="wrong_seed_input_text">Wrong input!\nPlease input a number seed!</string>
+    <string name="win_text">You win!</string>
+    <string name="lose_text">You lose!</string>
+    <string name="ok">OK</string>
 </resources>

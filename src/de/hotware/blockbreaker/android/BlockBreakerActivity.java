@@ -1,8 +1,5 @@
 package de.hotware.blockbreaker.android;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
@@ -52,7 +49,6 @@ import de.hotware.blockbreaker.model.generator.LevelGenerator;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
-import de.hotware.blockbreaker.util.misc.StreamUtil;
 
 /**
  * (c) 2011-2012 Martin Braun
@@ -97,8 +93,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	TiledTextureRegion mArrowTiledTextureRegion;
 	BitmapTextureAtlas mSceneBackgroundBitmapTextureAtlas;
 	TextureRegion mSceneBackgroundTextureRegion;
-
-	Properties mStringProperties;
 
 	Camera mCamera;	
 	Scene mLevelScene;
@@ -182,25 +176,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		
-		//TODO: Language choosing
-		this.mStringProperties = new Properties();
 		AssetManager assetManager = this.getResources().getAssets();
-		InputStream is = null;
-		boolean fail = false;
-		try {
-			is = assetManager.open(UIConstants.DEFAULT_PROPERTIES_PATH);
-			this.mStringProperties.load(is);
-		} catch (IOException e) {
-			fail = true;
-			this.showFailDialog(e.getMessage());
-		} finally {
-			StreamUtil.closeQuietly(is);
-		}
-
-		if(fail) {
-			this.finish();
-		}
-
+		
 		TextureManager textureManager = this.mEngine.getTextureManager();
 		this.mResolutionScale = ((StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy()).getScale();
 		
@@ -346,26 +323,23 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if(this.mStringProperties != null) {
-			menu.add(Menu.NONE,
-					UIConstants.MENU_MENU_ID,
-					Menu.NONE,
-					this.mStringProperties.getProperty(UIConstants.MENU_PROPERTY_KEY));
-			menu.add(Menu.NONE,
-					UIConstants.FROM_SEED_MENU_ID,
-					Menu.NONE,
-					this.mStringProperties.getProperty(UIConstants.FROM_SEED_PROPERTY_KEY));
-			menu.add(Menu.NONE,
-					UIConstants.RESTART_MENU_ID,
-					Menu.NONE,
-					this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY));
-			menu.add(Menu.NONE, 
-					UIConstants.NEXT_MENU_ID, 
-					Menu.NONE, 
-					this.mStringProperties.getProperty(UIConstants.NEXT_PROPERTY_KEY));
-			return true;
-		}
-		return false;
+		menu.add(Menu.NONE,
+				UIConstants.MENU_MENU_ID,
+				Menu.NONE,
+				this.getString(R.string.menu));
+		menu.add(Menu.NONE,
+				UIConstants.FROM_SEED_MENU_ID,
+				Menu.NONE,
+				this.getString(R.string.from_seed));
+		menu.add(Menu.NONE,
+				UIConstants.RESTART_MENU_ID,
+				Menu.NONE,
+				this.getString(R.string.restart));
+		menu.add(Menu.NONE, 
+				UIConstants.NEXT_MENU_ID, 
+				Menu.NONE, 
+				this.getString(R.string.next));
+		return true;
 	}
 
 	/**
@@ -490,7 +464,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mSceneUIFont,
 				this.mBlockTiledTextureRegion,
 				this.mArrowTiledTextureRegion,
-				this.mStringProperties);
+				this.getBaseContext());
 
 		HUD hud = new HUD();
 		hud.setY(this.mLevelScene.getY());
@@ -516,9 +490,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	void showCancelDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(this.mStringProperties.getProperty(UIConstants.EXIT_GAME_QUESTION_PROPERTY_KEY))
+		builder.setMessage(this.getString(R.string.exit_game_question))
 		.setCancelable(true)
-		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.YES_PROPERTY_KEY),
+		.setPositiveButton(this.getString(R.string.yes),
 				new DialogInterface.OnClickListener() {
 			
 					@Override
@@ -528,7 +502,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					}
 			
 		})
-		.setNegativeButton(this.mStringProperties.getProperty(UIConstants.NO_PROPERTY_KEY), 
+		.setNegativeButton(this.getString(R.string.no), 
 				new DialogInterface.OnClickListener() {
 			
 					@Override
@@ -557,8 +531,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	}
 
 	void showInputSeedDialog() {
-		this.showInputSeedDialog(
-				this.mStringProperties.getProperty(UIConstants.INPUT_SEED_QUESTION_PROPERTY_KEY));
+		this.showInputSeedDialog(this.getString(R.string.input_seed_question));
 	}
 
 	void showInputSeedDialog(String pText) {	
@@ -572,7 +545,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		builder.setMessage(pText)
 		.setView(fl)
 		.setCancelable(true)
-		.setPositiveButton(this.mStringProperties.getProperty(UIConstants.OK_PROPERTY_KEY), 
+		.setPositiveButton(this.getString(R.string.ok), 
 				new DialogInterface.OnClickListener() {
 			
 					@Override
@@ -583,13 +556,12 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 							pDialog.dismiss();
 						} catch (NumberFormatException e) {
 							BlockBreakerActivity.this.showInputSeedDialog(
-									BlockBreakerActivity.this.mStringProperties.getProperty(
-											UIConstants.WRONG_SEED_INPUT_PROPERTY_KEY));					
+									BlockBreakerActivity.this.getString(R.string.wrong_seed_input_text));					
 						}
 					}
 					
 		})
-		.setNegativeButton(this.mStringProperties.getProperty(UIConstants.CANCEL_PROPERTY_KEY),
+		.setNegativeButton(this.getString(R.string.cancel),
 				new DialogInterface.OnClickListener() {	
 			
 					@Override
@@ -719,13 +691,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 			switch(pResult) {
 				case WIN: {
-					resString = BlockBreakerActivity.this.mStringProperties.
-							getProperty(UIConstants.WIN_GAME_PROPERTY_KEY);
+					resString = BlockBreakerActivity.this.getString(R.string.win_text);
 					break;
 				}
 				case LOSE: {
-					resString = BlockBreakerActivity.this.mStringProperties.
-							getProperty(UIConstants.LOSE_GAME_PROPERTY_KEY);
+					resString = BlockBreakerActivity.this.getString(R.string.lose_text);
 					break;
 				}
 				default: {
@@ -735,11 +705,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			}
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
-			builder.setMessage(resString + " " + BlockBreakerActivity.this.mStringProperties.
-					getProperty(UIConstants.RESTART_QUESTION_PROPERTY_KEY))
+			builder.setMessage(resString + " " + BlockBreakerActivity.this.getString(R.string.restart_question))
 					.setCancelable(true)
 					.setPositiveButton(BlockBreakerActivity.
-							this.mStringProperties.getProperty(UIConstants.YES_PROPERTY_KEY),
+							this.getString(R.string.yes),
 							new DialogInterface.OnClickListener() {
 								
 								@Override
@@ -749,8 +718,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 								}
 								
 					})
-					.setNegativeButton(BlockBreakerActivity.this.mStringProperties.
-							getProperty(UIConstants.NO_PROPERTY_KEY), new DialogInterface.OnClickListener() {
+					.setNegativeButton(BlockBreakerActivity.this.getString(R.string.no),
+							new DialogInterface.OnClickListener() {
 								
 								@Override
 								public void onClick(DialogInterface pDialog, int pId) {
@@ -860,9 +829,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 					@Override
 					public void run() {
 						AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
-						builder.setMessage(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.TIME_ATTACK_START_TEXT_PROPERTY_KEY))
+						builder.setMessage(BlockBreakerActivity.this.getString(R.string.time_attack_start_text))
 						.setCancelable(false)
-						.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.START_PROPERTY_KEY), 
+						.setPositiveButton(BlockBreakerActivity.this.getString(R.string.start), 
 								new DialogInterface.OnClickListener() {
 							
 									@Override
@@ -968,15 +937,15 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				public void run() {
 					AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
 					builder.setMessage(
-							BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.GAME_OVER_TEXT_PROPERTY_KEY)
-							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.SCORE_TEXT_PROPERTY_KEY)
+							BlockBreakerActivity.this.getString(R.string.game_over_text)
+							+ "\n" + BlockBreakerActivity.this.getString(R.string.score_text)
 							+ ":\n" + TimeAttackGameTypeHandler.this.mScore
-							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.COMPLETED_LEVELS_PROPERTY_KEY)
+							+ "\n" + BlockBreakerActivity.this.getString(R.string.completed_levels_text)
 							+ ":\n" + TimeAttackGameTypeHandler.this.mGamesWon
-							+ "\n" + BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.LOST_LEVELS_TEXT_PROPERTY_KEY)
+							+ "\n" + BlockBreakerActivity.this.getString(R.string.lost_levels_text)
 							+ ":\n" + TimeAttackGameTypeHandler.this.mGamesLost)
 							.setCancelable(true)
-							.setPositiveButton(BlockBreakerActivity.this.mStringProperties.getProperty(UIConstants.RESTART_PROPERTY_KEY), 
+							.setPositiveButton(BlockBreakerActivity.this.getString(R.string.restart), 
 									new DialogInterface.OnClickListener() {
 										@Override
 										public void onClick(DialogInterface pDialog, int pId) {

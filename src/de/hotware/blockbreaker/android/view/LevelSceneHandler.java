@@ -1,7 +1,5 @@
 package de.hotware.blockbreaker.android.view;
 
-import java.util.Properties;
-
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
 import org.andengine.entity.modifier.FadeInModifier;
@@ -22,6 +20,9 @@ import org.andengine.util.modifier.IModifier;
 import org.andengine.util.adt.list.CircularList;
 import org.andengine.util.adt.list.concurrent.SynchronizedList;
 
+import android.content.Context;
+
+import de.hotware.blockbreaker.android.R;
 import de.hotware.blockbreaker.android.andengine.extension.ZIndexScene;
 import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy;
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
@@ -89,7 +90,7 @@ public class LevelSceneHandler {
 			Font pUIFont,
 			ITiledTextureRegion pBlockTiledTextureRegion,
 			ITiledTextureRegion pArrowTiledTextureRegion,
-			Properties pStringProperties) {
+			Context pContext) {
 		
 		this.mLevel = pLevel;
 
@@ -163,7 +164,7 @@ public class LevelSceneHandler {
 		}
 
 		final Text nextText = new Text(0, 0, pUIFont, 
-				pStringProperties.getProperty(UIConstants.NEXT_PROPERTY_KEY),
+				pContext.getString(R.string.next),
 				this.mVertexBufferObjectManager);
 		nextText.setPosition(
 				UIConstants.LEVEL_WIDTH - nextText.getWidth() - 13,
@@ -182,7 +183,7 @@ public class LevelSceneHandler {
 		this.mScene.attachChild(this.mNextBlockSprite);
 
 		final Text turnsText = new Text(0, 0, pUIFont, 
-				pStringProperties.getProperty(UIConstants.TURNS_PROPERTY_KEY),
+				pContext.getString(R.string.turns),
 				this.mVertexBufferObjectManager);
 		turnsText.setPosition(
 				UIConstants.LEVEL_WIDTH - turnsText.getWidth() - 2,
@@ -243,7 +244,7 @@ public class LevelSceneHandler {
 		this.mTimeText = new Text(0, 
 				0, 
 				pUIFont, 
-				pStringProperties.getProperty(UIConstants.TIME_PROPERTY_KEY), 
+				pContext.getString(R.string.time), 
 				this.mVertexBufferObjectManager);
 		this.mTimeText.setPosition(
 				UIConstants.LEVEL_WIDTH - this.mTimeText.getWidth() - 12,
