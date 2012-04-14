@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BlockBreaker</string>
+    <string name="use_orient_sens">Orientierungssensor</string>
+    <string name="use_orient_sens_sum">Orientierungssensor benutzen um die Blockschwerkraft zu setzen?</string>
+    <string name="gameplay_options">Gameplay Optionen</string>
+    <string name="number_of_turns">Anzahl der Züge</string>
+    <string name="number_of_turns_sum">Hier können Sie die Anzahl der Züge pro Level einstellen. Der Defaultwert von 16 ist aber zu empfehlen.</string>
+    <string name="time_attack">Time Attack Modus</string>
+    <string name="time_attack_sum">Spielen Sie gegen die Zeit und versuchen Sie, so viele Level wie möglich zu lösen</string>
+    <string name="difficulty">Schwierigkeitsgrad</string>
+    <string name="difficulty_sum">Wählen Sie Ihren Schwierigkeitsgrad</string>
+    <string name="input_name_title">Wählen Sie Ihren Namen</string>
+    <string name="save">Speichern</string>
+    <string name="input_name_sum">Wählen Sie Ihren Highscore Namen</string>
+    <string name="input_name">Name</string>
+    <string name="input_name_def">Spieler</string>
+    <string name="input_name_desc">Geben Sie einen Namen zwischen 1 und 10 Buchstaben ein!</string>
+    <string name="turns">Zuege</string>
+    <string name="time">Zeit</string>
+    <string name="next">Next</string>
+    <string name="menu">Menü</string>
+    <string name="from_seed">Level aus Seed</string>
+    <string name="restart">Neustart</string>
+    <string name="start">Start</string>
+    <string name="restart_question">Neustarten?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="time_attack_start_text">Button drücken zum Starten!</string>
+    <string name="completed_levels_text">Geschaffte Level</string>
+    <string name="game_over_text">Spiel vorbei!</string>
+    <string name="score">Punkte</string>
+    <string name="score_text">Punkte</string>
+    <string name="lost_levels_text">Nicht geschaffte Level</string>
+    <string name="exit_game_question">Spiel beenden?</string>
+    <string name="input_seed_question">Welchen Seed wollen Sie laden?</string>
+    <string name="wrong_seed_input_text">Falscher Input!\nBitte geben Sie einen Zahlenseed ein!</string>
+    <string name="win_text">Gewonnen!</string>
+    <string name="lose_text">Verloren!</string>
+    <string name="ok">OK</string>
+    <string name="easy">Leicht</string>
+    <string name="medium">Mittel</string>
+    <string name="hard">Schwer</string>
+</resources>

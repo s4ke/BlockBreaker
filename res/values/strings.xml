@@ -11,7 +11,7 @@
     <string name="difficulty">Difficulty</string>
     <string name="difficulty_sum">Choose your preferred difficulty setting here</string>
     <string name="input_name_title">Input your name here!</string>
-    <string name="submit">Submit</string>
+    <string name="save">Save</string>
     <string name="input_name_sum">Change the name that is being used for Highscores</string>
     <string name="input_name">Name</string>
     <string name="input_name_def">Player</string>
@@ -30,6 +30,7 @@
     <string name="time_attack_start_text">Press Button to start playing!</string>
     <string name="completed_levels_text">Completed Levels</string>
     <string name="game_over_text">Game Over!</string>
+    <string name="score">Score</string>
     <string name="score_text">Score</string>
     <string name="lost_levels_text">Lost Levels</string>
     <string name="exit_game_question">Exit game?</string>
@@ -38,4 +39,7 @@
     <string name="win_text">You win!</string>
     <string name="lose_text">You lose!</string>
     <string name="ok">OK</string>
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
 </resources>

@@ -972,7 +972,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		}
 
 		private void updateStatusText() {
-			this.mStatusText.setText("Score: " + this.mScore);
+			this.mStatusText.setText(BlockBreakerActivity.this.getString(R.string.score) + ": " + this.mScore);
 		}
 
 	}
