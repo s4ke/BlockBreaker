@@ -80,12 +80,12 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
             private float mDeviceCameraWidth;
             private float mDeviceCameraHeight;
             
-        	/**
-        	 * Pixels returns the padding for each top and bottom
-        	 */
+            /**
+             * @return the padding for each top and bottom
+             */
             private float mPaddingVertical;
             /**
-             * padding for each left and right
+             * @return padding for each left and right
              */
             private float mPaddingHorizontal;
             
