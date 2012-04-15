@@ -90,14 +90,14 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
             private float mPaddingHorizontal;
             
             /**
-        	 * @return returns the padding for each top and bottom
+        	 * @return the padding for each top and bottom
     		*/
             public float getPaddingVertical() {
             	return this.mPaddingVertical;
             }
      
             /**
-        	 * @return returns the padding for each left and right
+        	 * @return the padding for each left and right
         	 */
             public float getPaddingHorizontal() {
             	return this.mPaddingHorizontal;
@@ -110,10 +110,16 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
             	return this.mScale;
             }
             
+            /**
+             * @return the devices CameraWidth
+             */
             public float getDeviceCameraWidth() {
             	return this.mDeviceCameraWidth;
             }
             
+            /**
+             * @return the devices CameraHeight
+             */
             public float getDeviceCameraHeight() {
             	return this.mDeviceCameraHeight;
             }
