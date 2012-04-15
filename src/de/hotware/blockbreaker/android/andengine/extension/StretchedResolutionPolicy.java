@@ -71,9 +71,9 @@ public class StretchedResolutionPolicy extends BaseResolutionPolicy {
         public static class ScaleInfo {
         	
         	public ScaleInfo() {
-                this.mPaddingVertical = 0.0f;
-                this.mPaddingHorizontal = 0.0f;
-                this.mScale = 0.0f;
+        		this.mPaddingVertical = 0.0f;
+        		this.mPaddingHorizontal = 0.0f;
+        		this.mScale = 0.0f;
         	}
         	
             private float mScale;
