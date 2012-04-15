@@ -42,6 +42,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy;
+import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy.ScaleInfo;
 import de.hotware.blockbreaker.android.highscore.HighscoreManager;
 import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
@@ -110,6 +111,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	
 	String mPlayerName;
 	HighscoreManager mHighscoreManager = new HighscoreManager(this);
+	ScaleInfo mScaleInfo;
 
 	//currently not used
 	String mLevelPath = DEFAULT_LEVEL_PATH;
@@ -163,7 +165,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mCamera = new Camera(0, 0, UIConstants.LEVEL_WIDTH, UIConstants.LEVEL_HEIGHT);
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, 
 				new StretchedResolutionPolicy(UIConstants.LEVEL_WIDTH,
-						UIConstants.LEVEL_HEIGHT),
+						UIConstants.LEVEL_HEIGHT,
+						this.mScaleInfo = new ScaleInfo()),
 				this.mCamera);
 		return engineOptions;
 	}
@@ -179,7 +182,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		AssetManager assetManager = this.getResources().getAssets();
 		
 		TextureManager textureManager = this.mEngine.getTextureManager();
-		this.mResolutionScale = ((StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy()).getScale();
+		this.mResolutionScale = this.mScaleInfo.getScale();
 		
 		{
 			SVGBitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
@@ -441,12 +444,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		final Scene scene = new Scene();
 		this.mLevelScene = scene;
 		
-		StretchedResolutionPolicy policy = 
-				(StretchedResolutionPolicy) this.mEngine.getEngineOptions().getResolutionPolicy();
 		scene.setScale(this.mResolutionScale);
-		scene.setX(policy.getPaddingHorizontal());
-		scene.setY(policy.getPaddingVertical());
-		this.mCamera.set(0, 0, policy.getDeviceCameraWidth(), policy.getDeviceCameraHeight());
+		scene.setX(this.mScaleInfo.getPaddingHorizontal());
+		scene.setY(this.mScaleInfo.getPaddingVertical());
+		this.mCamera.set(0, 0, this.mScaleInfo.getDeviceCameraWidth(),
+				this.mScaleInfo.getDeviceCameraHeight());
 		
 		this.mLevel = this.mBackupLevel.copy();
 		this.mLevel.start();
@@ -471,8 +473,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		//scaleX and scaleY are the same!!!
 		hud.setScale(this.mResolutionScale);
 		this.mCamera.setHUD(hud);
-		scene.setBackground(new SpriteBackground(new Sprite(0,0,policy.getDeviceCameraWidth(), 
-				policy.getDeviceCameraHeight(), 
+		scene.setBackground(new SpriteBackground(new Sprite(0,0,this.mScaleInfo.getDeviceCameraWidth(), 
+				this.mScaleInfo.getDeviceCameraHeight(), 
 				BlockBreakerActivity.this.mSceneBackgroundTextureRegion,
 				vboManager)));
 		
