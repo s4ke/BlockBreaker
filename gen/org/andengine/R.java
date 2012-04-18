@@ -56,6 +56,8 @@ public final class R {
         public static final int time_attack_start_text=0x7f05001b;
         public static final int time_attack_sum=0x7f050007;
         public static final int turns=0x7f050010;
+        public static final int tutorial=0x7f05002a;
+        public static final int tutorial_text=0x7f05002b;
         public static final int use_orient_sens=0x7f050001;
         public static final int use_orient_sens_sum=0x7f050002;
         public static final int win_text=0x7f050024;

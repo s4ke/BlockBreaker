@@ -14,5 +14,6 @@ public class UIConstants {
 	public static final int RESTART_MENU_ID = -2;
 	public static final int NEXT_MENU_ID = -3;
 	public static final int FROM_SEED_MENU_ID = -4;
+	public static final int TUTORIAL_ID = -5;
 	
 }

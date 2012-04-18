@@ -42,4 +42,6 @@
     <string name="easy">Leicht</string>
     <string name="medium">Mittel</string>
     <string name="hard">Schwer</string>
+    <string name="tutorial">Tutorial</string>
+    <string name="tutorial_text">Das Ziel des Spiels ist es, mithilfe der nachkommenden Blöcke (rechte Seite des Bildschirms) die Kombinationen (horizontal und vertikal angeordnet), die auf der rechten Bildschirmseite aufgeführt sind, zu erreichen. Gewonnen ist ein Level, wenn alle Voraussetzungen zugleich erfüllt sind. Hierbei bedeutet 0, dass die Blockfarbe nicht von Belang ist.</string>
 </resources>

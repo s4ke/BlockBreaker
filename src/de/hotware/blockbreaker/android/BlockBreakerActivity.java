@@ -342,6 +342,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				UIConstants.NEXT_MENU_ID, 
 				Menu.NONE, 
 				this.getString(R.string.next));
+		menu.add(Menu.NONE,
+				UIConstants.TUTORIAL_ID,
+				Menu.NONE,
+				this.getString(R.string.tutorial));
 		return true;
 	}
 
@@ -369,6 +373,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			}
 			case UIConstants.NEXT_MENU_ID:	{
 				this.mGameTypeHandler.requestNextLevel();
+				return true;
+			}
+			case UIConstants.TUTORIAL_ID: {
+				this.showTutorial();
 				return true;
 			}
 			default: {
@@ -566,6 +574,27 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		.setNegativeButton(this.getString(R.string.cancel),
 				new DialogInterface.OnClickListener() {	
 			
+					@Override
+					public void onClick(DialogInterface pDialog, int pId) {
+						pDialog.dismiss();
+					}
+					
+		});
+		builder.create().show();
+	}
+	
+	/**
+	 * shows the tutorial to the user
+	 */
+	private void showTutorial() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(this.getString(R.string.tutorial));
+		builder.setMessage(this.getString(R.string.tutorial_text))
+		.setCancelable(true)
+		.setPositiveButton(BlockBreakerActivity.
+				this.getString(R.string.ok),
+				new DialogInterface.OnClickListener() {
+					
 					@Override
 					public void onClick(DialogInterface pDialog, int pId) {
 						pDialog.dismiss();

@@ -42,4 +42,6 @@
     <string name="easy">Easy</string>
     <string name="medium">Medium</string>
     <string name="hard">Hard</string>
+    <string name="tutorial">Tutorial</string>
+    <string name="tutorial_text">To win a level you must have all the combinations that are displayed on the left of the screen at once (only horizontal and vertical combinations count) by clicking on the blocks to destroy them. 0 means that the color is irrelevant.</string>
 </resources>
