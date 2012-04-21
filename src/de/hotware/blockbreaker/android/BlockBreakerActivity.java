@@ -1,5 +1,7 @@
 package de.hotware.blockbreaker.android;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
@@ -13,7 +15,6 @@ import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.extension.svg.opengl.texture.atlas.bitmap.SVGBitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.font.FontManager;
@@ -21,6 +22,7 @@ import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.atlas.bitmap.source.FileBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
@@ -50,6 +52,7 @@ import de.hotware.blockbreaker.model.generator.LevelGenerator;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
+import de.hotware.blockbreaker.util.TextureUtil;
 
 /**
  * (c) 2011-2012 Martin Braun
@@ -86,6 +89,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	boolean mUseOrientSensor = false;
 	boolean mTimeAttackMode = false;
+	boolean mFirstStart = true;
 	int mNumberOfTurns = DEFAULT_NUMBER_OF_TURNS;
 	float mResolutionScale;
 
@@ -177,6 +181,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	@Override
 	public void onCreateResources(OnCreateResourcesCallback pCallback) {
 
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
+		this.mFirstStart = prefs.getBoolean("first_start_pref", true);
+
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		
 		AssetManager assetManager = this.getResources().getAssets();
@@ -185,16 +192,34 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mResolutionScale = this.mScaleInfo.getScale();
 		
 		{
-			SVGBitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-			int width = (int) (276 * this.mResolutionScale);
-			int height = (int)(46 * this.mResolutionScale);
+			int width = (int) (276 * this.mResolutionScale);;
+			int height = (int) (46 * this.mResolutionScale);
+			String filesDir = this.getFilesDir().toString();
+			if(this.mFirstStart) {
+				try {
+					TextureUtil.saveSVGToPNG(this, "gfx/blocks_tiled.svg",
+							width,
+							height,
+							 filesDir + "/gfx/",
+							"blocks_tiled.png");
+				} catch (IOException e) {
+					this.finish();
+				}
+			}
 			BitmapTextureAtlas blockTextureAtlas = new BitmapTextureAtlas(textureManager,
 					width,
 					height,
 					TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			this.mBlockTiledTextureRegion = SVGBitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-					blockTextureAtlas, this, "blocks_tiled.svg", width, height, 0,0, 6,1);
+	        FileBitmapTextureAtlasSource bitmapSource = FileBitmapTextureAtlasSource.create(
+	        		new File(filesDir + "/gfx/blocks_tiled.png"));
+	       	this.mBlockTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromSource(blockTextureAtlas,
+	        		bitmapSource,
+	        		0,
+	        		0,
+	        		6,
+	        		1);
 			this.mEngine.getTextureManager().loadTexture(blockTextureAtlas);
+			prefs.edit().putBoolean("first_start_pref", false).commit();
 		}
 
 		{
@@ -611,7 +636,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		// Get the xml/preferences.xml preferences
 		// Don't save this in a constant, because it will only be used in code here
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
-		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", false);
+		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", true);
 		this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
 		this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
 		this.mDifficulty = Difficulty.numberToDifficulty(
@@ -625,7 +650,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		}
 		this.mHighscoreManager.ensureNameExistsInDB(this.mPlayerName);
 	}
-
+	
 	////////////////////////////////////////////////////////////////////
 	////					Inner Classes & Interfaces				////
 	////////////////////////////////////////////////////////////////////

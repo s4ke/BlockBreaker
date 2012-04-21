@@ -4,7 +4,7 @@
                 android:title="@string/gameplay_options">
                 <CheckBoxPreference
                         android:title="@string/use_orient_sens"
-                        android:defaultValue="false"
+                        android:defaultValue="true"
                         android:summary="@string/use_orient_sens_sum"
                         android:key="orient_sens_pref"/>
                 <CheckBoxPreference
