@@ -81,6 +81,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	static final int MEDIUM_WIN_COUNT = 13;
 	static final int HARD_WIN_COUNT = 16;
 	
+	static final int GRAPHICS_VERSION = 1;
+	
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
@@ -89,7 +91,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	boolean mUseOrientSensor = false;
 	boolean mTimeAttackMode = false;
-	boolean mFirstStart = true;
+	int mGraphicsVersion = -1;
 	int mNumberOfTurns = DEFAULT_NUMBER_OF_TURNS;
 	float mResolutionScale;
 
@@ -182,7 +184,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onCreateResources(OnCreateResourcesCallback pCallback) {
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
-		this.mFirstStart = prefs.getBoolean("first_start_pref", true);
+		this.mGraphicsVersion = prefs.getInt("graphics_version_pref", -1);
 
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		
@@ -195,7 +197,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			int width = (int) (276 * this.mResolutionScale);;
 			int height = (int) (46 * this.mResolutionScale);
 			String filesDir = this.getFilesDir().toString();
-			if(this.mFirstStart) {
+			if(this.mGraphicsVersion != GRAPHICS_VERSION) {
 				try {
 					TextureUtil.saveSVGToPNG(this, "gfx/blocks_tiled.svg",
 							width,
@@ -219,7 +221,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	        		6,
 	        		1);
 			this.mEngine.getTextureManager().loadTexture(blockTextureAtlas);
-			prefs.edit().putBoolean("first_start_pref", false).commit();
+			prefs.edit().putInt("graphics_version_pref", GRAPHICS_VERSION).commit();
 		}
 
 		{
