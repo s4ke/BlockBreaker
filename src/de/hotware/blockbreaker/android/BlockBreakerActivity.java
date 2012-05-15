@@ -45,6 +45,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy;
 import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPolicy.ScaleInfo;
+import de.hotware.blockbreaker.android.gamehandler.BaseGameTypeHandler;
 import de.hotware.blockbreaker.android.highscore.HighscoreManager;
 import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
@@ -141,7 +142,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mGameTypeHandler.cleanUp();
 			}
 			//hier vll die vorinstanziierten GameHandler statt neuer Instanzen
-			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler() : new DefaultGameTypeHandler();
+			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler(this, this.mLevelSceneHandler) : new DefaultGameTypeHandler(this, this.mLevelSceneHandler);
 			//no level has yet been created nor a LevelSceneHandler which is needed in some GameTypeHandlers
 			if(this.mLevel != null) {
 				this.mLevel.setGameEndListener(this.mGameTypeHandler);
@@ -656,69 +657,17 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	////////////////////////////////////////////////////////////////////
 	////					Inner Classes & Interfaces				////
 	////////////////////////////////////////////////////////////////////
-	
-	/**
-	 * The BaseGameTypeHandler class created for more easy implementation
-	 * of new game modes. All important Events should be handled here or 
-	 * at least have a requestMethod which returns a boolean.
-	 */
-	public abstract class BaseGameTypeHandler implements IGameEndListener {
-
-		/**
-		 * called if Activity loses Focus
-		 */
-		public void onLeaveFocus() {
-			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(true);
-		}
-
-		public void requestSeedInput() { }
-
-		/**
-		 * called if Activity gains Focus
-		 */
-		public void onEnterFocus() {
-			BlockBreakerActivity.this.mLevelSceneHandler.setIgnoreInput(false);
-		}
-
-		/**
-		 * called if the user requests the next Level, which is the same as losing in TimeAttack
-		 */
-		public void requestNextLevel() {}
-
-		/**
-		 * called if the user requests to leave to the menu Activity
-		 * @return true if menu will be shown, false otherwise
-		 * @return default version returns true
-		 */
-		public boolean requestLeaveToMenu() {return true;}
-
-		/**
-		 * called if the user requests a restart of the game
-		 */
-		public void requestRestart() {}
-
-		/**
-		 * called upon first start of the game
-		 */
-		public void init() {}
-
-		/**
-		 * called when before the GameHandler is changed
-		 */
-		public void cleanUp() {}
-
-		/**
-		 * called if the number of turns property has changed, only used for notifying, no information
-		 */
-		public void onNumberOfTurnsPropertyChanged() {}
-
-	}
 
 	/**
 	 * The DefaultGameHandler
 	 * @author Martin Braun
 	 */
 	private class DefaultGameTypeHandler extends BaseGameTypeHandler {
+
+		public DefaultGameTypeHandler(BaseGameActivity pActivity,
+				LevelSceneHandler pLevelSceneHandler) {
+			super(pActivity, pLevelSceneHandler);
+		}
 
 		@Override
 		public void onGameEnd(final GameEndEvent pEvt) {
@@ -823,11 +772,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		Text mTimeLeftText;
 		int mScore;
 
-		public TimeAttackGameTypeHandler() {
-			this(DEFAULT_DURATION_IN_SECONDS, DEFAULT_NUMBER_OF_ALLOWED_LOSES);
+		public TimeAttackGameTypeHandler(BaseGameActivity pActivity,
+				LevelSceneHandler pLevelSceneHandler) {
+			this(pActivity, pLevelSceneHandler, DEFAULT_DURATION_IN_SECONDS, DEFAULT_NUMBER_OF_ALLOWED_LOSES);
 		}
 
-		public TimeAttackGameTypeHandler(int pDurationInSeconds, int pNumberOfAllowedLoses) {
+		public TimeAttackGameTypeHandler(BaseGameActivity pActivity,
+				LevelSceneHandler pLevelSceneHandler,
+				int pDurationInSeconds,
+				int pNumberOfAllowedLoses) {
+			super(pActivity, pLevelSceneHandler);
 			this.mDurationInSeconds = pDurationInSeconds;
 			this.mNumberOfAllowedLoses = pNumberOfAllowedLoses;
 			this.mGamesWon = 0;
