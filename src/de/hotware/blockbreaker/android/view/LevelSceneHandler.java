@@ -29,12 +29,13 @@ import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.model.Block.BlockColor;
 import de.hotware.blockbreaker.model.Level.Gravity;
+import de.hotware.blockbreaker.model.gamehandler.ILevelSceneHandler;
 import de.hotware.blockbreaker.model.listeners.IGravityListener;
 import de.hotware.blockbreaker.model.listeners.INextBlockListener;
 import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.model.WinCondition;
 
-public class LevelSceneHandler {
+public class LevelSceneHandler implements ILevelSceneHandler {
 
 	static final int SPRITE_TEXTURE_HEIGHT = UIConstants.BASE_SPRITE_HEIGHT;
 	static final int SPRITE_TEXTURE_WIDTH = UIConstants.BASE_SPRITE_WIDTH;
@@ -63,6 +64,10 @@ public class LevelSceneHandler {
 	IBlockSpriteTouchListener mBlockSpriteTouchListener;
 	INextBlockListener mNextBlockListener;
 	IGravityListener mGravityListener;
+	ITiledTextureRegion mBlockTiledTextureRegion;
+	ITiledTextureRegion mArrowTiledTextureRegion;
+	Font mUIFont;
+	Context mContext;
 
 	SynchronizedList<BlockSprite> mBlockSpriteList;
 	
@@ -72,7 +77,11 @@ public class LevelSceneHandler {
 	boolean mIgnoreInput;
 
 	public LevelSceneHandler(Scene pScene,
-			VertexBufferObjectManager pVertexBufferObjectManager) {
+			VertexBufferObjectManager pVertexBufferObjectManager,
+			Font pUIFont,
+			ITiledTextureRegion pBlockTiledTextureRegion,
+			ITiledTextureRegion pArrowTiledTextureRegion,
+			Context pContext) {
 		this.mScene = pScene;
 		this.mWinCondText = new Text[BlockColor.getBiggestColorNumber()];
 		//size for 45 Sprites is a good beginning
@@ -80,22 +89,28 @@ public class LevelSceneHandler {
 				BlockSpritePool.BLOCKS_ON_SCENE_ESTIMATE));
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mIgnoreInput = false;
+		this.mUIFont = pUIFont;
+		this.mContext = pContext;
+		this.mArrowTiledTextureRegion = pArrowTiledTextureRegion;
+		this.mBlockTiledTextureRegion = pBlockTiledTextureRegion;
 	}
 	
+	@Override
 	public void setIgnoreInput(boolean pIgnoreInput) {
 		this.mIgnoreInput = pIgnoreInput;
 	}
 
-	public void initLevelScene(Level pLevel,
-			Font pUIFont,
-			ITiledTextureRegion pBlockTiledTextureRegion,
-			ITiledTextureRegion pArrowTiledTextureRegion,
-			Context pContext) {
+	public void initLevelScene(final Level pLevel) {
+
+		if(this.mLevel != null) {
+			throw new IllegalStateException("LevelSceneHandler.initLevelScene(Level): " +
+					"LevelSceneHandler can only be initialized once!");
+		}
 		
 		this.mLevel = pLevel;
-
+		
 		this.mBlockSpritePool = new BlockSpritePool(this.mScene,
-				pBlockTiledTextureRegion,
+				this.mBlockTiledTextureRegion,
 				this.mVertexBufferObjectManager);
 
 		//create surroundings
@@ -142,7 +157,7 @@ public class LevelSceneHandler {
 					17 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*i,
 					SPRITE_TEXTURE_WIDTH,
 					SPRITE_TEXTURE_HEIGHT,
-					pBlockTiledTextureRegion.deepCopy(),
+					this.mBlockTiledTextureRegion.deepCopy(),
 					this.mVertexBufferObjectManager);
 			winSpriteHelp.setCurrentTileIndex(i+1);
 			winSpriteHelp.setIgnoreUpdate(true);
@@ -155,7 +170,7 @@ public class LevelSceneHandler {
 			winDisplayText = new Text(
 					10 + SPRITE_TEXTURE_WIDTH,
 					30 + VERTICAL_GAP + (SPRITE_TEXTURE_HEIGHT+5)*(i-1),
-					pUIFont,
+					mUIFont,
 					Integer.toString(winCondition.getWinCount(i)), 
 					1,
 					this.mVertexBufferObjectManager);
@@ -163,8 +178,8 @@ public class LevelSceneHandler {
 			this.mScene.attachChild(winDisplayText);
 		}
 
-		final Text nextText = new Text(0, 0, pUIFont, 
-				pContext.getString(R.string.next),
+		final Text nextText = new Text(0, 0, mUIFont, 
+				mContext.getString(R.string.next),
 				this.mVertexBufferObjectManager);
 		nextText.setPosition(
 				UIConstants.LEVEL_WIDTH - nextText.getWidth() - 13,
@@ -177,13 +192,13 @@ public class LevelSceneHandler {
 				nextText.getY() + nextText.getHeight() + 10,
 				SPRITE_TEXTURE_WIDTH,
 				SPRITE_TEXTURE_HEIGHT,
-				pBlockTiledTextureRegion.deepCopy(),
+				mBlockTiledTextureRegion.deepCopy(),
 				this.mVertexBufferObjectManager);
 		this.mNextBlockSprite.setCurrentTileIndex(pLevel.getNextBlock().getColor().toNumber());
 		this.mScene.attachChild(this.mNextBlockSprite);
 
-		final Text turnsText = new Text(0, 0, pUIFont, 
-				pContext.getString(R.string.turns),
+		final Text turnsText = new Text(0, 0, mUIFont, 
+				mContext.getString(R.string.turns),
 				this.mVertexBufferObjectManager);
 		turnsText.setPosition(
 				UIConstants.LEVEL_WIDTH - turnsText.getWidth() - 2,
@@ -191,7 +206,7 @@ public class LevelSceneHandler {
 		turnsText.setIgnoreUpdate(true);
 		this.mScene.attachChild(turnsText);
 
-		this.mTurnsLeftText = new Text(0, 0, pUIFont, pLevel.getBlocksDisplayText() , 3, this.mVertexBufferObjectManager);
+		this.mTurnsLeftText = new Text(0, 0, mUIFont, pLevel.getBlocksDisplayText() , 3, this.mVertexBufferObjectManager);
 		this.mTurnsLeftText.setPosition(
 				UIConstants.LEVEL_WIDTH - this.mTurnsLeftText.getWidth() - 22,
 				turnsText.getY() + turnsText.getHeight() + 10);
@@ -214,7 +229,7 @@ public class LevelSceneHandler {
 				turnsLeftText.getY() + turnsLeftText.getHeight() + 10,
 				SPRITE_TEXTURE_WIDTH,
 				SPRITE_TEXTURE_HEIGHT,
-				pArrowTiledTextureRegion.deepCopy(),
+				mArrowTiledTextureRegion.deepCopy(),
 				this.mVertexBufferObjectManager) {
 			
 			@Override
@@ -243,8 +258,8 @@ public class LevelSceneHandler {
 		
 		this.mTimeText = new Text(0, 
 				0, 
-				pUIFont, 
-				pContext.getString(R.string.time), 
+				mUIFont, 
+				mContext.getString(R.string.time), 
 				this.mVertexBufferObjectManager);
 		this.mTimeText.setPosition(
 				UIConstants.LEVEL_WIDTH - this.mTimeText.getWidth() - 12,
@@ -255,7 +270,7 @@ public class LevelSceneHandler {
 		
 		this.mTimeLeftText = new Text(0,
 				0,
-				pUIFont,
+				mUIFont,
 				"xxxx",
 				this.mVertexBufferObjectManager);
 		this.mTimeLeftText.setPosition(UIConstants.LEVEL_WIDTH - this.mTimeLeftText.getWidth() - 12,
@@ -274,6 +289,7 @@ public class LevelSceneHandler {
 		}
 	}
 
+	@Override
 	public void updateLevel(Level pLevel) {
 		this.resetScene();
 		Gravity grav = this.mLevel.getGravity();
@@ -379,4 +395,5 @@ public class LevelSceneHandler {
 		}
 		
 	}
+	
 }
