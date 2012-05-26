@@ -48,7 +48,7 @@ import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
 import de.hotware.blockbreaker.model.gamehandler.BaseGameTypeHandler;
 import de.hotware.blockbreaker.model.gamehandler.DefaultGameTypeHandler;
-import de.hotware.blockbreaker.model.gamehandler.GameHandlerInfo;
+import de.hotware.blockbreaker.model.gamehandler.EngineBindings;
 import de.hotware.blockbreaker.model.gamehandler.IBlockBreakerMessageView;
 import de.hotware.blockbreaker.model.gamehandler.TimeAttackGameTypeHandler;
 import de.hotware.blockbreaker.model.generator.LevelGenerator;
@@ -135,10 +135,10 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			//hier vll die vorinstanziierten GameHandler statt neuer Instanzen
 			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler(this, this, this.mLevelSceneHandler) : new DefaultGameTypeHandler(this, this, this.mLevelSceneHandler);
 			//no level has yet been created nor a LevelSceneHandler which is needed in some GameTypeHandlers
-			if(this.mLevel != null) {
-				this.mLevel.setGameEndListener(this.mGameTypeHandler);
-				this.mGameTypeHandler.init();
-			}
+//			if(this.mLevel != null) {
+//				this.mLevel.setGameEndListener(this.mGameTypeHandler);
+//				this.mGameTypeHandler.init();
+//			}
 		} else if(oldNumberOfTurns != this.mNumberOfTurns) {
 			this.mGameTypeHandler.onNumberOfTurnsPropertyChanged();
 		}
@@ -287,7 +287,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pCallback) {
 		this.initLevel();
 		pCallback.onPopulateSceneFinished();
-		this.mGameTypeHandler.init();
 		this.mGameTypeHandler.onEnterFocus();
 	}
 
@@ -436,12 +435,13 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mLevelSceneHandler = new LevelSceneHandler(scene,
 				vboManager,
 				this.mSceneUIFont,
+				this.mMiscFont,
 				this.mBlockTiledTextureRegion,
 				this.mArrowTiledTextureRegion,
 				this.getBaseContext());
 
-		GameHandlerInfo.INSTANCE.setLevelSceneHandlerAndInitialize(this.mLevelSceneHandler,
-				this.mGameTypeHandler);
+
+		this.mGameTypeHandler.init(this.mLevelSceneHandler);
 
 		HUD hud = new HUD();
 		hud.setY(this.mLevelScene.getY());
@@ -452,16 +452,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mScaleInfo.getDeviceCameraHeight(), 
 				BlockBreakerActivity.this.mSceneBackgroundTextureRegion,
 				vboManager)));
-		
-		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 1;
-		this.mSeedText = new Text(1,
-				UIConstants.LEVEL_HEIGHT - 15,
-				this.mMiscFont,
-				"Seed: " + seed,
-				maxLength,
-				this.mEngine.getVertexBufferObjectManager());
-		hud.attachChild(this.mSeedText);
-		
+
 		this.mEngine.setScene(this.mLevelScene);
 	}
 	
@@ -610,10 +601,5 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		}
 		this.mHighscoreManager.ensureNameExistsInDB(this.mPlayerName);
 	}
-	
-	////////////////////////////////////////////////////////////////////
-	////					Inner Classes & Interfaces				////
-	////////////////////////////////////////////////////////////////////
-
 
 }

@@ -60,6 +60,7 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 	
 	Text mTimeText;
 	Text mTimeLeftText;
+	Text mSeedText;
 
 	IBlockSpriteTouchListener mBlockSpriteTouchListener;
 	INextBlockListener mNextBlockListener;
@@ -67,6 +68,7 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 	ITiledTextureRegion mBlockTiledTextureRegion;
 	ITiledTextureRegion mArrowTiledTextureRegion;
 	Font mUIFont;
+	Font mHudFont;
 	Context mContext;
 
 	SynchronizedList<BlockSprite> mBlockSpriteList;
@@ -79,6 +81,7 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 	public LevelSceneHandler(Scene pScene,
 			VertexBufferObjectManager pVertexBufferObjectManager,
 			Font pUIFont,
+			Font pHudFont,
 			ITiledTextureRegion pBlockTiledTextureRegion,
 			ITiledTextureRegion pArrowTiledTextureRegion,
 			Context pContext) {
@@ -90,6 +93,7 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mIgnoreInput = false;
 		this.mUIFont = pUIFont;
+		this.mHudFont = pHudFont;
 		this.mContext = pContext;
 		this.mArrowTiledTextureRegion = pArrowTiledTextureRegion;
 		this.mBlockTiledTextureRegion = pBlockTiledTextureRegion;
@@ -99,8 +103,38 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 	public void setIgnoreInput(boolean pIgnoreInput) {
 		this.mIgnoreInput = pIgnoreInput;
 	}
+	
+	@Override
+	public void updateLevel(Level pLevel, long pSeed) {
+		this.resetScene();
+		Gravity grav = this.mLevel.getGravity();
+		this.mLevel = pLevel;
+		this.mLevel.setGravity(grav);
+		this.initPlayField();
+		this.mGravityArrowSprite.setCurrentTileIndex(grav.toNumber());
+		pLevel.setGravityListener(this.mGravityListener);
+		pLevel.setNextBlockListener(this.mNextBlockListener);
+		for(int i = 1; i < 6; ++i) {
+			this.mWinCondText[i-1].setText(Integer.toString(pLevel.getWinCondition().getWinCount(i)));
+		}
+		this.mTurnsLeftText.setText(pLevel.getBlocksDisplayText());
+		this.mNextBlockSprite.setCurrentTileIndex(pLevel.getNextBlock().getColor().toNumber());
+	}
+	
+	@Override
+	public boolean isStarted() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-	public void initLevelScene(final Level pLevel) {
+	@Override
+	public Level getLevel() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void initLevelScene(final Level pLevel, long pSeed) {
 
 		if(this.mLevel != null) {
 			throw new IllegalStateException("LevelSceneHandler.initLevelScene(Level): " +
@@ -277,6 +311,15 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 				this.mTimeText.getY() + this.mTimeLeftText.getHeight() + 10);
 		this.mScene.attachChild(this.mTimeLeftText);
 		this.mTimeLeftText.setVisible(false);
+		
+		int maxLength = "Seed: ".length() + Long.toString(Long.MAX_VALUE).length() + 1;
+		this.mSeedText = new Text(1,
+				UIConstants.LEVEL_HEIGHT - 15,
+				this.mHudFont,
+				"Seed: " + pSeed,
+				maxLength,
+				this.mVertexBufferObjectManager);
+		this.mScene.attachChild(this.mSeedText);
 		//init UI end  
 	}
 
@@ -287,23 +330,6 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 				this.addBlockSprite(matrix[i][j]).registerEntityModifier(new FadeInModifier(UIConstants.SPRITE_FADE_IN_TIME));
 			}
 		}
-	}
-
-	@Override
-	public void updateLevel(Level pLevel) {
-		this.resetScene();
-		Gravity grav = this.mLevel.getGravity();
-		this.mLevel = pLevel;
-		this.mLevel.setGravity(grav);
-		this.initPlayField();
-		this.mGravityArrowSprite.setCurrentTileIndex(grav.toNumber());
-		pLevel.setGravityListener(this.mGravityListener);
-		pLevel.setNextBlockListener(this.mNextBlockListener);
-		for(int i = 1; i < 6; ++i) {
-			this.mWinCondText[i-1].setText(Integer.toString(pLevel.getWinCondition().getWinCount(i)));
-		}
-		this.mTurnsLeftText.setText(pLevel.getBlocksDisplayText());
-		this.mNextBlockSprite.setCurrentTileIndex(pLevel.getNextBlock().getColor().toNumber());
 	}
 	
 	public Text getTimeText() {
