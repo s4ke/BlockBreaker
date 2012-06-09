@@ -48,11 +48,11 @@ import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
 import de.hotware.blockbreaker.model.gamehandler.BaseGameTypeHandler;
 import de.hotware.blockbreaker.model.gamehandler.DefaultGameTypeHandler;
-import de.hotware.blockbreaker.model.gamehandler.EngineBindings;
+import de.hotware.blockbreaker.model.gamehandler.DefaultGameTypeHandler.IDefaultViewControl;
 import de.hotware.blockbreaker.model.gamehandler.IBlockBreakerMessageView;
-import de.hotware.blockbreaker.model.gamehandler.TimeAttackGameTypeHandler;
 import de.hotware.blockbreaker.model.generator.LevelGenerator;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener;
+import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.util.TextureUtil;
 
@@ -64,7 +64,7 @@ import de.hotware.blockbreaker.util.TextureUtil;
  * @author Martin Braun
  * @since Dec 2011
  */
-public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener {
+public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener, IDefaultViewControl {
 	
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
@@ -133,7 +133,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mGameTypeHandler.cleanUp();
 			}
 			//hier vll die vorinstanziierten GameHandler statt neuer Instanzen
-			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler(this, this, this.mLevelSceneHandler) : new DefaultGameTypeHandler(this, this, this.mLevelSceneHandler);
+			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler(this, this, this.mLevelSceneHandler) : new DefaultGameTypeHandler(this);
 			//no level has yet been created nor a LevelSceneHandler which is needed in some GameTypeHandlers
 //			if(this.mLevel != null) {
 //				this.mLevel.setGameEndListener(this.mGameTypeHandler);
@@ -590,8 +590,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", true);
 		this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
 		this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
-		this.mDifficulty = Difficulty.numberToDifficulty(
-				Integer.parseInt(prefs.getString("difficulty_pref", "0")));
+		this.mGameTypeHandler.setDifficulty(BaseGameTypeHandler.Difficulty.numberToDifficulty(
+				Integer.parseInt(prefs.getString("difficulty_pref", "0"))));
 		this.mPlayerName = prefs.getString("input_name_pref", "Player");
 		if(this.mPlayerName.length() == 0) {
 			this.mPlayerName = "Player";
@@ -600,6 +600,51 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 			this.mPlayerName = this.mPlayerName.substring(0, 10);
 		}
 		this.mHighscoreManager.ensureNameExistsInDB(this.mPlayerName);
+	}
+
+	@Override
+	public void showEndDialog(GameEndType pGameEnding,
+			final IDefaultGameEndCallback pCallback) {
+		String resString;
+
+		switch(pGameEnding) {
+			case WIN: {
+				resString = this.getString(R.string.win_text);
+				break;
+			}
+			case LOSE: {
+				resString = this.getString(R.string.lose_text);
+				break;
+			}
+			default: {
+				resString = "WTF?";
+				break;
+			}
+		}
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(resString + " " + this.getString(R.string.restart_question))
+				.setCancelable(true)
+				.setPositiveButton(this.getString(R.string.yes),
+						new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface pDialog, int pId) {
+								pDialog.dismiss();
+								pCallback.onEndDialogFinished(true);
+							}
+							
+				})
+				.setNegativeButton(this.getString(R.string.no),
+						new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface pDialog, int pId) {
+								pCallback.onEndDialogFinished(false);
+							}
+							
+				});
+		builder.create().show();
 	}
 
 }
