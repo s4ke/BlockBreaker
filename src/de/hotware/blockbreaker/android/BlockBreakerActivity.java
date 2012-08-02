@@ -2,7 +2,6 @@ package de.hotware.blockbreaker.android;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
@@ -48,10 +47,11 @@ import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
 import de.hotware.blockbreaker.model.gamehandler.BaseGameTypeHandler;
 import de.hotware.blockbreaker.model.gamehandler.DefaultGameTypeHandler;
+import de.hotware.blockbreaker.model.gamehandler.IHighscoreManager;
+import de.hotware.blockbreaker.model.gamehandler.TimeAttackGameTypeHandler;
 import de.hotware.blockbreaker.model.gamehandler.DefaultGameTypeHandler.IDefaultViewControl;
+import de.hotware.blockbreaker.model.gamehandler.TimeAttackGameTypeHandler.ITimeAttackViewControl;
 import de.hotware.blockbreaker.model.gamehandler.IBlockBreakerMessageView;
-import de.hotware.blockbreaker.model.generator.LevelGenerator;
-import de.hotware.blockbreaker.model.listeners.IGameEndListener;
 import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.util.TextureUtil;
@@ -64,7 +64,7 @@ import de.hotware.blockbreaker.util.TextureUtil;
  * @author Martin Braun
  * @since Dec 2011
  */
-public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener, IDefaultViewControl {
+public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener, IDefaultViewControl, ITimeAttackViewControl {
 	
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
@@ -107,16 +107,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	boolean mIgnoreInput = false;
 	
 	String mPlayerName;
-	HighscoreManager mHighscoreManager = new HighscoreManager(this);
+	IHighscoreManager mHighscoreManager = new HighscoreManager(this);
 	ScaleInfo mScaleInfo;
 
 	//currently not used
 	String mLevelPath = DEFAULT_LEVEL_PATH;
 	boolean mIsAsset = true;
-	//not used end
 
 	private BaseGameTypeHandler mGameTypeHandler;
 	private int mNumberOfTurns;
+	private AndroidTimeUpdater mAndroidTimeUpdater;
 
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
@@ -131,14 +131,16 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		if(oldTimeAttackMode ^ this.mTimeAttackMode || this.mGameTypeHandler == null) {
 			if(this.mGameTypeHandler != null) {
 				this.mGameTypeHandler.cleanUp();
+			} else {
+				this.mAndroidTimeUpdater = new AndroidTimeUpdater();
 			}
 			//hier vll die vorinstanziierten GameHandler statt neuer Instanzen
-			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler(this, this, this.mLevelSceneHandler) : new DefaultGameTypeHandler(this);
+			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler(this.mAndroidTimeUpdater, this, this.mHighscoreManager) : new DefaultGameTypeHandler(this);
 			//no level has yet been created nor a LevelSceneHandler which is needed in some GameTypeHandlers
-//			if(this.mLevel != null) {
-//				this.mLevel.setGameEndListener(this.mGameTypeHandler);
-//				this.mGameTypeHandler.init();
-//			}
+			if(this.mLevel != null) {
+				this.mLevel.setGameEndListener(this.mGameTypeHandler);
+				this.mGameTypeHandler.init(this.mLevelSceneHandler);
+			}
 		} else if(oldNumberOfTurns != this.mNumberOfTurns) {
 			this.mGameTypeHandler.onNumberOfTurnsPropertyChanged();
 		}
@@ -174,6 +176,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	 */
 	@Override
 	public void onCreateResources(OnCreateResourcesCallback pCallback) {
+		
+		//set the TimeUpdaters Engine
+		this.mAndroidTimeUpdater.setEngine(this.mEngine);
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
 		this.mGraphicsVersion = prefs.getInt("graphics_version_pref", -1);
@@ -645,6 +650,47 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 							
 				});
 		builder.create().show();
+	}
+	
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////// Methods for TimeAttack			/////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	
+	@Override
+	public void showTimeAttackEndDialog(ITimeAttackEndDialogCallback pCallback) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showTimeAttackStartDialog(
+			ITimeAttackStartDialogCallback pCallback) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTimeLeft(float pTimeLeft) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setScoreText(int pScore) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void cleanUp() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

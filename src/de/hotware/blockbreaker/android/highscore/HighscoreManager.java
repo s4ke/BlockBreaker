@@ -1,11 +1,12 @@
 package de.hotware.blockbreaker.android.highscore;
 
+import de.hotware.blockbreaker.model.gamehandler.IHighscoreManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class HighscoreManager extends SQLiteOpenHelper {
+public class HighscoreManager extends SQLiteOpenHelper implements IHighscoreManager {
 
 	private static final String DATABASE_NAME = "highscores.db";
 	private static final int DATABASE_VERSION = 2;

@@ -17,6 +17,10 @@ public class AndroidTimeUpdater implements ITimeUpdater, ITimerCallback {
 	protected boolean mPaused;
 	protected boolean mStarted;
 	
+	public AndroidTimeUpdater() {
+		this(null);
+	}
+	
 	public AndroidTimeUpdater(Engine pEngine) {
 		this.mPaused = false;
 		this.mStarted = false;
@@ -67,9 +71,6 @@ public class AndroidTimeUpdater implements ITimeUpdater, ITimerCallback {
 			this.mStarted = true;
 			this.mTimerHandler.setTimerSeconds(this.mTime);
 			this.mUpdateTimerHandler.setTimerSeconds(this.mUpdateTime);
-			if(this.mUpdateTime > 0.0) {
-				//updatehandler
-			}
 		}
 		this.registerHandlers();
 	}
@@ -98,6 +99,10 @@ public class AndroidTimeUpdater implements ITimeUpdater, ITimerCallback {
 		} else {
 			this.mCallback.onTimePassed((int)this.mTimerHandler.getTimerSecondsElapsed());
 		}
+	}
+	
+	public void setEngine(Engine pEngine) {
+		this.mEngine = pEngine;
 	}
 	
 	private void unregisterHandlers() {
