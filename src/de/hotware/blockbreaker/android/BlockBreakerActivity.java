@@ -61,10 +61,11 @@ import de.hotware.blockbreaker.util.TextureUtil;
  * TODO: save levels (Preferences checkbox if dialog should appear)
  * TODO: maybe use factory methods instead of new instances for GameTypeHandlers in extra
  * 		 class with methods. Cache instances!
+ * TODO: implement ITimeAttackViewControl methods
  * @author Martin Braun
  * @since Dec 2011
  */
-public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener, IDefaultViewControl, ITimeAttackViewControl {
+public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener, IDefaultViewControl {
 	
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
@@ -115,8 +116,11 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	boolean mIsAsset = true;
 
 	private BaseGameTypeHandler mGameTypeHandler;
+	private TimeAttackGameTypeHandler mTimeAttackGameTypeHandler = 
+			new TimeAttackGameTypeHandler(this.mAndroidTimeUpdater, new AndroidTimeAttackViewControl(), this.mHighscoreManager);
+	private DefaultGameTypeHandler mDefaultGameTypeHandler = new DefaultGameTypeHandler(this);
 	private int mNumberOfTurns;
-	private AndroidTimeUpdater mAndroidTimeUpdater;
+	private AndroidTimeUpdater mAndroidTimeUpdater = new AndroidTimeUpdater();
 
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
@@ -131,11 +135,9 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		if(oldTimeAttackMode ^ this.mTimeAttackMode || this.mGameTypeHandler == null) {
 			if(this.mGameTypeHandler != null) {
 				this.mGameTypeHandler.cleanUp();
-			} else {
-				this.mAndroidTimeUpdater = new AndroidTimeUpdater();
 			}
 			//hier vll die vorinstanziierten GameHandler statt neuer Instanzen
-			this.mGameTypeHandler = this.mTimeAttackMode ? new TimeAttackGameTypeHandler(this.mAndroidTimeUpdater, this, this.mHighscoreManager) : new DefaultGameTypeHandler(this);
+			this.mGameTypeHandler = this.mTimeAttackMode ?  this.mTimeAttackGameTypeHandler : this.mDefaultGameTypeHandler;
 			//no level has yet been created nor a LevelSceneHandler which is needed in some GameTypeHandlers
 			if(this.mLevel != null) {
 				this.mLevel.setGameEndListener(this.mGameTypeHandler);
@@ -656,41 +658,54 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	/////////////////// Methods for TimeAttack			/////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	
-	@Override
-	public void showTimeAttackEndDialog(ITimeAttackEndDialogCallback pCallback) {
-		// TODO Auto-generated method stub
+	public class AndroidTimeAttackViewControl implements ITimeAttackViewControl {
 		
-	}
-
-	@Override
-	public void showTimeAttackStartDialog(
-			ITimeAttackStartDialogCallback pCallback) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setTimeLeft(float pTimeLeft) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setScoreText(int pScore) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void init() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void cleanUp() {
-		// TODO Auto-generated method stub
-		
+		private Text mTimeLeftText;
+		private Text mStatusText;
+	
+		@Override
+		public void showTimeAttackEndDialog(ITimeAttackEndDialogCallback pCallback) {
+			
+		}
+	
+		@Override
+		public void showTimeAttackStartDialog(
+				ITimeAttackStartDialogCallback pCallback) {
+			
+		}
+	
+		@Override
+		public void setTimeLeft(float pTimeLeft) {
+			this.mTimeLeftText.setText("" + (int)pTimeLeft);
+		}
+	
+		@Override
+		public void setScoreText(int pScore) {
+			this.mStatusText.setText("Score: " + pScore);
+		}
+	
+		@Override
+		public void init() {
+			this.mTimeLeftText = BlockBreakerActivity.this.mLevelSceneHandler.getTimeLeftText();
+			this.mTimeLeftText.setVisible(true);
+			if(this.mStatusText == null) {
+				this.mStatusText = new Text(
+					BlockBreakerActivity.this.mScaleInfo.getPaddingHorizontal() + 5,
+					BlockBreakerActivity.this.mScaleInfo.getPaddingVertical() + 3,
+					BlockBreakerActivity.this.mMiscFont,
+					"",
+					15,
+					BlockBreakerActivity.this.getVertexBufferObjectManager());
+				BlockBreakerActivity.this.mCamera.getHUD().attachChild(this.mStatusText);
+			}
+			this.mStatusText.setVisible(true);
+		}
+	
+		@Override
+		public void cleanUp() {
+			this.mTimeLeftText.setVisible(false);
+			this.mStatusText.setVisible(false);
+		}
 	}
 
 }
