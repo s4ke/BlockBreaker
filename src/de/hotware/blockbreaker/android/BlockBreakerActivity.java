@@ -65,7 +65,7 @@ import de.hotware.blockbreaker.util.TextureUtil;
  * @author Martin Braun
  * @since Dec 2011
  */
-public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener, IDefaultViewControl {
+public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener {
 	
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
@@ -118,7 +118,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	private BaseGameTypeHandler mGameTypeHandler;
 	private TimeAttackGameTypeHandler mTimeAttackGameTypeHandler = 
 			new TimeAttackGameTypeHandler(this.mAndroidTimeUpdater, new AndroidTimeAttackViewControl(), this.mHighscoreManager);
-	private DefaultGameTypeHandler mDefaultGameTypeHandler = new DefaultGameTypeHandler(this);
+	private DefaultGameTypeHandler mDefaultGameTypeHandler = new DefaultGameTypeHandler(new AndroidDefaultViewControl());
 	private int mNumberOfTurns;
 	private AndroidTimeUpdater mAndroidTimeUpdater = new AndroidTimeUpdater();
 
@@ -463,6 +463,28 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mEngine.setScene(this.mLevelScene);
 	}
 	
+	/**
+	 * gets the shared preferences and changes some boolean variables according to that
+	 */
+	private void getPrefs() {
+		// Get the xml/preferences.xml preferences
+		// Don't save this in a constant, because it will only be used in code here
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
+		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", true);
+		this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
+		this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
+		this.mGameTypeHandler.setDifficulty(BaseGameTypeHandler.Difficulty.numberToDifficulty(
+				Integer.parseInt(prefs.getString("difficulty_pref", "0"))));
+		this.mPlayerName = prefs.getString("input_name_pref", "Player");
+		if(this.mPlayerName.length() == 0) {
+			this.mPlayerName = "Player";
+		}
+		if(this.mPlayerName.length() > 10) {
+			this.mPlayerName = this.mPlayerName.substring(0, 10);
+		}
+		this.mHighscoreManager.ensureNameExistsInDB(this.mPlayerName);
+	}
+	
 	public class BlockBreakerMessageAndroidView implements IBlockBreakerMessageView {
 
 		@Override
@@ -586,72 +608,54 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		});
 		builder.create().show();
 	}
+	
+	public class AndroidDefaultViewControl implements IDefaultViewControl {
 
-	/**
-	 * gets the shared preferences and changes some boolean variables according to that
-	 */
-	private void getPrefs() {
-		// Get the xml/preferences.xml preferences
-		// Don't save this in a constant, because it will only be used in code here
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
-		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", true);
-		this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
-		this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
-		this.mGameTypeHandler.setDifficulty(BaseGameTypeHandler.Difficulty.numberToDifficulty(
-				Integer.parseInt(prefs.getString("difficulty_pref", "0"))));
-		this.mPlayerName = prefs.getString("input_name_pref", "Player");
-		if(this.mPlayerName.length() == 0) {
-			this.mPlayerName = "Player";
-		}
-		if(this.mPlayerName.length() > 10) {
-			this.mPlayerName = this.mPlayerName.substring(0, 10);
-		}
-		this.mHighscoreManager.ensureNameExistsInDB(this.mPlayerName);
-	}
-
-	@Override
-	public void showEndDialog(GameEndType pGameEnding,
-			final IDefaultGameEndCallback pCallback) {
-		String resString;
-
-		switch(pGameEnding) {
-			case WIN: {
-				resString = this.getString(R.string.win_text);
-				break;
+		@Override
+		public void showEndDialog(GameEndType pGameEnding,
+				final IDefaultGameEndCallback pCallback) {
+			String resString;
+	
+			switch(pGameEnding) {
+				case WIN: {
+					resString = BlockBreakerActivity.this.getString(R.string.win_text);
+					break;
+				}
+				case LOSE: {
+					resString = BlockBreakerActivity.this.getString(R.string.lose_text);
+					break;
+				}
+				default: {
+					resString = "WTF?";
+					break;
+				}
 			}
-			case LOSE: {
-				resString = this.getString(R.string.lose_text);
-				break;
-			}
-			default: {
-				resString = "WTF?";
-				break;
-			}
+	
+			AlertDialog.Builder builder = new AlertDialog.Builder(BlockBreakerActivity.this);
+			builder.setMessage(resString + " " + BlockBreakerActivity.this.getString(R.string.restart_question))
+					.setCancelable(true)
+					.setPositiveButton(BlockBreakerActivity.this.getString(R.string.yes),
+							new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface pDialog, int pId) {
+									pDialog.dismiss();
+									pCallback.onEndDialogFinished(true);
+								}
+								
+					})
+					.setNegativeButton(BlockBreakerActivity.this.getString(R.string.no),
+							new DialogInterface.OnClickListener() {
+								
+								@Override
+								public void onClick(DialogInterface pDialog, int pId) {
+									pCallback.onEndDialogFinished(false);
+								}
+								
+					});
+			builder.create().show();
 		}
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(resString + " " + this.getString(R.string.restart_question))
-				.setCancelable(true)
-				.setPositiveButton(this.getString(R.string.yes),
-						new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface pDialog, int pId) {
-								pDialog.dismiss();
-								pCallback.onEndDialogFinished(true);
-							}
-							
-				})
-				.setNegativeButton(this.getString(R.string.no),
-						new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface pDialog, int pId) {
-								pCallback.onEndDialogFinished(false);
-							}
-							
-				});
-		builder.create().show();
+		
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////
