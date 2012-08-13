@@ -115,10 +115,15 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	String mLevelPath = DEFAULT_LEVEL_PATH;
 	boolean mIsAsset = true;
 
+	private AndroidBlockBreakerMessageView mAndroidBlockBreakerMessageView = new AndroidBlockBreakerMessageView();
 	private BaseGameTypeHandler mGameTypeHandler;
 	private TimeAttackGameTypeHandler mTimeAttackGameTypeHandler = 
-			new TimeAttackGameTypeHandler(this.mAndroidTimeUpdater, new AndroidTimeAttackViewControl(), this.mHighscoreManager);
-	private DefaultGameTypeHandler mDefaultGameTypeHandler = new DefaultGameTypeHandler(new AndroidDefaultViewControl());
+			new TimeAttackGameTypeHandler(this.mAndroidBlockBreakerMessageView, 
+					this.mAndroidTimeUpdater,
+					new AndroidTimeAttackViewControl(),
+					this.mHighscoreManager);
+	private DefaultGameTypeHandler mDefaultGameTypeHandler = 
+			new DefaultGameTypeHandler(this.mAndroidBlockBreakerMessageView, new AndroidDefaultViewControl());
 	private int mNumberOfTurns;
 	private AndroidTimeUpdater mAndroidTimeUpdater = new AndroidTimeUpdater();
 
@@ -485,7 +490,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mHighscoreManager.ensureNameExistsInDB(this.mPlayerName);
 	}
 	
-	public class BlockBreakerMessageAndroidView implements IBlockBreakerMessageView {
+	public class AndroidBlockBreakerMessageView implements IBlockBreakerMessageView {
 
 		@Override
 		public void showExitDialog() {
@@ -525,7 +530,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 								//FIXME: BlockBreakerActivity.this.randomLevelFromSeed(seed);
 								pDialog.dismiss();
 							} catch (NumberFormatException e) {
-								BlockBreakerMessageAndroidView.this.showInputSeedDialog(
+								AndroidBlockBreakerMessageView.this.showInputSeedDialog(
 										BlockBreakerActivity.this.getString(R.string.wrong_seed_input_text),
 										pCallback);					
 							}
