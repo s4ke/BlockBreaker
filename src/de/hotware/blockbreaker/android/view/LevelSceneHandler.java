@@ -28,10 +28,11 @@ import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPo
 import de.hotware.blockbreaker.android.view.listeners.IBlockSpriteTouchListener;
 import de.hotware.blockbreaker.model.Block;
 import de.hotware.blockbreaker.model.Block.BlockColor;
+import de.hotware.blockbreaker.model.IGravityChanger;
 import de.hotware.blockbreaker.model.Level.Gravity;
-import de.hotware.blockbreaker.model.gamehandler.ILevelSceneHandler;
 import de.hotware.blockbreaker.model.listeners.IGravityListener;
 import de.hotware.blockbreaker.model.listeners.INextBlockListener;
+import de.hotware.blockbreaker.model.ILevelSceneHandler;
 import de.hotware.blockbreaker.model.Level;
 import de.hotware.blockbreaker.model.WinCondition;
 
@@ -50,8 +51,10 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 	private BlockSpriteEntityModifierMatcher 
 		mBlockSpriteEntityModifierMatcher = new BlockSpriteEntityModifierMatcher();
 
+	boolean mStarted;
 	Scene mScene;
 	Level mLevel;
+	IGravityChanger mGravityChanger;
 	BlockSpritePool mBlockSpritePool;
 	TiledSprite mNextBlockSprite;
     TiledSprite mGravityArrowSprite;
@@ -92,6 +95,7 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 				BlockSpritePool.BLOCKS_ON_SCENE_ESTIMATE));
 		this.mVertexBufferObjectManager = pVertexBufferObjectManager;
 		this.mIgnoreInput = false;
+		this.mStarted = false;
 		this.mUIFont = pUIFont;
 		this.mHudFont = pHudFont;
 		this.mContext = pContext;
@@ -103,13 +107,19 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 	public void setIgnoreInput(boolean pIgnoreInput) {
 		this.mIgnoreInput = pIgnoreInput;
 	}
+
+	@Override
+	public void setGravityChanger(IGravityChanger pGravityChanger) {
+		this.mGravityChanger = pGravityChanger;
+		
+	}
 	
 	@Override
 	public void updateLevel(Level pLevel, long pSeed) {
 		this.resetScene();
 		Gravity grav = this.mLevel.getGravity();
 		this.mLevel = pLevel;
-		this.mLevel.setGravity(grav);
+		this.mGravityChanger.updateGravity(grav);
 		this.initPlayField();
 		this.mGravityArrowSprite.setCurrentTileIndex(grav.toNumber());
 		pLevel.setGravityListener(this.mGravityListener);
@@ -123,25 +133,19 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 	
 	@Override
 	public boolean isStarted() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Level getLevel() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.mStarted;
 	}
 
 	@Override
 	public void initLevelScene(final Level pLevel, long pSeed) {
 
-		if(this.mLevel != null) {
+		if(this.mStarted) {
 			throw new IllegalStateException("LevelSceneHandler.initLevelScene(Level): " +
 					"LevelSceneHandler can only be initialized once!");
 		}
 		
 		this.mLevel = pLevel;
+		this.mStarted = true;
 		
 		this.mBlockSpritePool = new BlockSpritePool(this.mScene,
 				this.mBlockTiledTextureRegion,
@@ -271,7 +275,7 @@ public class LevelSceneHandler implements ILevelSceneHandler {
 					float pTouchAreaLocalX,
 					float pTouchAreaLocalY) {
 				if(pAreaTouchEvent.isActionDown()) {
-					LevelSceneHandler.this.mLevel.switchToNextGravity();
+					LevelSceneHandler.this.mGravityChanger.switchToNextGravity();
 				}
 				return true;
 			}

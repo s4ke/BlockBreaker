@@ -12,6 +12,8 @@ import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.input.sensor.orientation.IOrientationListener;
+import org.andengine.input.sensor.orientation.OrientationData;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.font.FontManager;
@@ -24,8 +26,6 @@ import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.input.sensor.orientation.IOrientationListener;
-import org.andengine.input.sensor.orientation.OrientationData;
 import org.andengine.ui.activity.BaseGameActivity;
 
 import android.app.AlertDialog;
@@ -45,15 +45,16 @@ import de.hotware.blockbreaker.android.andengine.extension.StretchedResolutionPo
 import de.hotware.blockbreaker.android.highscore.HighscoreManager;
 import de.hotware.blockbreaker.android.view.LevelSceneHandler;
 import de.hotware.blockbreaker.android.view.UIConstants;
-import de.hotware.blockbreaker.model.gamehandler.BaseGameTypeHandler;
-import de.hotware.blockbreaker.model.gamehandler.DefaultGameTypeHandler;
-import de.hotware.blockbreaker.model.gamehandler.IHighscoreManager;
-import de.hotware.blockbreaker.model.gamehandler.TimeAttackGameTypeHandler;
-import de.hotware.blockbreaker.model.gamehandler.DefaultGameTypeHandler.IDefaultViewControl;
-import de.hotware.blockbreaker.model.gamehandler.TimeAttackGameTypeHandler.ITimeAttackViewControl;
-import de.hotware.blockbreaker.model.gamehandler.IBlockBreakerMessageView;
-import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
+import de.hotware.blockbreaker.model.BaseGameTypeHandler;
+import de.hotware.blockbreaker.model.BaseGameTypeHandler.Difficulty;
+import de.hotware.blockbreaker.model.DefaultGameTypeHandler;
+import de.hotware.blockbreaker.model.DefaultGameTypeHandler.IDefaultViewControl;
+import de.hotware.blockbreaker.model.IBlockBreakerMessageView;
+import de.hotware.blockbreaker.model.IHighscoreManager;
 import de.hotware.blockbreaker.model.Level;
+import de.hotware.blockbreaker.model.TimeAttackGameTypeHandler;
+import de.hotware.blockbreaker.model.TimeAttackGameTypeHandler.ITimeAttackViewControl;
+import de.hotware.blockbreaker.model.listeners.IGameEndListener.GameEndEvent.GameEndType;
 import de.hotware.blockbreaker.util.TextureUtil;
 
 /**
@@ -65,27 +66,24 @@ import de.hotware.blockbreaker.util.TextureUtil;
  * @author Martin Braun
  * @since Dec 2011
  */
+@SuppressWarnings("unused")
 public class BlockBreakerActivity extends BaseGameActivity implements IOrientationListener {
 	
 	////////////////////////////////////////////////////////////////////
 	////							Constants						////
 	////////////////////////////////////////////////////////////////////
 	
-	static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
-	static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
+	private static final String DEFAULT_LEVEL_PATH = "levels/default.lev";
+	private static final boolean USE_MENU_WORKAROUND = Integer.valueOf(android.os.Build.VERSION.SDK) < 7;
+	private static final int GRAPHICS_VERSION = -1;
 
-	static final String HIGHSCORE_NUM_KEY = "high_score_num_key";
-	static final String HIGHSCORE_PLAYER_KEY = "high_score_player_key";
-	
-	static final int GRAPHICS_VERSION = 1;
+	private static final String HIGHSCORE_NUM_KEY = "high_score_num_key";
+	private static final String HIGHSCORE_PLAYER_KEY = "high_score_player_key";
 	
 	////////////////////////////////////////////////////////////////////
 	////							Fields							////
 	////////////////////////////////////////////////////////////////////
 
-	boolean mUseOrientSensor = false;
-	boolean mTimeAttackMode = false;
-	int mGraphicsVersion = -1;
 	float mResolutionScale;
 
 	ITiledTextureRegion mBlockTiledTextureRegion;
@@ -103,9 +101,6 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 
 	LevelSceneHandler mLevelSceneHandler;
 	Level mBackupLevel;
-	Level mLevel;
-
-	boolean mIgnoreInput = false;
 	
 	String mPlayerName;
 	IHighscoreManager mHighscoreManager = new HighscoreManager(this);
@@ -114,22 +109,41 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	//currently not used
 	String mLevelPath = DEFAULT_LEVEL_PATH;
 	boolean mIsAsset = true;
-
-	private AndroidBlockBreakerMessageView mAndroidBlockBreakerMessageView = new AndroidBlockBreakerMessageView();
+	
+	private Difficulty mDifficulty;
+	private AndroidBlockBreakerMessageView mAndroidBlockBreakerMessageView;
+	private AndroidTimeUpdater mAndroidTimeUpdater;
 	private BaseGameTypeHandler mGameTypeHandler;
-	private TimeAttackGameTypeHandler mTimeAttackGameTypeHandler = 
-			new TimeAttackGameTypeHandler(this.mAndroidBlockBreakerMessageView, 
-					this.mAndroidTimeUpdater,
-					new AndroidTimeAttackViewControl(),
-					this.mHighscoreManager);
-	private DefaultGameTypeHandler mDefaultGameTypeHandler = 
-			new DefaultGameTypeHandler(this.mAndroidBlockBreakerMessageView, new AndroidDefaultViewControl());
+	private TimeAttackGameTypeHandler mTimeAttackGameTypeHandler;
+	private DefaultGameTypeHandler mDefaultGameTypeHandler;
 	private int mNumberOfTurns;
-	private AndroidTimeUpdater mAndroidTimeUpdater = new AndroidTimeUpdater();
+	private boolean mUseOrientSensor;
+	private boolean mTimeAttackMode;
+	private int mGraphicsVersion;
+	private boolean mFirstStart;
+
 
 	////////////////////////////////////////////////////////////////////
 	////					Overridden Methods						////
 	////////////////////////////////////////////////////////////////////
+	
+	public BlockBreakerActivity() {
+		super();
+		this.mDifficulty = BaseGameTypeHandler.Difficulty.DEFAULT;
+		this.mAndroidBlockBreakerMessageView = new AndroidBlockBreakerMessageView();
+		this.mAndroidTimeUpdater = new AndroidTimeUpdater();
+		this.mTimeAttackGameTypeHandler = new TimeAttackGameTypeHandler(this.mAndroidBlockBreakerMessageView, 
+				this.mAndroidTimeUpdater,
+				new AndroidTimeAttackViewControl(),
+				this.mHighscoreManager);
+		this.mDefaultGameTypeHandler = 
+				new DefaultGameTypeHandler(this.mAndroidBlockBreakerMessageView, new AndroidDefaultViewControl());
+		this.mGameTypeHandler = this.mDefaultGameTypeHandler;
+		this.mUseOrientSensor = false;
+		this.mTimeAttackMode = false;
+		this.mFirstStart = true;
+		this.mGraphicsVersion = GRAPHICS_VERSION;
+	}
 
 	@Override
 	public void onResume() {
@@ -137,24 +151,24 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		boolean oldTimeAttackMode = this.mTimeAttackMode;
 		int oldNumberOfTurns = this.mNumberOfTurns;
 		this.getPrefs();
-		if(oldTimeAttackMode ^ this.mTimeAttackMode || this.mGameTypeHandler == null) {
+		if(oldTimeAttackMode ^ this.mTimeAttackMode) {
 			if(this.mGameTypeHandler != null) {
 				this.mGameTypeHandler.cleanUp();
 			}
-			//hier vll die vorinstanziierten GameHandler statt neuer Instanzen
 			this.mGameTypeHandler = this.mTimeAttackMode ?  this.mTimeAttackGameTypeHandler : this.mDefaultGameTypeHandler;
+			this.mGameTypeHandler.setDifficulty(this.mDifficulty);
 			//no level has yet been created nor a LevelSceneHandler which is needed in some GameTypeHandlers
-			if(this.mLevel != null) {
-				this.mLevel.setGameEndListener(this.mGameTypeHandler);
+			if(!this.mFirstStart) {
 				this.mGameTypeHandler.init(this.mLevelSceneHandler);
 			}
 		} else if(oldNumberOfTurns != this.mNumberOfTurns) {
 			this.mGameTypeHandler.onNumberOfTurnsPropertyChanged();
 		}
-		if(this.mLevel != null) {
+		if(!this.mFirstStart) {
 			//call on enter focus, if the game has already started once (outside of the andengine lifecycle!!!)
 			this.mGameTypeHandler.onEnterFocus();
 		}
+		this.mFirstStart = true;
 	}
 
 	@Override
@@ -188,7 +202,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mAndroidTimeUpdater.setEngine(this.mEngine);
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
-		this.mGraphicsVersion = prefs.getInt("graphics_version_pref", -1);
+		this.mGraphicsVersion = prefs.getInt("graphics_version_pref", GRAPHICS_VERSION);
 
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		
@@ -325,22 +339,22 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 	@Override
 	public void onOrientationChanged(OrientationData pOrientData) {
 		if(this.mUseOrientSensor) {
-			if(this.mLevel != null) {
+			if(!this.mFirstStart) {
 				float pitch = pOrientData.getPitch();
 				float roll = pOrientData.getRoll();
 				if(roll == 0 && pitch == 0) {
-					this.mLevel.setGravity(Level.Gravity.NORTH);
+					this.mGameTypeHandler.updateGravity(Level.Gravity.NORTH);
 				} else if(Math.max(Math.abs(pitch), Math.abs(roll)) == Math.abs(pitch)) {
 					if(-pitch < 0) {
-						this.mLevel.setGravity(Level.Gravity.SOUTH);
+						this.mGameTypeHandler.updateGravity(Level.Gravity.SOUTH);
 					} else {
-						this.mLevel.setGravity(Level.Gravity.NORTH);
+						this.mGameTypeHandler.updateGravity(Level.Gravity.NORTH);
 					}
 				} else {
 					if(roll < 0) {
-						this.mLevel.setGravity(Level.Gravity.EAST);
+						this.mGameTypeHandler.updateGravity(Level.Gravity.EAST);
 					} else {
-						this.mLevel.setGravity(Level.Gravity.WEST);
+						this.mGameTypeHandler.updateGravity(Level.Gravity.WEST);
 					}
 				}
 			}
@@ -452,18 +466,17 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 				this.mArrowTiledTextureRegion,
 				this.getBaseContext());
 
-
-		this.mGameTypeHandler.init(this.mLevelSceneHandler);
-
 		HUD hud = new HUD();
 		hud.setY(this.mLevelScene.getY());
 		//scaleX and scaleY are the same!!!
 		hud.setScale(this.mResolutionScale);
 		this.mCamera.setHUD(hud);
-		scene.setBackground(new SpriteBackground(new Sprite(0,0,this.mScaleInfo.getDeviceCameraWidth(), 
+		scene.setBackground(new SpriteBackground(new Sprite(0, 0, this.mScaleInfo.getDeviceCameraWidth(), 
 				this.mScaleInfo.getDeviceCameraHeight(), 
 				BlockBreakerActivity.this.mSceneBackgroundTextureRegion,
 				vboManager)));
+		
+		this.mGameTypeHandler.init(this.mLevelSceneHandler);
 
 		this.mEngine.setScene(this.mLevelScene);
 	}
@@ -478,8 +491,8 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 		this.mUseOrientSensor = prefs.getBoolean("orient_sens_pref", true);
 		this.mTimeAttackMode = prefs.getBoolean("time_attack_pref", false);
 		this.mNumberOfTurns = Integer.parseInt(prefs.getString("number_of_turns_pref", "16"));
-		this.mGameTypeHandler.setDifficulty(BaseGameTypeHandler.Difficulty.numberToDifficulty(
-				Integer.parseInt(prefs.getString("difficulty_pref", "0"))));
+		this.mDifficulty = BaseGameTypeHandler.Difficulty.numberToDifficulty(
+				Integer.parseInt(prefs.getString("difficulty_pref", "0")));
 		this.mPlayerName = prefs.getString("input_name_pref", "Player");
 		if(this.mPlayerName.length() == 0) {
 			this.mPlayerName = "Player";
@@ -527,7 +540,7 @@ public class BlockBreakerActivity extends BaseGameActivity implements IOrientati
 							try {
 								long seed = Long.parseLong(input.getText().toString());
 								pCallback.onSeedChosen(seed);
-								//FIXME: BlockBreakerActivity.this.randomLevelFromSeed(seed);
+								//BlockBreakerActivity.this.randomLevelFromSeed(seed);
 								pDialog.dismiss();
 							} catch (NumberFormatException e) {
 								AndroidBlockBreakerMessageView.this.showInputSeedDialog(

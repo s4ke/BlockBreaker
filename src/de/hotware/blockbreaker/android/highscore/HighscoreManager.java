@@ -1,6 +1,6 @@
 package de.hotware.blockbreaker.android.highscore;
 
-import de.hotware.blockbreaker.model.gamehandler.IHighscoreManager;
+import de.hotware.blockbreaker.model.IHighscoreManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
