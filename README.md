@@ -5,7 +5,7 @@ As this repository is getting a lot of clones for such an old and simple project
 If you want to get this to compile you will need to download the model project as well: 
 https://github.com/s4ke/BlockBreakerModel
 
-You will also probably need to change some of the AndEndgine related stuff as this game was written against an AndEngine version from 2012.
+You will also probably need to change some of the AndEndgine related stuff as this game was written against an AndEngine version from 2011/2012
  
 License
 =======
