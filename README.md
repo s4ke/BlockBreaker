@@ -1,5 +1,6 @@
 Attention
 =========
+
 As this repository is getting a lot of clones for such an old and simple project I have to mention this:
 
 If you want to get this to compile you will need to download the model project as well: 
@@ -24,3 +25,8 @@ License
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see http://www.gnu.org/copyleft/gpl.html
+    
+    Note: If you want to modify this software and redistribute it 
+    you have to make sure to mention my name in it. (or at least on
+    the shop page)
+    
